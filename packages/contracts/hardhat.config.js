@@ -8,12 +8,14 @@ const accounts = require("./hardhatAccountsList2k.js");
 const accountsList = accounts.accountsList
 
 const fs = require('fs')
-const getSecret = (secretKey, defaultValue='') => {
+const getSecret = (secretKey, defaultValue = '') => {
     const SECRETS_FILE = "./secrets.js"
     let secret = defaultValue
     if (fs.existsSync(SECRETS_FILE)) {
-        const { secrets } = require(SECRETS_FILE)
-        if (secrets[secretKey]) { secret = secrets[secretKey] }
+        const {secrets} = require(SECRETS_FILE)
+        if (secrets[secretKey]) {
+            secret = secrets[secretKey]
+        }
     }
 
     return secret
@@ -83,11 +85,16 @@ module.exports = {
             gas: 10000000,  // tx gas limit
             accounts: [getSecret('RINKEBY_DEPLOYER_PRIVATEKEY', '0x60ddfe7f579ab6867cbe7a2dc03853dc141d7a4ab6dbefc0dae2d2b1bd4e487f')]
         },
+        hedera_testnet: {
+            url: "https://testnet.hashio.io/api",
+            gas: 10000000,  // tx gas limit
+            accounts: [getSecret('DEPLOYER_PRIVATEKEY', '0x60ddfe7f579ab6867cbe7a2dc03853dc141d7a4ab6dbefc0dae2d2b1bd4e487f'),]
+        },
     },
     etherscan: {
         apiKey: getSecret("ETHERSCAN_API_KEY")
     },
-    mocha: { timeout: 12000000 },
+    mocha: {timeout: 12000000},
     rpc: {
         host: "localhost",
         port: 8545

@@ -8,7 +8,7 @@ import "./console.sol";
 library LiquityMath {
     using SafeMath for uint;
 
-    uint internal constant DECIMAL_PRECISION = 1e18;
+    uint internal constant DECIMAL_PRECISION = 1e8;
 
     /* Precision for Nominal ICR (independent of price). Rationale for the value:
      *

@@ -66,12 +66,12 @@ import "./Dependencies/console.sol";
  * A series of liquidations that nearly empty the Pool (and thus each multiply P by a very small number in range ]0,1[ ) may push P
  * to its 18 digit decimal limit, and round it to 0, when in fact the Pool hasn't been emptied: this would break deposit tracking.
  *
- * So, to track P accurately, we use a scale factor: if a liquidation would cause P to decrease to <1e-9 (and be rounded to 0 by Solidity),
- * we first multiply P by 1e9, and increment a currentScale factor by 1.
+ * So, to track P accurately, we use a scale factor: if a liquidation would cause P to decrease to <1e-4 (and be rounded to 0 by Solidity),
+ * we first multiply P by 1e4, and increment a currentScale factor by 1.
  *
- * The added benefit of using 1e9 for the scale factor (rather than 1e18) is that it ensures negligible precision loss close to the 
- * scale boundary: when P is at its minimum value of 1e9, the relative precision loss in P due to floor division is only on the 
- * order of 1e-9. 
+ * The added benefit of using 1e4 for the scale factor (rather than 1e8) is that it ensures negligible precision loss close to the
+ * scale boundary: when P is at its minimum value of 1e4, the relative precision loss in P due to floor division is only on the
+ * order of 1e-4.
  *
  * --- EPOCHS ---
  *
@@ -88,8 +88,8 @@ import "./Dependencies/console.sol";
  * then the deposit was present during a pool-emptying liquidation, and necessarily has been depleted to 0.
  *
  * Otherwise, we then compare the current scale to the deposit's scale snapshot. If they're equal, the compounded deposit is given by d_t * P/P_t.
- * If it spans one scale change, it is given by d_t * P/(P_t * 1e9). If it spans more than one scale change, we define the compounded deposit
- * as 0, since it is now less than 1e-9'th of its initial value (e.g. a deposit of 1 billion LUSD has depleted to < 1 LUSD).
+ * If it spans one scale change, it is given by d_t * P/(P_t * 1e4). If it spans more than one scale change, we define the compounded deposit
+ * as 0, since it is now less than 1e-4'th of its initial value (e.g. a deposit of 1 billion LUSD has depleted to < 1 LUSD).
  *
  *
  *  --- TRACKING DEPOSITOR'S ETH GAIN OVER SCALE CHANGES AND EPOCHS ---
@@ -101,8 +101,8 @@ import "./Dependencies/console.sol";
  * We calculate the depositor's accumulated ETH gain for the scale at which they made the deposit, using the ETH gain formula:
  * e_1 = d_t * (S - S_t) / P_t
  *
- * and also for scale after, taking care to divide the latter by a factor of 1e9:
- * e_2 = d_t * S / (P_t * 1e9)
+ * and also for scale after, taking care to divide the latter by a factor of 1e4:
+ * e_2 = d_t * S / (P_t * 1e4)
  *
  * The gain in the second scale will be full, as the starting point was in the previous scale, thus no need to subtract anything.
  * The deposit therefore was present for reward events from the beginning of that second scale.
@@ -201,7 +201,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     */
     uint public P = DECIMAL_PRECISION;
 
-    uint public constant SCALE_FACTOR = 1e9;
+    uint public constant SCALE_FACTOR = 1e4;
 
     // Each time the scale of P shifts by SCALE_FACTOR, the scale is incremented by 1
     uint128 public currentScale;
@@ -661,7 +661,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     function _getETHGainFromSnapshots(uint initialDeposit, Snapshots memory snapshots) internal view returns (uint) {
         /*
         * Grab the sum 'S' from the epoch at which the stake was made. The ETH gain may span up to one scale change.
-        * If it does, the second portion of the ETH gain is scaled by 1e9.
+        * If it does, the second portion of the ETH gain is scaled by 1e4.
         * If the gain spans no scale change, the second portion will be 0.
         */
         uint128 epochSnapshot = snapshots.epoch;
@@ -725,7 +725,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     function _getLQTYGainFromSnapshots(uint initialStake, Snapshots memory snapshots) internal view returns (uint) {
        /*
         * Grab the sum 'G' from the epoch at which the stake was made. The LQTY gain may span up to one scale change.
-        * If it does, the second portion of the LQTY gain is scaled by 1e9.
+        * If it does, the second portion of the LQTY gain is scaled by 1e4.
         * If the gain spans no scale change, the second portion will be 0.
         */
         uint128 epochSnapshot = snapshots.epoch;
@@ -795,7 +795,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
 
         /* Compute the compounded stake. If a scale change in P was made during the stake's lifetime,
         * account for it. If more than one scale change was made, then the stake has decreased by a factor of
-        * at least 1e-9 -- so return 0.
+        * at least 1e-4 -- so return 0.
         */
         if (scaleDiff == 0) {
             compoundedStake = initialStake.mul(P).div(snapshot_P);
@@ -814,7 +814,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         *
         * Thus it's unclear whether this line is still really needed.
         */
-        if (compoundedStake < initialStake.div(1e9)) {return 0;}
+        if (compoundedStake < initialStake.div(1e4)) {return 0;}
 
         return compoundedStake;
     }

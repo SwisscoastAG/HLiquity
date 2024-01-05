@@ -31,7 +31,7 @@ contract LUSDToken is CheckContract, ILUSDToken {
     string constant internal _NAME = "LUSD Stablecoin";
     string constant internal _SYMBOL = "LUSD";
     string constant internal _VERSION = "1";
-    uint8 constant internal _DECIMALS = 18;
+    uint8 constant internal _DECIMALS = 8;
     
     // --- Data for EIP2612 ---
     

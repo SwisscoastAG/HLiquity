@@ -34,7 +34,7 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
     * F = 0.5 ** (1/525600)
     * F = 0.999998681227695000 
     */
-    uint constant public ISSUANCE_FACTOR = 999998681227695000;
+    uint constant public ISSUANCE_FACTOR = 99999868;
 
     /* 
     * The community LQTY supply cap is the starting balance of the Community Issuance contract.
@@ -42,7 +42,7 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
     * 
     * Set to 32M (slightly less than 1/3) of total LQTY supply.
     */
-    uint constant public LQTYSupplyCap = 32e24; // 32 million
+    uint constant public LQTYSupplyCap = 32e14; // 32 million
 
     ILQTYToken public lqtyToken;
 

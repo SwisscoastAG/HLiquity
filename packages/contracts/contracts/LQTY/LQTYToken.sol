@@ -55,7 +55,7 @@ contract LQTYToken is CheckContract, ILQTYToken {
     string constant internal _NAME = "LQTY";
     string constant internal _SYMBOL = "LQTY";
     string constant internal _VERSION = "1";
-    uint8 constant internal  _DECIMALS = 18;
+    uint8 constant internal  _DECIMALS = 8;
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -83,7 +83,7 @@ contract LQTYToken is CheckContract, ILQTYToken {
     uint public constant ONE_YEAR_IN_SECONDS = 31536000;  // 60 * 60 * 24 * 365
 
     // uint for use with SafeMath
-    uint internal _1_MILLION = 1e24;    // 1e6 * 1e18 = 1e24
+    uint internal _1_MILLION = 1e14;    // 1e6 * 1e8 = 1e14
 
     uint internal immutable deploymentStartTime;
     address public immutable multisigAddress;

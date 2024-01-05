@@ -131,7 +131,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
                 lastTimeRewardApplicable()
                     .sub(lastUpdateTime)
                     .mul(rewardRate)
-                    .mul(1e18)
+                    .mul(1e8)
                     .div(totalSupply())
             );
     }
@@ -141,7 +141,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         return
             balanceOf(account)
                 .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
-                .div(1e18)
+                .div(1e8)
                 .add(rewards[account]);
     }
 

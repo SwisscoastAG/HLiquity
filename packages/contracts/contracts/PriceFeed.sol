@@ -34,21 +34,21 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
 
     uint constant public ETHUSD_TELLOR_REQ_ID = 1;
 
-    // Use to convert a price answer to an 18-digit precision uint
-    uint constant public TARGET_DIGITS = 18;  
+    // Use to convert a price answer to an 8-digit precision uint
+    uint constant public TARGET_DIGITS = 8;
     uint constant public TELLOR_DIGITS = 6;
 
     // Maximum time period allowed since Chainlink's latest round data timestamp, beyond which Chainlink is considered frozen.
     uint constant public TIMEOUT = 14400;  // 4 hours: 60 * 60 * 4
     
     // Maximum deviation allowed between two consecutive Chainlink oracle prices. 18-digit precision.
-    uint constant public MAX_PRICE_DEVIATION_FROM_PREVIOUS_ROUND =  5e17; // 50%
+    uint constant public MAX_PRICE_DEVIATION_FROM_PREVIOUS_ROUND =  5e7; // 50%
 
     /* 
     * The maximum relative price difference between two oracle responses allowed in order for the PriceFeed
     * to return to using the Chainlink oracle. 18-digit precision.
     */
-    uint constant public MAX_PRICE_DIFFERENCE_BETWEEN_ORACLES = 5e16; // 5%
+    uint constant public MAX_PRICE_DIFFERENCE_BETWEEN_ORACLES = 5e6; // 5%
 
     // The last good price seen from an oracle by Liquity
     uint public lastGoodPrice;
