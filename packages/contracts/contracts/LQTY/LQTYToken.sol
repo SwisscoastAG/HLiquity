@@ -52,8 +52,8 @@ contract LQTYToken is CheckContract, ILQTYToken {
 
     // --- ERC20 Data ---
 
-    string constant internal _NAME = "LQTY";
-    string constant internal _SYMBOL = "LQTY";
+    string constant internal _NAME = "HLQT";
+    string constant internal _SYMBOL = "HLQT";
     string constant internal _VERSION = "1";
     uint8 constant internal  _DECIMALS = 8;
 
@@ -249,13 +249,13 @@ contract LQTYToken is CheckContract, ILQTYToken {
         external 
         override 
     {            
-        require(deadline >= now, 'LQTY: expired deadline');
+        require(deadline >= now, 'HLQT: expired deadline');
         bytes32 digest = keccak256(abi.encodePacked('\x19\x01', 
                          domainSeparator(), keccak256(abi.encode(
                          _PERMIT_TYPEHASH, owner, spender, amount, 
                          _nonces[owner]++, deadline))));
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress == owner, 'LQTY: invalid signature');
+        require(recoveredAddress == owner, 'HLQT: invalid signature');
         _approve(owner, spender, amount);
     }
 
@@ -316,30 +316,30 @@ contract LQTYToken is CheckContract, ILQTYToken {
         require(
             _recipient != address(0) && 
             _recipient != address(this),
-            "LQTY: Cannot transfer tokens directly to the LQTY token contract or the zero address"
+            "HLQT: Cannot transfer tokens directly to the HLQT token contract or the zero address"
         );
         require(
             _recipient != communityIssuanceAddress &&
             _recipient != lqtyStakingAddress,
-            "LQTY: Cannot transfer tokens directly to the community issuance or staking contract"
+            "HLQT: Cannot transfer tokens directly to the community issuance or staking contract"
         );
     }
 
     function _requireRecipientIsRegisteredLC(address _recipient) internal view {
         require(lockupContractFactory.isRegisteredLockup(_recipient), 
-        "LQTYToken: recipient must be a LockupContract registered in the Factory");
+        "HLQTToken: recipient must be a LockupContract registered in the Factory");
     }
 
     function _requireSenderIsNotMultisig(address _sender) internal view {
-        require(_sender != multisigAddress, "LQTYToken: sender must not be the multisig");
+        require(_sender != multisigAddress, "HLQTToken: sender must not be the multisig");
     }
 
     function _requireCallerIsNotMultisig() internal view {
-        require(!_callerIsMultisig(), "LQTYToken: caller must not be the multisig");
+        require(!_callerIsMultisig(), "HLQTToken: caller must not be the multisig");
     }
 
     function _requireCallerIsLQTYStaking() internal view {
-         require(msg.sender == lqtyStakingAddress, "LQTYToken: caller must be the LQTYStaking contract");
+         require(msg.sender == lqtyStakingAddress, "HLQTToken: caller must be the HLQTStaking contract");
     }
 
     // --- Optional functions ---

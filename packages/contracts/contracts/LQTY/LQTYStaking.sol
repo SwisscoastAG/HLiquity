@@ -16,7 +16,7 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     using SafeMath for uint;
 
     // --- Data ---
-    string constant public NAME = "LQTYStaking";
+    string constant public NAME = "HLQTStaking";
 
     mapping( address => uint) public stakes;
     uint public totalLQTYStaked;
@@ -216,29 +216,29 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     function _sendETHGainToUser(uint ETHGain) internal {
         emit EtherSent(msg.sender, ETHGain);
         (bool success, ) = msg.sender.call{value: ETHGain}("");
-        require(success, "LQTYStaking: Failed to send accumulated ETHGain");
+        require(success, "HLQTStaking: Failed to send accumulated ETHGain");
     }
 
     // --- 'require' functions ---
 
     function _requireCallerIsTroveManager() internal view {
-        require(msg.sender == troveManagerAddress, "LQTYStaking: caller is not TroveM");
+        require(msg.sender == troveManagerAddress, "HLQTStaking: caller is not TroveM");
     }
 
     function _requireCallerIsBorrowerOperations() internal view {
-        require(msg.sender == borrowerOperationsAddress, "LQTYStaking: caller is not BorrowerOps");
+        require(msg.sender == borrowerOperationsAddress, "HLQTStaking: caller is not BorrowerOps");
     }
 
      function _requireCallerIsActivePool() internal view {
-        require(msg.sender == activePoolAddress, "LQTYStaking: caller is not ActivePool");
+        require(msg.sender == activePoolAddress, "HLQTStaking: caller is not ActivePool");
     }
 
     function _requireUserHasStake(uint currentStake) internal pure {  
-        require(currentStake > 0, 'LQTYStaking: User must have a non-zero stake');  
+        require(currentStake > 0, 'HLQTStaking: User must have a non-zero stake');
     }
 
     function _requireNonZeroAmount(uint _amount) internal pure {
-        require(_amount > 0, 'LQTYStaking: Amount must be non-zero');
+        require(_amount > 0, 'HLQTStaking: Amount must be non-zero');
     }
 
     receive() external payable {
