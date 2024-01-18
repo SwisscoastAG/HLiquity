@@ -72,6 +72,19 @@
   },
   {
     "inputs": [],
+    "name": "HBAR_USD_ID",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MAX_PRICE_DEVIATION_FROM_PREVIOUS_ROUND",
     "outputs": [
       {
@@ -104,6 +117,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SUPRA_DIGITS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -201,23 +227,10 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "priceAggregator",
-    "outputs": [
-      {
-        "internalType": "contract AggregatorV3Interface",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_priceAggregatorAddress",
+        "name": "_supraCallerAddress",
         "type": "address"
       },
       {
@@ -239,6 +252,19 @@
         "internalType": "enum PriceFeed.Status",
         "name": "",
         "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "supraCaller",
+    "outputs": [
+      {
+        "internalType": "contract ISupraCaller",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

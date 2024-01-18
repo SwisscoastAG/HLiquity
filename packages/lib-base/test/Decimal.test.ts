@@ -17,51 +17,51 @@ describe("Decimal", () => {
 
       it("should convert it if it has no decimal point", () => {
         expect(Decimal.from("123456789123456789123456789").bigNumber)
-          //                                               |<----- 18 ----->|
-          /********/ .to.equal("123456789123456789123456789000000000000000000");
+            //                                               |<----- 18 ----->|
+            /********/ .to.equal("12345678912345678912345678900000000");
       });
 
       it("should convert it if it has decimal point", () => {
         expect(Decimal.from("123456789123456789.123456789").bigNumber)
-          //                                       |<----- 18 ----->|
-          /*********/ .to.equal("123456789123456789123456789000000000");
+            //                                       |<----- 18 ----->|
+            /*********/ .to.equal("12345678912345678912345678");
       });
 
       it("should convert it if characteristic is missing", () => {
         expect(Decimal.from(".123456789").bigNumber)
-          //                     |<----- 18 ----->|
-          /*********/ .to.equal("123456789000000000");
+            //                     |<----- 18 ----->|
+            /*********/ .to.equal("12345678");
       });
 
       it("should convert it if mantissa is missing", () => {
         expect(Decimal.from("123456789.").bigNumber)
-          //                             |<----- 18 ----->|
-          /********/ .to.equal("123456789000000000000000000");
+            //                             |<----- 18 ----->|
+            /********/ .to.equal("12345678900000000");
       });
 
       it("should truncate if mantissa is too long", () => {
         expect(Decimal.from("1.123456789123456789123456789").bigNumber)
-          //                      |<----- 18 ----->|
-          /*********/ .to.equal("1123456789123456789");
+            //                      |<----- 18 ----->|
+            /*********/ .to.equal("112345678");
       });
 
       describe("in scientific notation", () => {
         it("should convert it if exponent has no sign", () => {
           expect(Decimal.from("1.23456789e7").bigNumber)
-            //                      |<-7->||<----- 18 ----->|
-            /*********/ .to.equal("12345678900000000000000000");
+              //                      |<-7->||<----- 18 ----->|
+              /*********/ .to.equal("1234567890000000");
         });
 
         it("should convert it if exponent has '+' sign", () => {
           expect(Decimal.from("1.23456789e+9").bigNumber)
-            //                      |<- 9 ->||<----- 18 ----->|
-            /*********/ .to.equal("1234567890000000000000000000");
+              //                      |<- 9 ->||<----- 18 ----->|
+              /*********/ .to.equal("123456789000000000");
         });
 
         it("should convert it if exponent has '-' sign", () => {
           expect(Decimal.from("123456789.123456789e-10").bigNumber)
-            //                              |<- 8->|
-            /*********/ .to.equal("12345678912345678");
+              //                              |<- 8->|
+              /*********/ .to.equal("1234567");
         });
       });
     });
@@ -69,18 +69,18 @@ describe("Decimal", () => {
     describe("when passing a number", () => {
       it("should preserve fractional part", () => {
         expect(Decimal.from(1.23456789).bigNumber)
-          //                     |<----- 18 ----->|
-          /********/ .to.equal("1234567890000000000");
+            //                     |<----- 18 ----->|
+            /********/ .to.equal("123456789");
       });
 
       it("should convert it even if it's very small", () => {
-        expect(Decimal.from(1e-15).bigNumber).to.equal("1000");
+        expect(Decimal.from(1e-15).bigNumber).to.equal("0");
       });
 
       it("should convert it even if it's very large", () => {
         expect(Decimal.from(1e25).bigNumber)
-          //          |<--------- 25 -------->||<----- 18 ----->|
-          .to.equal("10000000000000000000000000000000000000000000");
+            //          |<--------- 25 -------->||<----- 18 ----->|
+            .to.equal("1000000000000000000000000000000000");
       });
     });
 
@@ -95,45 +95,45 @@ describe("Decimal", () => {
   describe(".toString()", () => {
     describe("when not passing a parameter", () => {
       it("should not include '.' for integers", () => {
-        expect(Decimal.fromBigNumberString("123456789000000000000000000").toString())
-          //                                      |<----- 18 ----->|
-          /*****************/ .to.equal("123456789");
+        expect(Decimal.fromBigNumberString("12345678900000000").toString())
+            //                                      |<----- 18 ----->|
+            /*****************/ .to.equal("123456789");
       });
 
       it("should include '.' for fractions", () => {
-        expect(Decimal.fromBigNumberString("123456789000000000123456789").toString())
-          //                                      |<----- 18 ----->|
-          /****************/ .to.equal("123456789.000000000123456789");
+        expect(Decimal.fromBigNumberString("12345678900000001").toString())
+            //                                      |<----- 18 ----->|
+            /****************/ .to.equal("123456789.00000001");
       });
 
       it("should trim trailing zeros from fractions", () => {
-        expect(Decimal.fromBigNumberString("123456789123456789000000000").toString())
-          //                                      |<----- 18 ----->|
-          /****************/ .to.equal("123456789.123456789");
+        expect(Decimal.fromBigNumberString("12345678912345678").toString())
+            //                                      |<----- 18 ----->|
+            /****************/ .to.equal("123456789.12345678");
       });
     });
 
     describe("when passing a precision parameter", () => {
       it("should round to the nearest decimal", () => {
-        expect(Decimal.fromBigNumberString("123456789000499999999999999").toString(3))
-          //                                      |<----- 18 ----->|
-          /****************/ .to.equal("123456789.000");
+        expect(Decimal.fromBigNumberString("12345678900049999").toString(3))
+            //                                      |<----- 18 ----->|
+            /****************/ .to.equal("123456789.000");
 
-        expect(Decimal.fromBigNumberString("123456789000500000000000000").toString(3))
-          //                                      |<----- 18 ----->|
-          /****************/ .to.equal("123456789.001");
+        expect(Decimal.fromBigNumberString("12345678900050000").toString(3))
+            //                                      |<----- 18 ----->|
+            /****************/ .to.equal("123456789.001");
       });
 
       it("should include '.' and decimal zeros for integers if precision is >0", () => {
-        expect(Decimal.fromBigNumberString("123456789000000000000000000").toString(2))
-          //                                      |<----- 18 ----->|
-          /****************/ .to.equal("123456789.00");
+        expect(Decimal.fromBigNumberString("12345678900000000").toString(2))
+            //                                      |<----- 18 ----->|
+            /****************/ .to.equal("123456789.00");
       });
 
       it("should not include '.' if precision is 0", () => {
-        expect(Decimal.fromBigNumberString("123456789123456789123456789").toString(0))
-          //                                      |<----- 18 ----->|
-          /*****************/ .to.equal("123456789");
+        expect(Decimal.fromBigNumberString("12345678912345678").toString(0))
+            //                                      |<----- 18 ----->|
+            /*****************/ .to.equal("123456789");
       });
     });
   });
@@ -190,12 +190,12 @@ describe("Decimal", () => {
   describe(".pow()", () => {
     it("should be roughly the same as Math.pow()", () => {
       fc.assert(
-        fc.property(
-          fc.float(),
-          fc.integer({ min: 0, max: 0xffffffff }),
-          (x, y) =>
-            !!Difference.between(Math.pow(x, y), Decimal.from(x).pow(y)).absoluteValue?.lt(1e-9)
-        )
+          fc.property(
+              fc.float(),
+              fc.integer({ min: 0, max: 0xffffffff }),
+              (x, y) =>
+                  !!Difference.between(Math.pow(x, y), Decimal.from(x).pow(y)).absoluteValue?.lt(1e-4)
+          )
       );
     });
   });

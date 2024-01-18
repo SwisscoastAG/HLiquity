@@ -29,7 +29,7 @@
     "save-live-version:check": "run-s check-live-version",
     "scrape-eth-usd": "ts-node scripts/scrape-eth-usd.ts",
     "spam-troves": "ts-node scripts/spam-troves.ts",
-    "test": "hardhat test",
+    "test": "hardhat test --network hederaLocalTestnet",
     "test-live": "run-s 'test-live:*'",
     "test-live:check-version": "run-s check-live-version",
     "test-live:run": "cross-env USE_LIVE_VERSION=true hardhat test"

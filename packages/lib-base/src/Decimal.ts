@@ -5,7 +5,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 const getDigits = (numDigits: number) => TEN.pow(numDigits);
 
 const MAX_UINT_256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-const PRECISION = 18;
+const PRECISION = 8;
 const ONE = BigNumber.from(1);
 const TEN = BigNumber.from(10);
 const DIGITS = getDigits(PRECISION);

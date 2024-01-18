@@ -145,6 +145,15 @@ const config: HardhatUserConfig = {
             timeout: 1000000,
             accounts: [deployerAccount]
         },
+        hederaLocalTestnet: {
+            url: 'http://localhost:7546',
+            accounts: ['0x105d050185ccb907fba04dd92d8de9e32c18305e097ab41dadda21489a211524', '0x2e1d968b041d84dd120a5860cee60cd83f9374ef527ca86996317ada3d0d03e7', '0x45a5a7108a18dd5013cf2d5857a28144beadc9c70b3bdbd914e38df4e804b8d8', '0x6e9d61a325be3f6675cf8b7676c70e4a004d2308e3e182370a41f5653d52c6bd', '0x0b58b1bd44469ac9f813b5aeaf6213ddaea26720f0b2f133d08b6f234130a64f',
+                '0x95eac372e0f0df3b43740fa780e62458b2d2cc32d6a440877f1cc2a9ad0c35cc',
+                '0x6c6e6727b40c8d4b616ab0d26af357af09337299f09c66704146e14236972106'],
+            chainId: 298,
+            timeout: 90000,
+            blockGasLimit: 34e6
+        },
     },
 
     paths: {
