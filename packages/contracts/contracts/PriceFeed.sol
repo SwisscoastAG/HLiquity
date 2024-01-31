@@ -3,7 +3,6 @@
 pragma solidity 0.6.11;
 
 import "./Interfaces/IPriceFeed.sol";
-import "./Interfaces/ITellorCaller.sol";
 import "./Interfaces/ISupraCaller.sol";
 import "./Dependencies/AggregatorV3Interface.sol";
 import "./Dependencies/SafeMath.sol";
@@ -12,12 +11,13 @@ import "./Dependencies/CheckContract.sol";
 import "./Dependencies/BaseMath.sol";
 import "./Dependencies/LiquityMath.sol";
 import "./Dependencies/console.sol";
+import "./Interfaces/IPythCaller.sol";
 
 /*
 * PriceFeed for mainnet deployment, to be connected to Chainlink's live ETH:USD aggregator reference 
-* contract, and a wrapper contract TellorCaller, which connects to TellorMaster contract.
+* contract, and a wrapper contract PythCaller, which connects to PythMaster contract.
 *
-* The PriceFeed uses Chainlink as primary oracle, and Tellor as fallback. It contains logic for
+* The PriceFeed uses Chainlink as primary oracle, and Pyth as fallback. It contains logic for
 * switching oracles based on oracle failures, timeouts, and conditions for returning to the primary
 * Chainlink oracle.
 */
@@ -27,19 +27,18 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
     string constant public NAME = "PriceFeed";
 
     ISupraCaller public supraCaller;
-    ITellorCaller public tellorCaller;
+    IPythCaller public pythCaller;
 
     // Core Liquity contracts
     address borrowerOperationsAddress;
     address troveManagerAddress;
 
-    uint constant public ETHUSD_TELLOR_REQ_ID = 1;
     string constant public HBAR_USD_ID = "hbar_usdt";
 
     // Use to convert a price answer to an 8-digit precision uint
     uint constant public TARGET_DIGITS = 8;
-    uint constant public TELLOR_DIGITS = 6;
     uint constant public SUPRA_DIGITS = 8;
+    uint constant public PYTH_DIGITS = 8;
 
     // Maximum time period allowed since latest round data timestamp, beyond which considered frozen.
     uint constant public TIMEOUT = 14400;  // 4 hours: 60 * 60 * 4
@@ -63,7 +62,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         bool success;
     }
 
-    struct TellorResponse {
+    struct PythResponse {
         bool ifRetrieve;
         uint256 value;
         uint256 timestamp;
@@ -72,10 +71,10 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
 
     enum Status {
         supraWorking,
-        usingTellorSupraUntrusted,
+        usingPythSupraUntrusted,
         bothOraclesUntrusted,
-        usingTellorSupraFrozen,
-        usingSupraTellorUntrusted
+        usingPythSupraFrozen,
+        usingSupraPythUntrusted
     }
 
     // The current status of the PricFeed, which determines the conditions for the next price fetch attempt
@@ -88,16 +87,16 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
 
     function setAddresses(
         address _supraCallerAddress,
-        address _tellorCallerAddress
+        address _pythCallerAddress
     )
     external
     onlyOwner
     {
         checkContract(_supraCallerAddress);
-        checkContract(_tellorCallerAddress);
+        checkContract(_pythCallerAddress);
 
         supraCaller = ISupraCaller(_supraCallerAddress);
-        tellorCaller = ITellorCaller(_tellorCallerAddress);
+        pythCaller = IPythCaller(_pythCallerAddress);
 
         // Explicitly set initial system status
         status = Status.supraWorking;
@@ -122,113 +121,113 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
     *
     * Non-view function - it stores the last good price seen by Liquity.
     *
-    * Uses a main oracle (Supra) and a fallback oracle (Tellor) in case Supra fails. If both fail,
+    * Uses a main oracle (Supra) and a fallback oracle (Pyth) in case Supra fails. If both fail,
     * it uses the last good price seen by Liquity.
     *
     */
     function fetchPrice() external override returns (uint) {
-        // Get current price data from Supra, and current price data from Tellor
+        // Get current price data from Supra, and current price data from Pyth
         SupraResponse memory supraResponse = _getCurrentSupraResponse();
-        TellorResponse memory tellorResponse = _getCurrentTellorResponse();
+        PythResponse memory pythResponse = _getCurrentPythResponse();
 
         // --- CASE 1: System fetched last price from supra  ---
         if (status == Status.supraWorking) {
-            // If supra is broken, try Tellor
+            // If supra is broken, try Pyth
             if (_supraIsBroken(supraResponse)) {
-                // If Tellor is broken then both oracles are untrusted, so return the last good price
-                if (_tellorIsBroken(tellorResponse)) {
+                // If Pyth is broken then both oracles are untrusted, so return the last good price
+                if (_pythIsBroken(pythResponse)) {
                     _changeStatus(Status.bothOraclesUntrusted);
                     return lastGoodPrice;
                 }
                 /*
-                * If Tellor is only frozen but otherwise returning valid data, return the last good price.
-                * Tellor may need to be tipped to return current data.
+                * If Pyth is only frozen but otherwise returning valid data, return the last good price.
+                * Pyth may need to be tipped to return current data.
                 */
-                if (_tellorIsFrozen(tellorResponse)) {
-                    _changeStatus(Status.usingTellorSupraUntrusted);
+                if (_pythIsFrozen(pythResponse)) {
+                    _changeStatus(Status.usingPythSupraUntrusted);
                     return lastGoodPrice;
                 }
 
-                // If supra is broken and Tellor is working, switch to Tellor and return current Tellor price
-                _changeStatus(Status.usingTellorSupraUntrusted);
-                return _storeTellorPrice(tellorResponse);
+                // If supra is broken and Pyth is working, switch to Pyth and return current Pyth price
+                _changeStatus(Status.usingPythSupraUntrusted);
+                return _storePythPrice(pythResponse);
             }
 
-            // If supra is frozen, try Tellor
+            // If supra is frozen, try Pyth
             if (_supraIsFrozen(supraResponse)) {
-                // If Tellor is broken too, remember Tellor broke, and return last good price
-                if (_tellorIsBroken(tellorResponse)) {
-                    _changeStatus(Status.usingSupraTellorUntrusted);
+                // If Pyth is broken too, remember Pyth broke, and return last good price
+                if (_pythIsBroken(pythResponse)) {
+                    _changeStatus(Status.usingSupraPythUntrusted);
                     return lastGoodPrice;
                 }
 
-                // If Tellor is frozen or working, remember supra froze, and switch to Tellor
-                _changeStatus(Status.usingTellorSupraFrozen);
+                // If Pyth is frozen or working, remember supra froze, and switch to Pyth
+                _changeStatus(Status.usingPythSupraFrozen);
 
-                if (_tellorIsFrozen(tellorResponse)) {return lastGoodPrice;}
+                if (_pythIsFrozen(pythResponse)) {return lastGoodPrice;}
 
-                // If Tellor is working, use it
-                return _storeTellorPrice(tellorResponse);
+                // If Pyth is working, use it
+                return _storePythPrice(pythResponse);
             }
 
-            // If supra price has changed by > 50% between two consecutive rounds, compare it to Tellor's price
+            // If supra price has changed by > 50% between two consecutive rounds, compare it to Pyth's price
             if (_supraPriceChangeAboveMax(supraResponse)) {
-                // If Tellor is broken, both oracles are untrusted, and return last good price
-                if (_tellorIsBroken(tellorResponse)) {
+                // If Pyth is broken, both oracles are untrusted, and return last good price
+                if (_pythIsBroken(pythResponse)) {
                     _changeStatus(Status.bothOraclesUntrusted);
                     return lastGoodPrice;
                 }
 
-                // If Tellor is frozen, switch to Tellor and return last good price
-                if (_tellorIsFrozen(tellorResponse)) {
-                    _changeStatus(Status.usingTellorSupraUntrusted);
+                // If Pyth is frozen, switch to Pyth and return last good price
+                if (_pythIsFrozen(pythResponse)) {
+                    _changeStatus(Status.usingPythSupraUntrusted);
                     return lastGoodPrice;
                 }
 
                 /*
-                * If Tellor is live and both oracles have a similar price, conclude that supra's large price deviation between
+                * If Pyth is live and both oracles have a similar price, conclude that supra's large price deviation between
                 * two consecutive rounds was likely a legitmate market price movement, and so continue using supra
                 */
-                if (_bothOraclesSimilarPrice(supraResponse, tellorResponse)) {
+                if (_bothOraclesSimilarPrice(supraResponse, pythResponse)) {
                     return _storeSupraPrice(supraResponse);
                 }
 
-                // If Tellor is live but the oracles differ too much in price, conclude that supra's initial price deviation was
-                // an oracle failure. Switch to Tellor, and use Tellor price
-                _changeStatus(Status.usingTellorSupraUntrusted);
-                return _storeTellorPrice(tellorResponse);
+                // If Pyth is live but the oracles differ too much in price, conclude that supra's initial price deviation was
+                // an oracle failure. Switch to Pyth, and use Pyth price
+                _changeStatus(Status.usingPythSupraUntrusted);
+                return _storePythPrice(pythResponse);
             }
 
-            // If supra is working and Tellor is broken, remember Tellor is broken
-            if (_tellorIsBroken(tellorResponse)) {
-                _changeStatus(Status.usingSupraTellorUntrusted);
+            // If supra is working and Pyth is broken, remember Pyth is broken
+            if (_pythIsBroken(pythResponse)) {
+                _changeStatus(Status.usingSupraPythUntrusted);
             }
 
             // If supra is working, return supra current price (no status change)
             return _storeSupraPrice(supraResponse);
         }
 
-        // --- CASE 2: The system fetched last price from Tellor ---
-        if (status == Status.usingTellorSupraUntrusted) {
-            // If both Tellor and supra are live, unbroken, and reporting similar prices, switch back to supra
-            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, tellorResponse)) {
+        // --- CASE 2: The system fetched last price from Pyth ---
+        if (status == Status.usingPythSupraUntrusted) {
+            // If both Pyth and supra are live, unbroken, and reporting similar prices, switch back to supra
+            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, pythResponse)) {
                 _changeStatus(Status.supraWorking);
                 return _storeSupraPrice(supraResponse);
             }
 
-            if (_tellorIsBroken(tellorResponse)) {
+            if (_pythIsBroken(pythResponse)) {
                 _changeStatus(Status.bothOraclesUntrusted);
                 return lastGoodPrice;
             }
 
             /*
-            * If Tellor is only frozen but otherwise returning valid data, just return the last good price.
-            * Tellor may need to be tipped to return current data.
+            * If Pyth is only frozen but otherwise returning valid data, just return the last good price.
+            * Pyth may need to be tipped to return current data.
             */
-            if (_tellorIsFrozen(tellorResponse)) {return lastGoodPrice;}
+            if (_pythIsFrozen(pythResponse)) {return lastGoodPrice;}
 
-            // Otherwise, use Tellor price
-            return _storeTellorPrice(tellorResponse);
+            // Otherwise, use Pyth price
+            return _storePythPrice(pythResponse);
         }
 
         // --- CASE 3: Both oracles were untrusted at the last price fetch ---
@@ -237,7 +236,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
             * If both oracles are now live, unbroken and similar price, we assume that they are reporting
             * accurately, and so we switch back to supra.
             */
-            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, tellorResponse)) {
+            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, pythResponse)) {
                 _changeStatus(Status.supraWorking);
                 return _storeSupraPrice(supraResponse);
             }
@@ -246,61 +245,61 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
             return lastGoodPrice;
         }
 
-        // --- CASE 4: Using Tellor, and supra is frozen ---
-        if (status == Status.usingTellorSupraFrozen) {
+        // --- CASE 4: Using Pyth, and supra is frozen ---
+        if (status == Status.usingPythSupraFrozen) {
             if (_supraIsBroken(supraResponse)) {
                 // If both Oracles are broken, return last good price
-                if (_tellorIsBroken(tellorResponse)) {
+                if (_pythIsBroken(pythResponse)) {
                     _changeStatus(Status.bothOraclesUntrusted);
                     return lastGoodPrice;
                 }
 
-                // If supra is broken, remember it and switch to using Tellor
-                _changeStatus(Status.usingTellorSupraUntrusted);
+                // If supra is broken, remember it and switch to using Pyth
+                _changeStatus(Status.usingPythSupraUntrusted);
 
-                if (_tellorIsFrozen(tellorResponse)) {return lastGoodPrice;}
+                if (_pythIsFrozen(pythResponse)) {return lastGoodPrice;}
 
-                // If Tellor is working, return Tellor current price
-                return _storeTellorPrice(tellorResponse);
+                // If Pyth is working, return Pyth current price
+                return _storePythPrice(pythResponse);
             }
 
             if (_supraIsFrozen(supraResponse)) {
-                // if supra is frozen and Tellor is broken, remember Tellor broke, and return last good price
-                if (_tellorIsBroken(tellorResponse)) {
-                    _changeStatus(Status.usingSupraTellorUntrusted);
+                // if supra is frozen and Pyth is broken, remember Pyth broke, and return last good price
+                if (_pythIsBroken(pythResponse)) {
+                    _changeStatus(Status.usingSupraPythUntrusted);
                     return lastGoodPrice;
                 }
 
                 // If both are frozen, just use lastGoodPrice
-                if (_tellorIsFrozen(tellorResponse)) {return lastGoodPrice;}
+                if (_pythIsFrozen(pythResponse)) {return lastGoodPrice;}
 
-                // if supra is frozen and Tellor is working, keep using Tellor (no status change)
-                return _storeTellorPrice(tellorResponse);
+                // if supra is frozen and Pyth is working, keep using Pyth (no status change)
+                return _storePythPrice(pythResponse);
             }
 
-            // if supra is live and Tellor is broken, remember Tellor broke, and return supra price
-            if (_tellorIsBroken(tellorResponse)) {
-                _changeStatus(Status.usingSupraTellorUntrusted);
+            // if supra is live and Pyth is broken, remember Pyth broke, and return supra price
+            if (_pythIsBroken(pythResponse)) {
+                _changeStatus(Status.usingSupraPythUntrusted);
                 return _storeSupraPrice(supraResponse);
             }
 
-            // If supra is live and Tellor is frozen, just use last good price (no status change) since we have no basis for comparison
-            if (_tellorIsFrozen(tellorResponse)) {return lastGoodPrice;}
+            // If supra is live and Pyth is frozen, just use last good price (no status change) since we have no basis for comparison
+            if (_pythIsFrozen(pythResponse)) {return lastGoodPrice;}
 
-            // If supra is live and Tellor is working, compare prices. Switch to supra
+            // If supra is live and Pyth is working, compare prices. Switch to supra
             // if prices are within 5%, and return supra price.
-            if (_bothOraclesSimilarPrice(supraResponse, tellorResponse)) {
+            if (_bothOraclesSimilarPrice(supraResponse, pythResponse)) {
                 _changeStatus(Status.supraWorking);
                 return _storeSupraPrice(supraResponse);
             }
 
-            // Otherwise if supra is live but price not within 5% of Tellor, distrust supra, and return Tellor price
-            _changeStatus(Status.usingTellorSupraUntrusted);
-            return _storeTellorPrice(tellorResponse);
+            // Otherwise if supra is live but price not within 5% of Pyth, distrust supra, and return Pyth price
+            _changeStatus(Status.usingPythSupraUntrusted);
+            return _storePythPrice(pythResponse);
         }
 
-        // --- CASE 5: Using supra, Tellor is untrusted ---
-        if (status == Status.usingSupraTellorUntrusted) {
+        // --- CASE 5: Using supra, Pyth is untrusted ---
+        if (status == Status.usingSupraPythUntrusted) {
             // If supra breaks, now both oracles are untrusted
             if (_supraIsBroken(supraResponse)) {
                 _changeStatus(Status.bothOraclesUntrusted);
@@ -312,20 +311,20 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
                 return lastGoodPrice;
             }
 
-            // If supra and Tellor are both live, unbroken and similar price, switch back to supraWorking and return supra price
-            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, tellorResponse)) {
+            // If supra and Pyth are both live, unbroken and similar price, switch back to supraWorking and return supra price
+            if (_bothOraclesLiveAndUnbrokenAndSimilarPrice(supraResponse, pythResponse)) {
                 _changeStatus(Status.supraWorking);
                 return _storeSupraPrice(supraResponse);
             }
 
-            // If supra is live but deviated >50% from it's previous price and Tellor is still untrusted, switch
+            // If supra is live but deviated >50% from it's previous price and Pyth is still untrusted, switch
             // to bothOraclesUntrusted and return last good price
             if (_supraPriceChangeAboveMax(supraResponse)) {
                 _changeStatus(Status.bothOraclesUntrusted);
                 return lastGoodPrice;
             }
 
-            // Otherwise if supra is live and deviated <50% from it's previous price and Tellor is still untrusted,
+            // Otherwise if supra is live and deviated <50% from it's previous price and Pyth is still untrusted,
             // return supra price (no status change)
             return _storeSupraPrice(supraResponse);
         }
@@ -365,7 +364,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         return block.timestamp.sub(_supraResponse.timestamp) > TIMEOUT;
     }
 
-    function _tellorIsBroken(TellorResponse memory _response) internal view returns (bool) {
+    function _pythIsBroken(PythResponse memory _response) internal view returns (bool) {
         // Check for response call reverted
         if (!_response.success) {return true;}
         // Check for an invalid timeStamp that is 0, or in the future
@@ -376,14 +375,14 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         return false;
     }
 
-    function _tellorIsFrozen(TellorResponse  memory _tellorResponse) internal view returns (bool) {
-        return block.timestamp.sub(_tellorResponse.timestamp) > TIMEOUT;
+    function _pythIsFrozen(PythResponse  memory _pythResponse) internal view returns (bool) {
+        return block.timestamp.sub(_pythResponse.timestamp) > TIMEOUT;
     }
 
     function _bothOraclesLiveAndUnbrokenAndSimilarPrice
     (
         SupraResponse memory _supraResponse,
-        TellorResponse memory _tellorResponse
+        PythResponse memory _pythResponse
     )
     internal
     view
@@ -392,8 +391,8 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         // Return false if either oracle is broken or frozen
         if
         (
-            _tellorIsBroken(_tellorResponse) ||
-            _tellorIsFrozen(_tellorResponse) ||
+            _pythIsBroken(_pythResponse) ||
+            _pythIsFrozen(_pythResponse) ||
             _supraIsBroken(_supraResponse) ||
             _supraIsFrozen(_supraResponse)
         )
@@ -401,16 +400,16 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
             return false;
         }
 
-        return _bothOraclesSimilarPrice(_supraResponse, _tellorResponse);
+        return _bothOraclesSimilarPrice(_supraResponse, _pythResponse);
     }
 
-    function _bothOraclesSimilarPrice(SupraResponse memory _supraResponse, TellorResponse memory _tellorResponse) internal pure returns (bool) {
+    function _bothOraclesSimilarPrice(SupraResponse memory _supraResponse, PythResponse memory _pythResponse) internal pure returns (bool) {
         uint scaledSupraPrice = _scaleSupraPriceByDigits(_supraResponse.value);
-        uint scaledTellorPrice = _scaleTellorPriceByDigits(_tellorResponse.value);
+        uint scaledPythPrice = _scalePythPriceByDigits(_pythResponse.value);
 
         // Get the relative price difference between the oracles. Use the lower price as the denominator, i.e. the reference for the calculation.
-        uint minPrice = LiquityMath._min(scaledTellorPrice, scaledSupraPrice);
-        uint maxPrice = LiquityMath._max(scaledTellorPrice, scaledSupraPrice);
+        uint minPrice = LiquityMath._min(scaledPythPrice, scaledSupraPrice);
+        uint maxPrice = LiquityMath._max(scaledPythPrice, scaledSupraPrice);
         uint percentPriceDifference = maxPrice.sub(minPrice).mul(DECIMAL_PRECISION).div(minPrice);
 
         /*
@@ -424,8 +423,8 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         return _price.mul(10 ** (TARGET_DIGITS - SUPRA_DIGITS));
     }
 
-    function _scaleTellorPriceByDigits(uint _price) internal pure returns (uint) {
-        return _price.mul(10 ** (TARGET_DIGITS - TELLOR_DIGITS));
+    function _scalePythPriceByDigits(uint _price) internal pure returns (uint) {
+        return _price.mul(10 ** (TARGET_DIGITS - PYTH_DIGITS));
     }
 
     function _changeStatus(Status _status) internal {
@@ -445,33 +444,33 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         return scaledSupraPrice;
     }
 
-    function _storeTellorPrice(TellorResponse memory _tellorResponse) internal returns (uint) {
-        uint scaledTellorPrice = _scaleTellorPriceByDigits(_tellorResponse.value);
-        _storePrice(scaledTellorPrice);
+    function _storePythPrice(PythResponse memory _pythResponse) internal returns (uint) {
+        uint scaledPythPrice = _scalePythPriceByDigits(_pythResponse.value);
+        _storePrice(scaledPythPrice);
 
-        return scaledTellorPrice;
+        return scaledPythPrice;
     }
 
     // --- Oracle response wrapper functions ---
 
-    function _getCurrentTellorResponse() internal view returns (TellorResponse memory tellorResponse) {
-        try tellorCaller.getTellorCurrentValue(ETHUSD_TELLOR_REQ_ID) returns
+    function _getCurrentPythResponse() internal view returns (PythResponse memory pythResponse){
+        try pythCaller.getPythCurrentValue() returns
         (
             bool ifRetrieve,
             uint256 value,
             uint256 _timestampRetrieved
         )
         {
-            // If call to Tellor succeeds, return the response and success = true
-            tellorResponse.ifRetrieve = ifRetrieve;
-            tellorResponse.value = value;
-            tellorResponse.timestamp = _timestampRetrieved;
-            tellorResponse.success = true;
+            // If call to Pyth succeeds, return the response and success = true
+            pythResponse.ifRetrieve = ifRetrieve;
+            pythResponse.value = value;
+            pythResponse.timestamp = _timestampRetrieved;
+            pythResponse.success = true;
 
-            return (tellorResponse);
+            return (pythResponse);
         }catch {
-            // If call to Tellor reverts, return a zero response with success = false
-            return (tellorResponse);
+            // If call to Pyth reverts, return a zero response with success = false
+            return (pythResponse);
         }
     }
 
