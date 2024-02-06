@@ -33,7 +33,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
     address borrowerOperationsAddress;
     address troveManagerAddress;
 
-    string constant public HBAR_USD_ID = "hbar_usdt";
+    uint256 constant public HBAR_USD_ID = 75;
 
     // Use to convert a price answer to an 8-digit precision uint
     uint constant public TARGET_DIGITS = 8;

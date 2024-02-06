@@ -22,14 +22,13 @@ contract SupraCaller is ISupraCaller {
     }
 
     /*
-    *
-    * @dev Allows the user to get the latest value for the marketPair specified
-    * @param _marketPair is the requestId to look up the value for
+    * @dev Allows the user to get the latest value for the specified priceIndex
+    * @param _priceIndex is the index to look up the value for
     * @return ifRetrieve bool true if it is able to retrieve a value, the value, and the value's timestamp
     * @return value the value retrieved
     * @return _timestampRetrieved the value's timestamp
     */
-    function getSupraCurrentValue(string memory _marketPair)
+    function getSupraCurrentValue(uint256 _priceIndex)
     external
     view
     override
@@ -39,10 +38,9 @@ contract SupraCaller is ISupraCaller {
         uint256 _timestampRetrieved
     )
     {
-        //Obtain the latest price value from the SupraOracles S-Value Price Feed (feed returns 8 decimals).
-        (int256 _value, uint256 _time ) = supra.checkPrice(_marketPair);
-        if (_value > 0) {
-            uint256 positiveValue = uint256(_value);
+        (uint256 round, uint256 decimals, uint256 _time, int256 _price) = supra.getPrice(_priceIndex);
+        if (_price > 0) {
+            uint256 positiveValue = uint256(_price);
             return (true, positiveValue, _time);
         }
         return (false, 0, _time);

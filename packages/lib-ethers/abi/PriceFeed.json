@@ -59,25 +59,12 @@
   },
   {
     "inputs": [],
-    "name": "ETHUSD_TELLOR_REQ_ID",
+    "name": "HBAR_USD_ID",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "HBAR_USD_ID",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -124,6 +111,19 @@
   },
   {
     "inputs": [],
+    "name": "PYTH_DIGITS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "SUPRA_DIGITS",
     "outputs": [
       {
@@ -138,19 +138,6 @@
   {
     "inputs": [],
     "name": "TARGET_DIGITS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TELLOR_DIGITS",
     "outputs": [
       {
         "internalType": "uint256",
@@ -227,6 +214,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "pythCaller",
+    "outputs": [
+      {
+        "internalType": "contract IPythCaller",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -235,7 +235,7 @@
       },
       {
         "internalType": "address",
-        "name": "_tellorCallerAddress",
+        "name": "_pythCallerAddress",
         "type": "address"
       }
     ],
@@ -263,19 +263,6 @@
     "outputs": [
       {
         "internalType": "contract ISupraCaller",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "tellorCaller",
-    "outputs": [
-      {
-        "internalType": "contract ITellorCaller",
         "name": "",
         "type": "address"
       }
