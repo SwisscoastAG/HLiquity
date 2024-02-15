@@ -38,9 +38,9 @@ contract SupraCaller is ISupraCaller {
         uint256 _timestampRetrieved
     )
     {
-        (uint256 round, uint256 decimals, uint256 _time, int256 _price) = supra.getPrice(_priceIndex);
+        (uint256 round, uint256 decimals, uint256 _time, uint256 _price) = supra.getSvalue(_priceIndex);
         if (_price > 0) {
-            uint256 positiveValue = uint256(_price);
+            uint256 positiveValue = _price;
             return (true, positiveValue, _time);
         }
         return (false, 0, _time);
