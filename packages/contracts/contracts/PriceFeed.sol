@@ -37,7 +37,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
 
     // Use to convert a price answer to an 8-digit precision uint
     uint constant public TARGET_DIGITS = 8;
-    uint constant public SUPRA_DIGITS = 8;
+    uint constant public SUPRA_DIGITS = 18;
     uint constant public PYTH_DIGITS = 8;
 
     // Maximum time period allowed since latest round data timestamp, beyond which considered frozen.

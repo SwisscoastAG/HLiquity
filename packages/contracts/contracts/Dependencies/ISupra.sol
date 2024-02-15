@@ -10,5 +10,5 @@ interface ISupra {
      * @return time The timestamp of the last price update.
      * @return price The price of the market pair.
      */
-    function getPrice(uint256 _priceIndex) external view returns (uint256 round, uint256 decimals, uint256 time, int256 price);
+    function getSvalue(uint256 _priceIndex) external view returns (uint256 round, uint256 decimals, uint256 time, uint256 price);
 }
