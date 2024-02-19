@@ -13,7 +13,6 @@ interface IHederaTokenService {
     /// transaction fee is still charged. This transaction must be signed by the keys for all the sending
     /// accounts, and for any receiving accounts that have receiverSigRequired == true. The signatures
     /// are in the same order as the accounts, skipping those accounts that don't need a signature.
-    /// @custom:version 0.3.0 previous version did not include isApproval
     struct AccountAmount {
         // The Account ID, as a solidity address, that sends/receives cryptocurrency or tokens
         address accountID;
@@ -30,7 +29,6 @@ interface IHederaTokenService {
     /// A sender account, a receiver account, and the serial number of an NFT of a Token with
     /// NON_FUNGIBLE_UNIQUE type. When minting NFTs the sender will be the default AccountID instance
     /// (0.0.0 aka 0x0) and when burning NFTs, the receiver will be the default AccountID instance.
-    /// @custom:version 0.3.0 previous version did not include isApproval
     struct NftTransfer {
         // The solidity address of the sender
         address senderAccountID;
@@ -303,7 +301,6 @@ interface IHederaTokenService {
     /// Performs transfers among combinations of tokens and hbars
     /// @param transferList the list of hbar transfers to do
     /// @param tokenTransfers the list of token transfers to do
-    /// @custom:version 0.3.0 the signature of the previous version was cryptoTransfer(TokenTransferList[] memory tokenTransfers)
     function cryptoTransfer(TransferList memory transferList, TokenTransferList[] memory tokenTransfers)
     external
     returns (int64 responseCode);

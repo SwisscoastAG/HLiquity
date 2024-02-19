@@ -27,7 +27,7 @@ abstract contract KeyHelper {
         DELEGETABLE_CONTRACT_ID
     }
 
-    constructor() {
+    constructor() public {
         keyTypes[KeyType.ADMIN] = 1;
         keyTypes[KeyType.KYC] = 2;
         keyTypes[KeyType.FREEZE] = 4;

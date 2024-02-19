@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../TroveManager.sol";
 import "../BorrowerOperations.sol";
@@ -91,27 +92,5 @@ contract EchidnaProxy {
 
     function withdrawFromSPPrx(uint _amount) external {
         stabilityPool.withdrawFromSP(_amount);
-    }
-
-    // LUSD Token
-
-    function transferPrx(address recipient, uint256 amount) external returns (bool) {
-        return lusdToken.transfer(recipient, amount);
-    }
-
-    function approvePrx(address spender, uint256 amount) external returns (bool) {
-        return lusdToken.approve(spender, amount);
-    }
-
-    function transferFromPrx(address sender, address recipient, uint256 amount) external returns (bool) {
-        return lusdToken.transferFrom(sender, recipient, amount);
-    }
-
-    function increaseAllowancePrx(address spender, uint256 addedValue) external returns (bool) {
-        return lusdToken.increaseAllowance(spender, addedValue);
-    }
-
-    function decreaseAllowancePrx(address spender, uint256 subtractedValue) external returns (bool) {
-        return lusdToken.decreaseAllowance(spender, subtractedValue);
     }
 }

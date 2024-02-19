@@ -1,15 +1,25 @@
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "./Interfaces/IDCHFToken.sol";
+import "./Interfaces/IHederaTokenService.sol";
 import "./Dependencies/ExpiryHelper.sol";
 import "./Dependencies/KeyHelper.sol";
+import "./Dependencies/CheckContract.sol";
+import "./Dependencies/HederaResponseCodes.sol";
+import "./Dependencies/IERC20.sol";
+import "./Dependencies/SafeCast.sol";
 
 
-contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
+contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
 {
     address internal constant _PRECOMPILED_ADDRESS = address(0x167);
     address public tokenAddress;
 
+
+    address public immutable troveManagerAddress;
+    address public immutable stabilityPoolAddress;
+    address public immutable borrowerOperationsAddress;
 
     event ResponseCode(int responseCode);
     event MintedToken(int64 newTotalSupply, int64[] serialNumbers);
@@ -20,17 +30,25 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
 
     string constant internal _NAME = "DCHF Stablecoin";
     string constant internal _SYMBOL = "DCHF";
-    string constant internal _VERSION = "1";
     int32 constant internal _DECIMALS = 8;
 
-    constructor    (
+    constructor(
         address _troveManagerAddress,
         address _stabilityPoolAddress,
         address _borrowerOperationsAddress
-    )  payable  {
+    )  payable public {
         checkContract(_troveManagerAddress);
         checkContract(_stabilityPoolAddress);
         checkContract(_borrowerOperationsAddress);
+
+        troveManagerAddress = _troveManagerAddress;
+        emit TroveManagerAddressChanged(_troveManagerAddress);
+
+        stabilityPoolAddress = _stabilityPoolAddress;
+        emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+
+        borrowerOperationsAddress = _borrowerOperationsAddress;
+        emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
 
         IHederaTokenService.HederaToken memory token;
         token.name = _NAME;
@@ -61,7 +79,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
         _burn(_account, _amount);
     }
 
-    function sendToPool(address _sender,  address _poolAddress, uint256 _amount) external override {
+    function sendToPool(address _sender, address _poolAddress, uint256 _amount) external override {
         _requireCallerIsStabilityPool();
         _transfer(_sender, _poolAddress, _amount);
     }
@@ -76,8 +94,8 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      *
      * @return string The the name of the token
      */
-    function name() external view returns (string memory) {
-        return IERC20Metadata(_getTokenAddress()).name();
+    function name() external view override returns (string memory) {
+        return IERC20(_getTokenAddress()).name();
     }
 
     /**
@@ -85,8 +103,8 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      *
      * @return string The the symbol of the token
      */
-    function symbol() external view returns (string memory) {
-        return IERC20Metadata(_getTokenAddress()).symbol();
+    function symbol() external view override returns (string memory) {
+        return IERC20(_getTokenAddress()).symbol();
     }
 
     /**
@@ -94,7 +112,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      *
      * @return uint8 The number of decimals of the token
      */
-    function decimals() external view returns (uint8) {
+    function decimals() external view override returns (uint8) {
         return _decimals();
     }
 
@@ -103,7 +121,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      *
      * @return uint256 The total number of tokens that exists
      */
-    function totalSupply() external view returns (uint256) {
+    function totalSupply() external view override returns (uint256) {
         return _totalSupply();
     }
 
@@ -120,57 +138,73 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
         return _balanceOf(account);
     }
 
+    function getTokenAddress() external view override returns (address) {
+        return tokenAddress;
+    }
+
     // --- Internal operations ---
     // Warning: sanity checks (for sender and recipient) should have been done before calling these internal functions
 
 
     function _mint(
         address account,
-        int64 amount
+        uint256 amount
     )
-    external
+    internal
     returns (bool)
     {
+        require(amount <= uint256(type(int64).max), "Amount exceeds int64 limits");
+
+        int64 safeAmount = int64(amount);
+
         address currentTokenAddress = _getTokenAddress();
 
         uint256 balance = _balanceOf(address(this));
 
         (int64 responseCode, ,) = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .mintToken(currentTokenAddress, amount, new bytes[](0));
+            .mintToken(currentTokenAddress, safeAmount, new bytes[](0));
 
         bool success = _checkResponse(responseCode);
 
         if (
             !((_balanceOf(address(this)) - balance) ==
-            SafeCast.toUint256(amount))
+            amount)
         ) revert('The smart contract is not the treasury account');
 
-        _transfer(account, amount);
+        _transfer(address(this), account, amount);
 
-        emit TokensMinted(msg.sender, currentTokenAddress, amount, account);
+        emit TokensMinted(msg.sender, currentTokenAddress, safeAmount, account);
 
         return success;
     }
 
     function _burn(
         address account,
-        int64 amount
+        uint256 amount
     )
-    external
+    internal
     returns (bool)
     {
+        require(amount <= uint256(type(int64).max), "Amount exceeds int64 limits");
+
+        int64 safeAmount = int64(amount);
+
         address currentTokenAddress = _getTokenAddress();
 
         _transfer(account, address(this), amount);
 
         (int64 responseCode,) = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .burnToken(currentTokenAddress, amount, new int64[](0));
+            .burnToken(currentTokenAddress, safeAmount, new int64[](0));
 
         bool success = _checkResponse(responseCode);
 
-        emit TokensBurned(msg.sender, currentTokenAddress, amount);
+        emit TokensBurned(msg.sender, currentTokenAddress, safeAmount);
 
         return success;
+    }
+
+    function _getTokenAddress() internal view returns (address) {
+        return tokenAddress;
     }
 
     /**
@@ -186,29 +220,29 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
         return IERC20(_getTokenAddress()).balanceOf(account);
     }
 
-    /**
-     * @dev Transfers an amount of tokens from and account to another account
-     *
-     * @param to The address the tokens are transferred to
-     */
+
     function _transfer(
         address sender,
         address recipient,
-        int64 amount
+        uint256 amount
     )
     internal
     {
         assert(sender != address(0));
         assert(recipient != address(0));
 
+        require(amount <= uint256(type(int64).max), "Amount exceeds int64 limits");
+
+        int64 safeAmount = int64(amount);
+
         address currentTokenAddress = _getTokenAddress();
 
         int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(currentTokenAddress, sender, recipient, amount);
+            .transferToken(currentTokenAddress, sender, recipient, safeAmount);
 
         _checkResponse(responseCode);
 
-        emit TokenTransfer(currentTokenAddress, address(this), to, amount);
+        emit TokenTransfer(currentTokenAddress, sender, recipient, safeAmount);
     }
 
     /**
@@ -235,7 +269,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      *
      */
     function _decimals() internal view returns (uint8) {
-        return IERC20Metadata(tokenAddress).decimals();
+        return IERC20(tokenAddress).decimals();
     }
 
     /**
@@ -244,6 +278,12 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper
      */
     function _totalSupply() internal view returns (uint256) {
         return IERC20(tokenAddress).totalSupply();
+    }
+
+    function _checkResponse(int responseCode) internal pure returns (bool) {
+        // Using require to check the condition, and provide a custom error message if it fails.
+        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
+        return true;
     }
 
     // --- 'require' functions ---

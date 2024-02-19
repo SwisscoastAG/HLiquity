@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../TroveManager.sol";
 import "../BorrowerOperations.sol";
@@ -50,7 +51,7 @@ contract EchidnaTester {
         defaultPool = new DefaultPool();
         stabilityPool = new StabilityPool();
         gasPool = new GasPool();
-        lusdToken = new LUSDToken(
+        lusdToken = new DCHFToken(
             address(troveManager),
             address(stabilityPool),
             address(borrowerOperations)
@@ -247,32 +248,6 @@ contract EchidnaTester {
         echidnaProxies[actor].withdrawFromSPPrx(_amount);
     }
 
-    // LUSD Token
-
-    function transferExt(uint _i, address recipient, uint256 amount) external returns (bool) {
-        uint actor = _i % NUMBER_OF_ACTORS;
-        echidnaProxies[actor].transferPrx(recipient, amount);
-    }
-
-    function approveExt(uint _i, address spender, uint256 amount) external returns (bool) {
-        uint actor = _i % NUMBER_OF_ACTORS;
-        echidnaProxies[actor].approvePrx(spender, amount);
-    }
-
-    function transferFromExt(uint _i, address sender, address recipient, uint256 amount) external returns (bool) {
-        uint actor = _i % NUMBER_OF_ACTORS;
-        echidnaProxies[actor].transferFromPrx(sender, recipient, amount);
-    }
-
-    function increaseAllowanceExt(uint _i, address spender, uint256 addedValue) external returns (bool) {
-        uint actor = _i % NUMBER_OF_ACTORS;
-        echidnaProxies[actor].increaseAllowancePrx(spender, addedValue);
-    }
-
-    function decreaseAllowanceExt(uint _i, address spender, uint256 subtractedValue) external returns (bool) {
-        uint actor = _i % NUMBER_OF_ACTORS;
-        echidnaProxies[actor].decreaseAllowancePrx(spender, subtractedValue);
-    }
 
     // PriceFeed
 

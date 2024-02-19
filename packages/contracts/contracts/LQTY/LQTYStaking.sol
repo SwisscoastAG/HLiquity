@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../Dependencies/BaseMath.sol";
 import "../Dependencies/SafeMath.sol";
@@ -11,9 +12,12 @@ import "../Interfaces/ILQTYToken.sol";
 import "../Interfaces/ILQTYStaking.sol";
 import "../Dependencies/LiquityMath.sol";
 import "../Interfaces/IDCHFToken.sol";
+import "../Interfaces/IHederaTokenService.sol";
+import "../Dependencies/HederaResponseCodes.sol";
 
 contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     using SafeMath for uint;
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     // --- Data ---
     string constant public NAME = "HLQTStaking";
@@ -121,7 +125,13 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
 
          // Send accumulated LUSD and ETH gains to the caller
         if (currentStake != 0) {
-            lusdToken.transfer(msg.sender, LUSDGain);
+            require(LUSDGain <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
+
+            int64 safeLUSDGain = int64(LUSDGain);
+            int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+                .transferToken(lusdToken.getTokenAddress(), address(this), msg.sender, safeLUSDGain);
+            _checkResponse(responseCode);
+
             _sendETHGainToUser(ETHGain);
         }
     }
@@ -157,7 +167,11 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         emit StakingGainsWithdrawn(msg.sender, LUSDGain, ETHGain);
 
         // Send accumulated LUSD and ETH gains to the caller
-        lusdToken.transfer(msg.sender, LUSDGain);
+        require(LUSDGain <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
+        int64 safeLUSDGain = int64(LUSDGain);
+        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+            .transferToken(lusdToken.getTokenAddress(), address(this), msg.sender, safeLUSDGain);
+        _checkResponse(responseCode);
         _sendETHGainToUser(ETHGain);
     }
 
@@ -243,5 +257,11 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
 
     receive() external payable {
         _requireCallerIsActivePool();
+    }
+
+    function _checkResponse(int responseCode) internal pure returns (bool) {
+        // Using require to check the condition, and provide a custom error message if it fails.
+        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
+        return true;
     }
 }

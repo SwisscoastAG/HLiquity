@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../DCHFToken.sol";
 
@@ -40,24 +41,11 @@ contract LUSDTokenTester is DCHFToken {
         _transfer(_poolAddress, _receiver, _amount);
     }
 
-    function callInternalApprove(address owner, address spender, uint256 amount) external returns (bool) {
-        _approve(owner, spender, amount);
-    }
-
     function getChainId() external pure returns (uint256 chainID) {
         //return _chainID(); // it’s private
         assembly {
             chainID := chainid()
         }
-    }
-
-    function getDigest(address owner, address spender, uint amount, uint nonce, uint deadline) external view returns (bytes32) {
-        return keccak256(abi.encodePacked(
-                uint16(0x1901),
-                domainSeparator(),
-                keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, amount, nonce, deadline))
-            )
-        );
     }
 
     function recoverAddress(bytes32 digest, uint8 v, bytes32 r, bytes32 s) external pure returns (address) {

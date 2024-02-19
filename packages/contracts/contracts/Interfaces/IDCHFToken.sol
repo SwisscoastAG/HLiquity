@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.16;
+pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 
 import "./IHederaTokenService.sol";
@@ -87,6 +88,7 @@ interface IDCHFToken {
         int64 amount
     );
 
+
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
      * another (`to`).
@@ -114,25 +116,6 @@ interface IDCHFToken {
      */
     event MetadataSet(address indexed admin, string metadata);
 
-
-    /**
-     * @dev Emitted when the provided `code` is not success
-     *
-     * @param code The code to check
-     */
-    error ResponseCodeInvalid(int256 code);
-
-    /**
-     * @dev Emitted when updating the token admin key
-     *
-     */
-    error AdminKeyUpdateError();
-
-    /**
-     * @dev Emitted when updating the token supply key
-     *
-     */
-    error SupplyKeyUpdateError();
 
     function mint(address _account, uint256 _amount) external;
 
@@ -178,4 +161,6 @@ interface IDCHFToken {
      * @return uint8 The number of decimals of the token
      */
     function decimals() external view returns (uint8);
+
+    function getTokenAddress() external view returns (address);
 }
