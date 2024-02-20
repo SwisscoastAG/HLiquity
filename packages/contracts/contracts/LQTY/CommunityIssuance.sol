@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
-import "../Interfaces/ILQTYToken.sol";
+import "../Interfaces/IHLQTYToken.sol";
 import "../Interfaces/ICommunityIssuance.sol";
 import "../Dependencies/BaseMath.sol";
 import "../Dependencies/LiquityMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
 import "../Dependencies/SafeMath.sol";
+import "../Interfaces/IHederaTokenService.sol";
+import "../Dependencies/HederaResponseCodes.sol";
 
 
 contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMath {
     using SafeMath for uint;
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     // --- Data ---
 
@@ -44,7 +48,7 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
     */
     uint constant public LQTYSupplyCap = 32e14; // 32 million
 
-    ILQTYToken public lqtyToken;
+    IHLQTYToken public lqtyToken;
 
     address public stabilityPoolAddress;
 
@@ -75,7 +79,7 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
         checkContract(_lqtyTokenAddress);
         checkContract(_stabilityPoolAddress);
 
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
         stabilityPoolAddress = _stabilityPoolAddress;
 
         // When LQTYToken deployed, it should have transferred CommunityIssuance's LQTY entitlement
@@ -121,7 +125,17 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
     function sendLQTY(address _account, uint _LQTYamount) external override {
         _requireCallerIsStabilityPool();
 
-        lqtyToken.transfer(_account, _LQTYamount);
+        int64 safeAmount = int64(_LQTYamount);
+        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+            .transferToken(lqtyToken.getTokenAddress(), address(this), _account, safeAmount);
+        _checkResponse(responseCode);
+    }
+
+
+    function _checkResponse(int responseCode) internal pure returns (bool) {
+        // Using require to check the condition, and provide a custom error message if it fails.
+        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
+        return true;
     }
 
     // --- 'require' functions ---

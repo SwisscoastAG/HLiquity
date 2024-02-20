@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../Dependencies/LiquityMath.sol";
 import "../Dependencies/SafeMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
-import "../Interfaces/ILQTYToken.sol";
+import "../Interfaces/IHLQTYToken.sol";
 import "./Dependencies/SafeERC20.sol";
 import "./Interfaces/ILPTokenWrapper.sol";
 import "./Interfaces/IUnipool.sol";
 import "../Dependencies/console.sol";
+import "../Dependencies/HederaResponseCodes.sol";
 
 
 // Adapted from: https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol
@@ -73,9 +75,10 @@ contract LPTokenWrapper is ILPTokenWrapper {
  */
 contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     string constant public NAME = "Unipool";
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     uint256 public duration;
-    ILQTYToken public lqtyToken;
+    IHLQTYToken public lqtyToken;
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
@@ -105,7 +108,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         checkContract(_uniTokenAddress);
 
         uniToken = IERC20(_uniTokenAddress);
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
         duration = _duration;
 
         _notifyRewardAmount(lqtyToken.getLpRewardsEntitlement(), _duration);
@@ -186,8 +189,17 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         require(reward > 0, "Nothing to claim");
 
         rewards[msg.sender] = 0;
-        lqtyToken.transfer(msg.sender, reward);
+        int64 safeReward = int64(reward);
+        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+            .transferToken(lqtyToken.getTokenAddress(), address(this), msg.sender, safeReward);
+        _checkResponse(responseCode);
         emit RewardPaid(msg.sender, reward);
+    }
+
+    function _checkResponse(int responseCode) internal pure returns (bool) {
+        // Using require to check the condition, and provide a custom error message if it fails.
+        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
+        return true;
     }
 
     // Used only on initialization, sets the reward rate and the end time for the program

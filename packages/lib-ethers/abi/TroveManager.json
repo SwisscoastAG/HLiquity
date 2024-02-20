@@ -1396,7 +1396,7 @@
     "name": "lqtyStaking",
     "outputs": [
       {
-        "internalType": "contract ILQTYStaking",
+        "internalType": "contract IHLQTYStaking",
         "name": "",
         "type": "address"
       }
@@ -1409,7 +1409,7 @@
     "name": "lqtyToken",
     "outputs": [
       {
-        "internalType": "contract ILQTYToken",
+        "internalType": "contract IHLQTYToken",
         "name": "",
         "type": "address"
       }
@@ -1422,7 +1422,7 @@
     "name": "lusdToken",
     "outputs": [
       {
-        "internalType": "contract ILUSDToken",
+        "internalType": "contract IDCHFToken",
         "name": "",
         "type": "address"
       }

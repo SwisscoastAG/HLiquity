@@ -8,14 +8,14 @@ import "../Dependencies/SafeMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
 import "../Dependencies/console.sol";
-import "../Interfaces/ILQTYToken.sol";
-import "../Interfaces/ILQTYStaking.sol";
+import "../Interfaces/IHLQTYToken.sol";
+import "../Interfaces/IHLQTYStaking.sol";
 import "../Dependencies/LiquityMath.sol";
 import "../Interfaces/IDCHFToken.sol";
 import "../Interfaces/IHederaTokenService.sol";
 import "../Dependencies/HederaResponseCodes.sol";
 
-contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
+contract HLQTYStaking is IHLQTYStaking, Ownable, CheckContract, BaseMath {
     using SafeMath for uint;
     address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
@@ -36,7 +36,7 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         uint F_LUSD_Snapshot;
     }
     
-    ILQTYToken public lqtyToken;
+    IHLQTYToken public lqtyToken;
     IDCHFToken public lusdToken;
 
     address public troveManagerAddress;
@@ -79,7 +79,7 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         checkContract(_borrowerOperationsAddress);
         checkContract(_activePoolAddress);
 
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
         lusdToken = IDCHFToken(_lusdTokenAddress);
         troveManagerAddress = _troveManagerAddress;
         borrowerOperationsAddress = _borrowerOperationsAddress;
@@ -159,7 +159,11 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
             emit TotalLQTYStakedUpdated(totalLQTYStaked);
 
             // Transfer unstaked LQTY to user
-            lqtyToken.transfer(msg.sender, LQTYToWithdraw);
+            require(LQTYToWithdraw <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
+            int64 safeLQTYToWithdraw = int64(LQTYToWithdraw);
+            int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+                .transferToken(lqtyToken.getTokenAddress(), address(this), msg.sender, safeLQTYToWithdraw);
+            _checkResponse(responseCode);
 
             emit StakeChanged(msg.sender, newStake);
         }

@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/IStabilityPool.sol";
 import "./Interfaces/ICollSurplusPool.sol";
 import "./Interfaces/IDCHFToken.sol";
 import "./Interfaces/ISortedTroves.sol";
-import "./Interfaces/ILQTYToken.sol";
-import "./Interfaces/ILQTYStaking.sol";
+import "./Interfaces/IHLQTYToken.sol";
+import "./Interfaces/IHLQTYStaking.sol";
 import "./Dependencies/LiquityBase.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
+import "./Interfaces/IGasPool.sol";
 
 contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     string constant public NAME = "TroveManager";
@@ -25,13 +27,15 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
 
     address gasPoolAddress;
 
+    IGasPool gasPool;
+
     ICollSurplusPool collSurplusPool;
 
     IDCHFToken public override lusdToken;
 
-    ILQTYToken public override lqtyToken;
+    IHLQTYToken public override lqtyToken;
 
-    ILQTYStaking public override lqtyStaking;
+    IHLQTYStaking public override lqtyStaking;
 
     // A doubly linked list of Troves, sorted by their sorted by their collateral ratios
     ISortedTroves public sortedTroves;
@@ -171,7 +175,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
         IActivePool activePool;
         IDefaultPool defaultPool;
         IDCHFToken lusdToken;
-        ILQTYStaking lqtyStaking;
+        IHLQTYStaking lqtyStaking;
         ISortedTroves sortedTroves;
         ICollSurplusPool collSurplusPool;
         address gasPoolAddress;
@@ -264,13 +268,14 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
         activePool = IActivePool(_activePoolAddress);
         defaultPool = IDefaultPool(_defaultPoolAddress);
         stabilityPool = IStabilityPool(_stabilityPoolAddress);
+        gasPool = IGasPool(_gasPoolAddress);
         gasPoolAddress = _gasPoolAddress;
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         lusdToken = IDCHFToken(_lusdTokenAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
-        lqtyStaking = ILQTYStaking(_lqtyStakingAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
+        lqtyStaking = IHLQTYStaking(_lqtyStakingAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
@@ -497,7 +502,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
             activePool,
             defaultPool,
             IDCHFToken(address(0)),
-            ILQTYStaking(address(0)),
+            IHLQTYStaking(address(0)),
             sortedTroves,
             ICollSurplusPool(address(0)),
             address(0)
@@ -795,6 +800,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
 
     function _sendGasCompensation(IActivePool _activePool, address _liquidator, uint _LUSD, uint _ETH) internal {
         if (_LUSD > 0) {
+            gasPool.approve(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
             lusdToken.returnFromPool(gasPoolAddress, _liquidator, _LUSD);
         }
 
@@ -880,6 +886,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     * Any surplus ETH left in the trove, is sent to the Coll surplus pool, and can be later claimed by the borrower.
     */
     function _redeemCloseTrove(ContractsCache memory _contractsCache, address _borrower, uint _LUSD, uint _ETH) internal {
+        gasPool.approve(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
         _contractsCache.lusdToken.burn(gasPoolAddress, _LUSD);
         // Update Active Pool LUSD, and send ETH to account
         _contractsCache.activePool.decreaseLUSDDebt(_LUSD);

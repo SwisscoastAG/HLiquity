@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../Dependencies/SafeMath.sol";
-import "../Interfaces/ILQTYToken.sol";
+import "../Interfaces/IHLQTYToken.sol";
+import "../Interfaces/IHederaTokenService.sol";
+import "../Dependencies/HederaResponseCodes.sol";
 
 /*
 * The lockup contract architecture utilizes a single LockupContract, with an unlockTime. The unlockTime is passed as an argument 
@@ -18,7 +21,7 @@ import "../Interfaces/ILQTYToken.sol";
 */
 contract LockupContract {
     using SafeMath for uint;
-
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
     // --- Data ---
     string constant public NAME = "LockupContract";
 
@@ -26,7 +29,7 @@ contract LockupContract {
 
     address public immutable beneficiary;
 
-    ILQTYToken public lqtyToken;
+    IHLQTYToken public lqtyToken;
 
     // Unlock time is the Unix point in time at which the beneficiary can withdraw.
     uint public unlockTime;
@@ -46,7 +49,7 @@ contract LockupContract {
     )
         public 
     {
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
 
         /*
         * Set the unlock time to a chosen instant in the future, as long as it is at least 1 year after
@@ -63,12 +66,23 @@ contract LockupContract {
         _requireCallerIsBeneficiary();
         _requireLockupDurationHasPassed();
 
-        ILQTYToken lqtyTokenCached = lqtyToken;
+        IHLQTYToken lqtyTokenCached = lqtyToken;
         uint LQTYBalance = lqtyTokenCached.balanceOf(address(this));
-        lqtyTokenCached.transfer(beneficiary, LQTYBalance);
+
+        require(LQTYBalance <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
+        int64 safeLQTYBalance = int64(LQTYBalance);
+        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
+            .transferToken(lqtyToken.getTokenAddress(), address(this),beneficiary, safeLQTYBalance);
+        _checkResponse(responseCode);
         emit LockupContractEmptied(LQTYBalance);
     }
 
+
+    function _checkResponse(int responseCode) internal pure returns (bool) {
+        // Using require to check the condition, and provide a custom error message if it fails.
+        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
+        return true;
+    }
     // --- 'require' functions ---
 
     function _requireCallerIsBeneficiary() internal view {

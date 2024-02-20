@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
-
+import "./Dependencies/HederaResponseCodes.sol";
+import "./Interfaces/IHederaTokenService.sol";
 /**
  * The purpose of this contract is to hold LUSD tokens for gas compensation:
  * https://github.com/liquity/dev#gas-compensation
@@ -14,5 +16,13 @@ pragma solidity 0.6.11;
  * See this issue for more context: https://github.com/liquity/dev/issues/186
  */
 contract GasPool {
-    // do nothing, as the core contracts have permission to send to and burn from this address
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
+
+    function approve(address token, address spender, uint256 amount) public returns (int responseCode) {
+        responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).approve(token, spender, amount);
+
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert ();
+        }
+    }
 }

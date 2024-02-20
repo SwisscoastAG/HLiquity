@@ -277,6 +277,7 @@ interface GasPoolCalls {
 }
 
 interface GasPoolTransactions {
+  approve(token: string, spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
 export interface GasPool
@@ -375,54 +376,57 @@ export interface LockupContractFactory
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
 }
 
-interface LUSDTokenCalls {
-  allowance(owner: string, spender: string, _overrides?: CallOverrides): Promise<BigNumber>;
+interface DCHFTokenCalls {
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
   decimals(_overrides?: CallOverrides): Promise<number>;
-  domainSeparator(_overrides?: CallOverrides): Promise<string>;
+  getTokenAddress(_overrides?: CallOverrides): Promise<string>;
   name(_overrides?: CallOverrides): Promise<string>;
-  nonces(owner: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  permitTypeHash(_overrides?: CallOverrides): Promise<string>;
   stabilityPoolAddress(_overrides?: CallOverrides): Promise<string>;
   symbol(_overrides?: CallOverrides): Promise<string>;
+  tokenAddress(_overrides?: CallOverrides): Promise<string>;
   totalSupply(_overrides?: CallOverrides): Promise<BigNumber>;
   troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
-  version(_overrides?: CallOverrides): Promise<string>;
 }
 
-interface LUSDTokenTransactions {
-  approve(spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
+interface DCHFTokenTransactions {
   burn(_account: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  decreaseAllowance(spender: string, subtractedValue: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  increaseAllowance(spender: string, addedValue: BigNumberish, _overrides?: Overrides): Promise<boolean>;
   mint(_account: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  permit(owner: string, spender: string, amount: BigNumberish, deadline: BigNumberish, v: BigNumberish, r: BytesLike, s: BytesLike, _overrides?: Overrides): Promise<void>;
   returnFromPool(_poolAddress: string, _receiver: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   sendToPool(_sender: string, _poolAddress: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  transfer(recipient: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  transferFrom(sender: string, recipient: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
 }
 
-export interface LUSDToken
-  extends _TypedLiquityContract<LUSDTokenCalls, LUSDTokenTransactions> {
+export interface DCHFToken
+  extends _TypedLiquityContract<DCHFTokenCalls, DCHFTokenTransactions> {
   readonly filters: {
-    Approval(owner?: string | null, spender?: string | null, value?: null): EventFilter;
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
     LUSDTokenBalanceUpdated(_user?: null, _amount?: null): EventFilter;
+    MetadataSet(admin?: string | null, metadata?: null): EventFilter;
+    MintedToken(newTotalSupply?: null, serialNumbers?: null): EventFilter;
+    ResponseCode(responseCode?: null): EventFilter;
     StabilityPoolAddressChanged(_newStabilityPoolAddress?: null): EventFilter;
+    TokenTransfer(token?: string | null, sender?: string | null, receiver?: string | null, amount?: null): EventFilter;
+    TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
+    TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
+    TokensMinted(minter?: string | null, token?: string | null, amount?: null, account?: string | null): EventFilter;
     Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
     TroveManagerAddressChanged(_troveManagerAddress?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "Approval"): _TypedLogDescription<{ owner: string; spender: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
   extractEvents(logs: Log[], name: "LUSDTokenBalanceUpdated"): _TypedLogDescription<{ _user: string; _amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
+  extractEvents(logs: Log[], name: "MintedToken"): _TypedLogDescription<{ newTotalSupply: BigNumber; serialNumbers: BigNumber[] }>[];
+  extractEvents(logs: Log[], name: "ResponseCode"): _TypedLogDescription<{ responseCode: BigNumber }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _newStabilityPoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "TokenTransfer"): _TypedLogDescription<{ token: string; sender: string; receiver: string; amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
+  extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TokensMinted"): _TypedLogDescription<{ minter: string; token: string; amount: BigNumber; account: string }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ from: string; to: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _troveManagerAddress: string }>[];
 }
 
-interface LQTYStakingCalls {
+interface HLQTYStakingCalls {
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
   F_ETH(_overrides?: CallOverrides): Promise<BigNumber>;
   F_LUSD(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -441,7 +445,7 @@ interface LQTYStakingCalls {
   troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
-interface LQTYStakingTransactions {
+interface HLQTYStakingTransactions {
   increaseF_ETH(_ETHFee: BigNumberish, _overrides?: Overrides): Promise<void>;
   increaseF_LUSD(_LUSDFee: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_lqtyTokenAddress: string, _lusdTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
@@ -449,8 +453,8 @@ interface LQTYStakingTransactions {
   unstake(_LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
 }
 
-export interface LQTYStaking
-  extends _TypedLiquityContract<LQTYStakingCalls, LQTYStakingTransactions> {
+export interface HLQTYStaking
+  extends _TypedLiquityContract<HLQTYStakingCalls, HLQTYStakingTransactions> {
   readonly filters: {
     ActivePoolAddressSet(_activePoolAddress?: null): EventFilter;
     BorrowerOperationsAddressSet(_borrowerOperationsAddress?: null): EventFilter;
@@ -481,49 +485,48 @@ export interface LQTYStaking
   extractEvents(logs: Log[], name: "TroveManagerAddressSet"): _TypedLogDescription<{ _troveManager: string }>[];
 }
 
-interface LQTYTokenCalls {
+interface HLQTYTokenCalls {
   ONE_YEAR_IN_SECONDS(_overrides?: CallOverrides): Promise<BigNumber>;
-  allowance(owner: string, spender: string, _overrides?: CallOverrides): Promise<BigNumber>;
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   communityIssuanceAddress(_overrides?: CallOverrides): Promise<string>;
   decimals(_overrides?: CallOverrides): Promise<number>;
-  domainSeparator(_overrides?: CallOverrides): Promise<string>;
   getDeploymentStartTime(_overrides?: CallOverrides): Promise<BigNumber>;
   getLpRewardsEntitlement(_overrides?: CallOverrides): Promise<BigNumber>;
+  getTokenAddress(_overrides?: CallOverrides): Promise<string>;
   lockupContractFactory(_overrides?: CallOverrides): Promise<string>;
   lqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
   multisigAddress(_overrides?: CallOverrides): Promise<string>;
   name(_overrides?: CallOverrides): Promise<string>;
-  nonces(owner: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  permitTypeHash(_overrides?: CallOverrides): Promise<string>;
   symbol(_overrides?: CallOverrides): Promise<string>;
+  tokenAddress(_overrides?: CallOverrides): Promise<string>;
   totalSupply(_overrides?: CallOverrides): Promise<BigNumber>;
-  version(_overrides?: CallOverrides): Promise<string>;
 }
 
-interface LQTYTokenTransactions {
-  approve(spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  decreaseAllowance(spender: string, subtractedValue: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  increaseAllowance(spender: string, addedValue: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  permit(owner: string, spender: string, amount: BigNumberish, deadline: BigNumberish, v: BigNumberish, r: BytesLike, s: BytesLike, _overrides?: Overrides): Promise<void>;
+interface HLQTYTokenTransactions {
   sendToLQTYStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  transfer(recipient: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
-  transferFrom(sender: string, recipient: string, amount: BigNumberish, _overrides?: Overrides): Promise<boolean>;
 }
 
-export interface LQTYToken
-  extends _TypedLiquityContract<LQTYTokenCalls, LQTYTokenTransactions> {
+export interface HLQTYToken
+  extends _TypedLiquityContract<HLQTYTokenCalls, HLQTYTokenTransactions> {
   readonly filters: {
-    Approval(owner?: string | null, spender?: string | null, value?: null): EventFilter;
     CommunityIssuanceAddressSet(_communityIssuanceAddress?: null): EventFilter;
     LQTYStakingAddressSet(_lqtyStakingAddress?: null): EventFilter;
     LockupContractFactoryAddressSet(_lockupContractFactoryAddress?: null): EventFilter;
+    MetadataSet(admin?: string | null, metadata?: null): EventFilter;
+    TokenTransfer(token?: string | null, sender?: string | null, receiver?: string | null, amount?: null): EventFilter;
+    TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
+    TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
+    TokensMinted(minter?: string | null, token?: string | null, amount?: null, account?: string | null): EventFilter;
     Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "Approval"): _TypedLogDescription<{ owner: string; spender: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "CommunityIssuanceAddressSet"): _TypedLogDescription<{ _communityIssuanceAddress: string }>[];
   extractEvents(logs: Log[], name: "LQTYStakingAddressSet"): _TypedLogDescription<{ _lqtyStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractFactoryAddressSet"): _TypedLogDescription<{ _lockupContractFactoryAddress: string }>[];
+  extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
+  extractEvents(logs: Log[], name: "TokenTransfer"): _TypedLogDescription<{ token: string; sender: string; receiver: string; amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
+  extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TokensMinted"): _TypedLogDescription<{ minter: string; token: string; amount: BigNumber; account: string }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ from: string; to: string; value: BigNumber }>[];
 }
 
@@ -689,6 +692,7 @@ interface StabilityPoolCalls {
 }
 
 interface StabilityPoolTransactions {
+  _approve(token: string, spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   offset(_debtToOffset: BigNumberish, _collToAdd: BigNumberish, _overrides?: Overrides): Promise<void>;
   provideToSP(_amount: BigNumberish, _frontEndTag: string, _overrides?: Overrides): Promise<void>;
   registerFrontEnd(_kickbackRate: BigNumberish, _overrides?: Overrides): Promise<void>;

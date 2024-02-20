@@ -15,14 +15,14 @@ import {
 import activePoolAbi from "../abi/ActivePool.json";
 import borrowerOperationsAbi from "../abi/BorrowerOperations.json";
 import troveManagerAbi from "../abi/TroveManager.json";
-import lusdTokenAbi from "../abi/LUSDToken.json";
+import lusdTokenAbi from "../abi/DCHFToken.json";
 import collSurplusPoolAbi from "../abi/CollSurplusPool.json";
 import communityIssuanceAbi from "../abi/CommunityIssuance.json";
 import defaultPoolAbi from "../abi/DefaultPool.json";
-import lqtyTokenAbi from "../abi/LQTYToken.json";
+import lqtyTokenAbi from "../abi/HLQTYToken.json";
 import hintHelpersAbi from "../abi/HintHelpers.json";
 import lockupContractFactoryAbi from "../abi/LockupContractFactory.json";
-import lqtyStakingAbi from "../abi/LQTYStaking.json";
+import lqtyStakingAbi from "../abi/HLQTYStaking.json";
 import multiTroveGetterAbi from "../abi/MultiTroveGetter.json";
 import priceFeedAbi from "../abi/PriceFeed.json";
 import priceFeedTestnetAbi from "../abi/PriceFeedTestnet.json";
@@ -37,14 +37,14 @@ import {
   ActivePool,
   BorrowerOperations,
   TroveManager,
-  LUSDToken,
+  DCHFToken,
   CollSurplusPool,
   CommunityIssuance,
   DefaultPool,
-  LQTYToken,
+  HLQTYToken,
   HintHelpers,
   LockupContractFactory,
-  LQTYStaking,
+  HLQTYStaking,
   MultiTroveGetter,
   PriceFeed,
   PriceFeedTestnet,
@@ -156,14 +156,14 @@ export interface _LiquityContracts {
   activePool: ActivePool;
   borrowerOperations: BorrowerOperations;
   troveManager: TroveManager;
-  lusdToken: LUSDToken;
+  lusdToken: DCHFToken;
   collSurplusPool: CollSurplusPool;
   communityIssuance: CommunityIssuance;
   defaultPool: DefaultPool;
-  lqtyToken: LQTYToken;
+  lqtyToken: HLQTYToken;
   hintHelpers: HintHelpers;
   lockupContractFactory: LockupContractFactory;
-  lqtyStaking: LQTYStaking;
+  lqtyStaking: HLQTYStaking;
   multiTroveGetter: MultiTroveGetter;
   priceFeed: PriceFeed | PriceFeedTestnet;
   sortedTroves: SortedTroves;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import "../Dependencies/SafeMath.sol";
 import "../Dependencies/LiquityMath.sol";
@@ -9,7 +10,7 @@ import "../Interfaces/IBorrowerOperations.sol";
 import "../Interfaces/ITroveManager.sol";
 import "../Interfaces/IStabilityPool.sol";
 import "../Interfaces/IPriceFeed.sol";
-import "../Interfaces/ILQTYStaking.sol";
+import "../Interfaces/IHLQTYStaking.sol";
 import "./BorrowerOperationsScript.sol";
 import "./ETHTransferScript.sol";
 import "./LQTYStakingScript.sol";
@@ -26,7 +27,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
     IPriceFeed immutable priceFeed;
     IERC20 immutable lusdToken;
     IERC20 immutable lqtyToken;
-    ILQTYStaking immutable lqtyStaking;
+    IHLQTYStaking immutable lqtyStaking;
 
     constructor(
         address _borrowerOperationsAddress,
@@ -57,7 +58,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         checkContract(lqtyTokenCached);
         lqtyToken = IERC20(lqtyTokenCached);
 
-        ILQTYStaking lqtyStakingCached = troveManagerCached.lqtyStaking();
+        IHLQTYStaking lqtyStakingCached = troveManagerCached.lqtyStaking();
         require(_lqtyStakingAddress == address(lqtyStakingCached), "BorrowerWrappersScript: Wrong LQTYStaking address");
         lqtyStaking = lqtyStakingCached;
     }

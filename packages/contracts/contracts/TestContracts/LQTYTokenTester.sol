@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
-import "../LQTY/LQTYToken.sol";
+import "../LQTY/HLQTYToken.sol";
 
-contract LQTYTokenTester is LQTYToken {
+contract LQTYTokenTester is HLQTYToken {
     constructor
     (
         address _communityIssuanceAddress, 
@@ -15,7 +16,7 @@ contract LQTYTokenTester is LQTYToken {
         address _multisigAddress
     ) 
         public 
-        LQTYToken 
+        HLQTYToken
     (
         _communityIssuanceAddress,
         _lqtyStakingAddress,
@@ -37,10 +38,6 @@ contract LQTYTokenTester is LQTYToken {
         
         if (_isFirstYear()) {_requireSenderIsNotMultisig(_sender);}
         _transfer(_sender, lqtyStakingAddress, _amount);
-    }
-
-    function callInternalApprove(address owner, address spender, uint256 amount) external returns (bool) {
-        _approve(owner, spender, amount);
     }
 
     function callInternalTransfer(address sender, address recipient, uint256 amount) external returns (bool) {

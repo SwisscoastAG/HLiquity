@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.11;
+pragma experimental ABIEncoderV2;
 
 import './Interfaces/IBorrowerOperations.sol';
 import './Interfaces/IStabilityPool.sol';
@@ -15,6 +16,8 @@ import "./Dependencies/LiquitySafeMath128.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
+import "./Dependencies/HederaResponseCodes.sol";
+import "./Interfaces/IHederaTokenService.sol";
 
 /*
  * The Stability Pool holds LUSD tokens deposited by Stability Pool depositors.
@@ -147,7 +150,7 @@ import "./Dependencies/console.sol";
  */
 contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     using LiquitySafeMath128 for uint128;
-
+    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
     string constant public NAME = "StabilityPool";
 
     IBorrowerOperations public borrowerOperations;
@@ -629,6 +632,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         _decreaseLUSD(_debtToOffset);
 
         // Burn the debt that was successfully offset
+        _approve(lusdToken.getTokenAddress(), address(lusdToken), _debtToOffset);
         lusdToken.burn(address(this), _debtToOffset);
 
         activePoolCached.sendETH(address(this), _collToAdd);
@@ -844,6 +848,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     function _sendLUSDToDepositor(address _depositor, uint LUSDWithdrawal) internal {
         if (LUSDWithdrawal == 0) {return;}
 
+
+        _approve(lusdToken.getTokenAddress(), address(lusdToken), LUSDWithdrawal);
         lusdToken.returnFromPool(address(this), _depositor, LUSDWithdrawal);
         _decreaseLUSD(LUSDWithdrawal);
     }
@@ -863,6 +869,14 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     }
 
     // --- Stability Pool Deposit Functionality ---
+
+    function _approve(address token, address spender, uint256 amount) public returns (int responseCode) {
+        responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).approve(token, spender, amount);
+
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert ();
+        }
+    }
 
     function _setFrontEndTag(address _depositor, address _frontEndTag) internal {
         deposits[_depositor].frontEndTag = _frontEndTag;
