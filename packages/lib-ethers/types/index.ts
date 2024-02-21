@@ -274,6 +274,7 @@ export interface ERC20Mock
 }
 
 interface GasPoolCalls {
+  lusdToken(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface GasPoolTransactions {
@@ -692,7 +693,6 @@ interface StabilityPoolCalls {
 }
 
 interface StabilityPoolTransactions {
-  _approve(token: string, spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   offset(_debtToOffset: BigNumberish, _collToAdd: BigNumberish, _overrides?: Overrides): Promise<void>;
   provideToSP(_amount: BigNumberish, _frontEndTag: string, _overrides?: Overrides): Promise<void>;
   registerFrontEnd(_kickbackRate: BigNumberish, _overrides?: Overrides): Promise<void>;

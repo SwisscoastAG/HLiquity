@@ -50,13 +50,13 @@ contract EchidnaTester {
         activePool = new ActivePool();
         defaultPool = new DefaultPool();
         stabilityPool = new StabilityPool();
-        gasPool = new GasPool();
         lusdToken = new DCHFToken(
             address(troveManager),
             address(stabilityPool),
             address(borrowerOperations)
         );
 
+        gasPool = new GasPool(address(lusdToken));
         collSurplusPool = new CollSurplusPool();
         priceFeedTestnet = new PriceFeedTestnet();
 

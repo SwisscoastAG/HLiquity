@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "./Dependencies/HederaResponseCodes.sol";
 import "./Interfaces/IHederaTokenService.sol";
+import "./Dependencies/BaseHST.sol";
 /**
  * The purpose of this contract is to hold LUSD tokens for gas compensation:
  * https://github.com/liquity/dev#gas-compensation
@@ -15,10 +16,16 @@ import "./Interfaces/IHederaTokenService.sol";
  * 50 LUSD debt on the trove is cancelled.
  * See this issue for more context: https://github.com/liquity/dev/issues/186
  */
-contract GasPool {
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
+contract GasPool is BaseHST {
+    IDCHFToken public lusdToken;
 
-    function approve(address token, address spender, uint256 amount) public returns (int responseCode) {
+    constructor(address _lusdTokenAddress) public {
+        lusdToken = IDCHFToken(_lusdTokenAddress);
+        _associateToken(address(this), lusdToken.getTokenAddress());
+    }
+
+    // TODO restrict function to TroveManager
+    function approve(address token, address spender, uint256 amount) external returns (int responseCode) {
         responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).approve(token, spender, amount);
 
         if (responseCode != HederaResponseCodes.SUCCESS) {
