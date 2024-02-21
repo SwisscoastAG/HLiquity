@@ -17,7 +17,6 @@ import "./Dependencies/console.sol";
  */
 contract ActivePool is Ownable, CheckContract, IActivePool {
     using SafeMath for uint256;
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     string constant public NAME = "ActivePool";
 

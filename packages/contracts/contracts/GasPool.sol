@@ -19,17 +19,24 @@ import "./Dependencies/BaseHST.sol";
 contract GasPool is BaseHST {
     IDCHFToken public lusdToken;
 
-    constructor(address _lusdTokenAddress) public {
+    address troveManagerAddress;
+
+    constructor(address _lusdTokenAddress, address _troveManagerAddress) public {
+        troveManagerAddress = _troveManagerAddress;
         lusdToken = IDCHFToken(_lusdTokenAddress);
         _associateToken(address(this), lusdToken.getTokenAddress());
     }
 
-    // TODO restrict function to TroveManager
     function approve(address token, address spender, uint256 amount) external returns (int responseCode) {
+        _requireCallerIsTroveManager();
         responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).approve(token, spender, amount);
 
         if (responseCode != HederaResponseCodes.SUCCESS) {
             revert ();
         }
+    }
+
+    function _requireCallerIsTroveManager() internal view {
+        require(msg.sender == troveManagerAddress, "GasPool: Caller is not the TroveManager contract");
     }
 }
