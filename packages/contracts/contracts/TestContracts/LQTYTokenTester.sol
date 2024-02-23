@@ -21,8 +21,6 @@ contract LQTYTokenTester is HLQTYToken {
         _communityIssuanceAddress,
         _lqtyStakingAddress,
         _lockupFactoryAddress,
-        _bountyAddress,
-        _lpRewardsAddress,
         _multisigAddress
     )
     {} 

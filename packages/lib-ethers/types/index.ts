@@ -183,6 +183,8 @@ interface CommunityIssuanceTransactions {
   issueLQTY(_overrides?: Overrides): Promise<BigNumber>;
   sendLQTY(_account: string, _LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_lqtyTokenAddress: string, _stabilityPoolAddress: string, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
 export interface CommunityIssuance
@@ -278,7 +280,9 @@ interface GasPoolCalls {
 }
 
 interface GasPoolTransactions {
-  approve(token: string, spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  approveToken(token: string, spender: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
 export interface GasPool
@@ -395,6 +399,8 @@ interface DCHFTokenTransactions {
   mint(_account: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   returnFromPool(_poolAddress: string, _receiver: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   sendToPool(_sender: string, _poolAddress: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
 export interface DCHFToken
@@ -451,6 +457,8 @@ interface HLQTYStakingTransactions {
   increaseF_LUSD(_LUSDFee: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_lqtyTokenAddress: string, _lusdTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
   stake(_LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   unstake(_LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
 }
 
@@ -494,17 +502,22 @@ interface HLQTYTokenCalls {
   getDeploymentStartTime(_overrides?: CallOverrides): Promise<BigNumber>;
   getLpRewardsEntitlement(_overrides?: CallOverrides): Promise<BigNumber>;
   getTokenAddress(_overrides?: CallOverrides): Promise<string>;
+  isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lockupContractFactory(_overrides?: CallOverrides): Promise<string>;
   lqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
   multisigAddress(_overrides?: CallOverrides): Promise<string>;
   name(_overrides?: CallOverrides): Promise<string>;
+  owner(_overrides?: CallOverrides): Promise<string>;
   symbol(_overrides?: CallOverrides): Promise<string>;
   tokenAddress(_overrides?: CallOverrides): Promise<string>;
   totalSupply(_overrides?: CallOverrides): Promise<BigNumber>;
 }
 
 interface HLQTYTokenTransactions {
+  initialize(_bountyAddress: string, _lpRewardsAddress: string, _overrides?: Overrides): Promise<void>;
   sendToLQTYStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
 export interface HLQTYToken
@@ -514,6 +527,7 @@ export interface HLQTYToken
     LQTYStakingAddressSet(_lqtyStakingAddress?: null): EventFilter;
     LockupContractFactoryAddressSet(_lockupContractFactoryAddress?: null): EventFilter;
     MetadataSet(admin?: string | null, metadata?: null): EventFilter;
+    OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     TokenTransfer(token?: string | null, sender?: string | null, receiver?: string | null, amount?: null): EventFilter;
     TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
     TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
@@ -524,6 +538,7 @@ export interface HLQTYToken
   extractEvents(logs: Log[], name: "LQTYStakingAddressSet"): _TypedLogDescription<{ _lqtyStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractFactoryAddressSet"): _TypedLogDescription<{ _lockupContractFactoryAddress: string }>[];
   extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
+  extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "TokenTransfer"): _TypedLogDescription<{ token: string; sender: string; receiver: string; amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
   extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
@@ -697,6 +712,8 @@ interface StabilityPoolTransactions {
   provideToSP(_amount: BigNumberish, _frontEndTag: string, _overrides?: Overrides): Promise<void>;
   registerFrontEnd(_kickbackRate: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_borrowerOperationsAddress: string, _troveManagerAddress: string, _activePoolAddress: string, _lusdTokenAddress: string, _sortedTrovesAddress: string, _priceFeedAddress: string, _communityIssuanceAddress: string, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   withdrawETHGainToTrove(_upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
   withdrawFromSP(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
 }
@@ -919,6 +936,8 @@ interface UnipoolTransactions {
   claimReward(_overrides?: Overrides): Promise<void>;
   setParams(_lqtyTokenAddress: string, _uniTokenAddress: string, _duration: BigNumberish, _overrides?: Overrides): Promise<void>;
   stake(amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
+  transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   withdraw(amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   withdrawAndClaim(_overrides?: Overrides): Promise<void>;
 }

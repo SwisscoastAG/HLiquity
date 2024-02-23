@@ -9,11 +9,11 @@ import "./Dependencies/CheckContract.sol";
 import "./Dependencies/HederaResponseCodes.sol";
 import "./Dependencies/IERC20.sol";
 import "./Dependencies/SafeCast.sol";
+import "./Dependencies/HederaTokenService.sol";
 
 
-contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
+contract DCHFToken is IDCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, CheckContract
 {
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
     address public tokenAddress;
 
 
@@ -63,7 +63,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
         token.tokenKeys = keys;
 
         (int responseCode, address createdTokenAddress) =
-                                IHederaTokenService(_PRECOMPILED_ADDRESS).createFungibleToken{value: msg.value}(token, 0, _DECIMALS);
+                                HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
 
         _checkResponse(responseCode);
         tokenAddress = createdTokenAddress;
@@ -161,8 +161,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
 
         uint256 balance = _balanceOf(address(this));
 
-        (int64 responseCode, ,) = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .mintToken(currentTokenAddress, safeAmount, new bytes[](0));
+        (int responseCode, ,) = HederaTokenService.mintToken(currentTokenAddress, safeAmount, new bytes[](0));
 
         bool success = _checkResponse(responseCode);
 
@@ -193,8 +192,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
 
         _transfer(account, address(this), amount);
 
-        (int64 responseCode,) = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .burnToken(currentTokenAddress, safeAmount, new int64[](0));
+        (int responseCode,) = HederaTokenService.burnToken(currentTokenAddress, safeAmount, new int64[](0));
 
         bool success = _checkResponse(responseCode);
 
@@ -237,8 +235,7 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
 
         address currentTokenAddress = _getTokenAddress();
 
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(currentTokenAddress, sender, recipient, safeAmount);
+        int responseCode = HederaTokenService.transferToken(currentTokenAddress, sender, recipient, safeAmount);
 
         _checkResponse(responseCode);
 
@@ -253,9 +250,9 @@ contract DCHFToken is IDCHFToken, ExpiryHelper, KeyHelper, CheckContract
      */
     function _getTokenInfo() private returns (string memory) {
         (
-            int64 responseCode,
+            int responseCode,
             IHederaTokenService.TokenInfo memory info
-        ) = IHederaTokenService(_PRECOMPILED_ADDRESS).getTokenInfo(
+        ) = HederaTokenService.getTokenInfo(
             tokenAddress
         );
 

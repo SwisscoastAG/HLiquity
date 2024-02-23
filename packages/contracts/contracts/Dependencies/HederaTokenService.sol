@@ -2,9 +2,8 @@
 pragma solidity >=0.5.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 
-import "./Interfaces/IHederaTokenService.sol";
-import "./Dependencies/HederaResponseCodes.sol";
-
+import "./HederaResponseCodes.sol";
+import "../Interfaces/IHederaTokenService.sol";
 
 abstract contract HederaTokenService {
     address constant precompileAddress = address(0x167);
@@ -18,9 +17,6 @@ abstract contract HederaTokenService {
         }
         _;
     }
-
-    /// Generic event
-    event CallResponseEvent(bool, bytes);
 
     /// Performs transfers among combinations of tokens and hbars
     /// @param transferList the list of hbar transfers to do
@@ -45,7 +41,7 @@ abstract contract HederaTokenService {
     /// @return responseCode The response code for the status of the request. SUCCESS is 22.
     /// @return newTotalSupply The new supply of tokens. For NFTs it is the total count of NFTs
     /// @return serialNumbers If the token is an NFT the newly generate serial numbers, otherwise empty.
-    function mintToken(address token, uint64 amount, bytes[] memory metadata) internal
+    function mintToken(address token, int64 amount, bytes[] memory metadata) internal
     returns (int responseCode, int64 newTotalSupply, int64[] memory serialNumbers)
     {
         (bool success, bytes memory result) = precompileAddress.call(
@@ -655,19 +651,5 @@ abstract contract HederaTokenService {
         (bool success, bytes memory result) = precompileAddress.call(
             abi.encodeWithSelector(IHederaTokenService.updateTokenInfo.selector, token, tokenInfo));
         (responseCode) = success ? abi.decode(result, (int32)) : HederaResponseCodes.UNKNOWN;
-    }
-
-    /// Redirect for token
-    /// @param token The token address
-    /// @param encodedFunctionSelector The function selector from the ERC20 interface + the bytes input for the function called
-    /// @return responseCode The response code for the status of the request. SUCCESS is 22.
-    /// @return response The result of the call that had been encoded and sent for execution.
-    function redirectForToken(address token, bytes memory encodedFunctionSelector) external returns (int responseCode, bytes memory response) {
-        (bool success, bytes memory result) = precompileAddress.call(
-            abi.encodeWithSelector(IHederaTokenService.redirectForToken.selector, token, encodedFunctionSelector)
-        );
-
-        emit CallResponseEvent(success, result);
-        (responseCode, response) = success ? abi.decode(result, (int32, bytes)) : (HederaResponseCodes.UNKNOWN, bytes(""));
     }
 }

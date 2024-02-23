@@ -9,28 +9,25 @@ import "./CheckContract.sol";
 import "./HederaResponseCodes.sol";
 import "./IERC20.sol";
 import "./SafeCast.sol";
+import "./HederaTokenService.sol";
 
 
-contract BaseHST
+contract BaseHST is HederaTokenService
 {
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
-
-
     function _associateToken(address account, address token) internal returns (bool success) {
-        int responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).associateToken(account, token);
+        int responseCode = HederaTokenService.associateToken(account, token);
         return _checkResponse(responseCode);
     }
 
     function _approve(address token, address spender, uint256 amount) internal returns (bool success) {
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS).approve(token, spender, amount);
+        int responseCode = HederaTokenService.approve(token, spender, amount);
         return _checkResponse(responseCode);
     }
 
     function _transfer(address token, address sender, address receiver, uint256 amount) internal returns (bool success) {
         require(amount <= uint256(type(int64).max), "transfer amount exceeds int64 limits");
         int64 safeAmount = int64(amount);
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(token, sender, receiver, safeAmount);
+        int responseCode = HederaTokenService.transferToken(token, sender, receiver, safeAmount);
         return _checkResponse(responseCode);
     }
 

@@ -292,8 +292,9 @@ describe("EthersLiquity", () => {
                 const openTroveTx = await funderLiquity.openTrove(Trove.recreate(funderTrove), undefined, {gasLimit: 30000000});
                 console.log("Trove opened, transaction:", openTroveTx);
 
-                const sendLUSDTx = await funderLiquity.sendLUSD(await user.getAddress(), lusdShortage, {gasLimit: 3000000});
-                console.log("LUSD sent, transaction:", sendLUSDTx);
+                // TODO Refactor to Hedera SDK
+                //const sendLUSDTx = await funderLiquity.sendLUSD(await user.getAddress(), lusdShortage, {gasLimit: 3000000});
+                //console.log("LUSD sent, transaction:", sendLUSDTx);
 
                 const {params} = await liquity.closeTrove();
                 console.log("Trove closed, params:", params);
@@ -529,10 +530,11 @@ describe("EthersLiquity", () => {
                 // Use this account to print LUSD
                 await liquity.openTrove({depositCollateral: 50, borrowLUSD: 5000}, undefined, {gasLimit: 300000});
 
+                // TODO refactor to Hedera SDK
                 // otherLiquities[0-2] will be independent stability depositors
-                await liquity.sendLUSD(await otherUsers[0].getAddress(), 3000);
-                await liquity.sendLUSD(await otherUsers[1].getAddress(), 1000);
-                await liquity.sendLUSD(await otherUsers[2].getAddress(), 1000);
+                //await liquity.sendLUSD(await otherUsers[0].getAddress(), 3000);
+                //await liquity.sendLUSD(await otherUsers[1].getAddress(), 1000);
+                //await liquity.sendLUSD(await otherUsers[2].getAddress(), 1000);
 
                 // otherLiquities[3-4] will be Trove owners whose Troves get liquidated
                 await otherLiquities[3].openTrove({

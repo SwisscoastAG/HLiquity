@@ -11,8 +11,7 @@ contract CommunityIssuanceTester is CommunityIssuance {
     function obtainLQTY(uint _amount) external {
         require(_amount <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
         int64 safeAmount = int64(_amount);
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(lqtyToken.getTokenAddress(), address(this),msg.sender, safeAmount);
+        int responseCode = HederaTokenService.transferToken(lqtyToken.getTokenAddress(), address(this),msg.sender, safeAmount);
         _checkResponse(responseCode);
     }
 

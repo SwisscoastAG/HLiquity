@@ -13,7 +13,7 @@ import "./Interfaces/ILPTokenWrapper.sol";
 import "./Interfaces/IUnipool.sol";
 import "../Dependencies/console.sol";
 import "../Dependencies/HederaResponseCodes.sol";
-
+import "../Dependencies/HederaTokenService.sol";
 
 // Adapted from: https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol
 // Some more useful references:
@@ -22,7 +22,7 @@ import "../Dependencies/HederaResponseCodes.sol";
 // Incremental changes (commit by commit) from the original to this version: https://github.com/liquity/dev/pull/271
 
 // LPTokenWrapper contains the basic staking functionality
-contract LPTokenWrapper is ILPTokenWrapper {
+contract LPTokenWrapper is ILPTokenWrapper, HederaTokenService {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -190,8 +190,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
 
         rewards[msg.sender] = 0;
         int64 safeReward = int64(reward);
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(lqtyToken.getTokenAddress(), address(this), msg.sender, safeReward);
+        int responseCode = HederaTokenService.transferToken(lqtyToken.getTokenAddress(), address(this), msg.sender, safeReward);
         _checkResponse(responseCode);
         emit RewardPaid(msg.sender, reward);
     }

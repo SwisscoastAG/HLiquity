@@ -13,15 +13,10 @@ import "../Dependencies/ExpiryHelper.sol";
 import "../Dependencies/KeyHelper.sol";
 import "../Dependencies/IERC20.sol";
 import "../Dependencies/HederaResponseCodes.sol";
+import "../Dependencies/Ownable.sol";
+import "../Dependencies/HederaTokenService.sol";
 
 /*
-* Based upon OpenZeppelin's ERC20 contract:
-* https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol
-*  
-* and their EIP2612 (ERC20Permit / ERC712) functionality:
-* https://github.com/OpenZeppelin/openzeppelin-contracts/blob/53516bc555a454862470e7860a9b5254db4d00f5/contracts/token/ERC20/ERC20Permit.sol
-* 
-*
 *  --- Functionality added specific to the LQTYToken ---
 * 
 * 1) Transfer protection: blacklist of addresses that are invalid recipients (i.e. core Liquity contracts) in external 
@@ -53,9 +48,8 @@ import "../Dependencies/HederaResponseCodes.sol";
 * and the multisig has the same rights as any other address.
 */
 
-contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
+contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper, HederaTokenService, Ownable {
     using SafeMath for uint256;
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
     address public tokenAddress;
     // --- ERC20 Data ---
 
@@ -79,6 +73,8 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
 
     uint internal immutable lpRewardsEntitlement;
 
+    bool private initialized = false;
+
     ILockupContractFactory public immutable lockupContractFactory;
 
     // --- Events ---
@@ -91,11 +87,9 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
 
     constructor
     (
-        address _communityIssuanceAddress, 
+        address _communityIssuanceAddress,
         address _lqtyStakingAddress,
         address _lockupFactoryAddress,
-        address _bountyAddress,
-        address _lpRewardsAddress,
         address _multisigAddress
     ) 
         payable public
@@ -126,30 +120,35 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
         token.tokenKeys = keys;
 
         (int responseCode, address createdTokenAddress) =
-                                IHederaTokenService(_PRECOMPILED_ADDRESS).createFungibleToken{value: msg.value}(token, 0, _DECIMALS);
+                                HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
 
         _checkResponse(responseCode);
         tokenAddress = createdTokenAddress;
-        
+
+        uint _lpRewardsEntitlement = _1_MILLION.mul(4).div(3);  // Allocate 1.33 million for LP rewards
+        lpRewardsEntitlement = _lpRewardsEntitlement;
+    }
+
+    // Hedera: We have to do the minting here because we need time to associate the beneficiaries with the token
+    function initialize(address _bountyAddress, address _lpRewardsAddress) external onlyOwner {
+        require(!initialized, "initialize: already initialized");
+
         // --- Initial LQTY allocations ---
-     
         uint bountyEntitlement = _1_MILLION.mul(2); // Allocate 2 million for bounties/hackathons
         _mint(_bountyAddress, bountyEntitlement);
 
         uint depositorsAndFrontEndsEntitlement = _1_MILLION.mul(32); // Allocate 32 million to the algorithmic issuance schedule
-        _mint(_communityIssuanceAddress, depositorsAndFrontEndsEntitlement);
+        _mint(communityIssuanceAddress, depositorsAndFrontEndsEntitlement);
 
-        uint _lpRewardsEntitlement = _1_MILLION.mul(4).div(3);  // Allocate 1.33 million for LP rewards
-        lpRewardsEntitlement = _lpRewardsEntitlement;
-        _mint(_lpRewardsAddress, _lpRewardsEntitlement);
-        
+        _mint(_lpRewardsAddress, lpRewardsEntitlement);
+
         // Allocate the remainder to the LQTY Multisig: (100 - 2 - 32 - 1.33) million = 64.66 million
         uint multisigEntitlement = _1_MILLION.mul(100)
             .sub(bountyEntitlement)
             .sub(depositorsAndFrontEndsEntitlement)
-            .sub(_lpRewardsEntitlement);
+            .sub(lpRewardsEntitlement);
 
-        _mint(_multisigAddress, multisigEntitlement);
+        _mint(multisigAddress, multisigEntitlement);
     }
 
     // --- External functions ---
@@ -196,8 +195,7 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
 
         address currentTokenAddress = _getTokenAddress();
 
-        int64 responseCode = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .transferToken(currentTokenAddress, sender, recipient, safeAmount);
+        int responseCode = HederaTokenService.transferToken(currentTokenAddress, sender, recipient, safeAmount);
 
         _checkResponse(responseCode);
 
@@ -226,8 +224,7 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper {
 
         uint256 balance = _balanceOf(address(this));
 
-        (int64 responseCode, ,) = IHederaTokenService(_PRECOMPILED_ADDRESS)
-            .mintToken(currentTokenAddress, safeAmount, new bytes[](0));
+        (int responseCode, ,) = HederaTokenService.mintToken(currentTokenAddress, safeAmount, new bytes[](0));
 
         bool success = _checkResponse(responseCode);
 

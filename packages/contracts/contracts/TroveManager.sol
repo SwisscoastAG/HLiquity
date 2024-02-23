@@ -800,7 +800,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
 
     function _sendGasCompensation(IActivePool _activePool, address _liquidator, uint _LUSD, uint _ETH) internal {
         if (_LUSD > 0) {
-            gasPool.approve(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
+            gasPool.approveToken(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
             lusdToken.returnFromPool(gasPoolAddress, _liquidator, _LUSD);
         }
 
@@ -886,7 +886,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     * Any surplus ETH left in the trove, is sent to the Coll surplus pool, and can be later claimed by the borrower.
     */
     function _redeemCloseTrove(ContractsCache memory _contractsCache, address _borrower, uint _LUSD, uint _ETH) internal {
-        gasPool.approve(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
+        gasPool.approveToken(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
         _contractsCache.lusdToken.burn(gasPoolAddress, _LUSD);
         // Update Active Pool LUSD, and send ETH to account
         _contractsCache.activePool.decreaseLUSDDebt(_LUSD);
