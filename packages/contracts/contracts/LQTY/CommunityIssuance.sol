@@ -83,9 +83,10 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
         // associate hst token with contract account
         _associateToken(address(this), lqtyToken.getTokenAddress());
 
-        // When LQTYToken deployed, it should have transferred CommunityIssuance's LQTY entitlement
-        uint LQTYBalance = lqtyToken.balanceOf(address(this));
-        assert(LQTYBalance >= LQTYSupplyCap);
+        // When LQTYToken deployed, it should have transferred CommunityIssuance's LQTY entitlement.
+        // HEDERA: We can't checkt this here as we need to mint first, after the association.
+        //uint LQTYBalance = lqtyToken.balanceOf(address(this));
+        //assert(LQTYBalance >= LQTYSupplyCap);
 
         emit LQTYTokenAddressSet(_lqtyTokenAddress);
         emit StabilityPoolAddressSet(_stabilityPoolAddress);

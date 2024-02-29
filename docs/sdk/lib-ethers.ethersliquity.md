@@ -45,8 +45,10 @@ The constructor for this class is marked as internal. Third-party code should no
 |  [getLiquidityMiningStake(address, overrides)](./lib-ethers.ethersliquity.getliquidityminingstake.md) |  | Get the amount of Uniswap ETH/LUSD LP tokens currently staked by an address in liquidity mining. |
 |  [getLQTYBalance(address, overrides)](./lib-ethers.ethersliquity.getlqtybalance.md) |  | Get the amount of LQTY held by an address. |
 |  [getLQTYStake(address, overrides)](./lib-ethers.ethersliquity.getlqtystake.md) |  | Get the current state of an LQTY Stake. |
+|  [getLQTYTokenAddress(overrides)](./lib-ethers.ethersliquity.getlqtytokenaddress.md) |  |  |
 |  [getLUSDBalance(address, overrides)](./lib-ethers.ethersliquity.getlusdbalance.md) |  | Get the amount of LUSD held by an address. |
 |  [getLUSDInStabilityPool(overrides)](./lib-ethers.ethersliquity.getlusdinstabilitypool.md) |  | Get the total amount of LUSD currently deposited in the Stability Pool. |
+|  [getLUSDTokenAddress(overrides)](./lib-ethers.ethersliquity.getlusdtokenaddress.md) |  |  |
 |  [getNumberOfTroves(overrides)](./lib-ethers.ethersliquity.getnumberoftroves.md) |  | Get number of Troves that are currently open. |
 |  [getPrice(overrides)](./lib-ethers.ethersliquity.getprice.md) |  | Get the current price of the native currency (e.g. Ether) in USD. |
 |  [getRemainingLiquidityMiningLQTYReward(overrides)](./lib-ethers.ethersliquity.getremainingliquiditymininglqtyreward.md) |  | Get the remaining LQTY that will be collectively rewarded to liquidity miners. |

@@ -3,6 +3,7 @@ import { Trove, TroveWithPendingRedistribution, UserTrove } from "./Trove";
 import { StabilityDeposit } from "./StabilityDeposit";
 import { Fees } from "./Fees";
 import { LQTYStake } from "./LQTYStake";
+import {EthersCallOverrides} from "@liquity/lib-ethers/src/types";
 
 /**
  * Represents whether an address has been registered as a Liquity frontend.
@@ -117,6 +118,20 @@ export interface ReadableLiquity {
    * @param address - Address whose balance should be retrieved.
    */
   getLUSDBalance(address?: string): Promise<Decimal>;
+
+  /**
+   * Get the address of the HST Token of LUSD (DCHF)
+   *
+   */
+  getLUSDTokenAddress(): Promise<string>
+
+
+  /**
+   * Get the address of the HST Token of HLQTY
+   *
+   */
+  getLQTYTokenAddress(): Promise<string>
+
 
   /**
    * Get the amount of LQTY held by an address.

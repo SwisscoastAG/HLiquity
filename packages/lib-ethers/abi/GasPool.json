@@ -10,6 +10,11 @@
         "internalType": "address",
         "name": "_troveManagerAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrowerOperationsAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",

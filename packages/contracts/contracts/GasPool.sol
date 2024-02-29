@@ -21,15 +21,21 @@ contract GasPool is HederaTokenService {
     IDCHFToken public lusdToken;
 
     address troveManagerAddress;
+    address borrowerOperationsAddress;
 
-    constructor(address _lusdTokenAddress, address _troveManagerAddress) public {
+    constructor(address _lusdTokenAddress, address _troveManagerAddress, address _borrowerOperationsAddress) public {
         troveManagerAddress = _troveManagerAddress;
+        borrowerOperationsAddress = _borrowerOperationsAddress;
         lusdToken = IDCHFToken(_lusdTokenAddress);
         int responseCode = HederaTokenService.associateToken(address(this), lusdToken.getTokenAddress());
+
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert ();
+        }
     }
 
     function approveToken(address token, address spender, uint256 amount) external returns (int responseCode) {
-        _requireCallerIsTroveManager();
+        _requireCallerIsBorrowerOperationsOrTroveManager();
         responseCode = HederaTokenService.approve(token, spender, amount);
 
         if (responseCode != HederaResponseCodes.SUCCESS) {
@@ -37,7 +43,10 @@ contract GasPool is HederaTokenService {
         }
     }
 
-    function _requireCallerIsTroveManager() internal view {
-        require(msg.sender == troveManagerAddress, "GasPool: Caller is not the TroveManager contract");
+    function _requireCallerIsBorrowerOperationsOrTroveManager() internal view {
+        require(
+            msg.sender == borrowerOperationsAddress ||
+            msg.sender == troveManagerAddress,
+            "GasPool: Caller is neither BO nor TroveManager");
     }
 }

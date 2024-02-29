@@ -76,26 +76,18 @@ interface IDCHFToken {
     * @dev Emitted when tokens have been transfered from sender to receiver
     *
     * @param token Token address
-    * @param sender Sender address
-    * @param receiver Receiver address
-    * @param amount Transfered amount
+    * @param from Sender address
+    * @param to Receiver address
+    * @param value transfered amount
 
     */
-    event TokenTransfer(
+    event Transfer(
         address indexed token,
-        address indexed sender,
-        address indexed receiver,
-        int64 amount
+        address indexed from,
+        address indexed to,
+        int64 value
     );
 
-
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
 
     /**
      * @dev Emitted when token updated

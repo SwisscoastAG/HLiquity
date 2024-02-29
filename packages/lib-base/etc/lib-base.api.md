@@ -22,9 +22,13 @@ export class _CachedReadableLiquity<T extends unknown[]> implements _ReadableLiq
     // (undocumented)
     getLQTYStake(address?: string, ...extraParams: T): Promise<LQTYStake>;
     // (undocumented)
+    getLQTYTokenAddress(...extraParams: T): Promise<string>;
+    // (undocumented)
     getLUSDBalance(address?: string, ...extraParams: T): Promise<Decimal>;
     // (undocumented)
     getLUSDInStabilityPool(...extraParams: T): Promise<Decimal>;
+    // (undocumented)
+    getLUSDTokenAddress(...extraParams: T): Promise<string>;
     // (undocumented)
     getNumberOfTroves(...extraParams: T): Promise<number>;
     // (undocumented)
@@ -267,8 +271,10 @@ export interface LiquityStoreBaseState {
     liquidityMiningStake: Decimal;
     lqtyBalance: Decimal;
     lqtyStake: LQTYStake;
+    lqtyTokenAddress: string;
     lusdBalance: Decimal;
     lusdInStabilityPool: Decimal;
+    lusdTokenAddress: string;
     numberOfTroves: number;
     ownFrontend: FrontendStatus;
     price: Decimal;
@@ -495,8 +501,10 @@ export interface ReadableLiquity {
     getLiquidityMiningStake(address?: string): Promise<Decimal>;
     getLQTYBalance(address?: string): Promise<Decimal>;
     getLQTYStake(address?: string): Promise<LQTYStake>;
+    getLQTYTokenAddress(): Promise<string>;
     getLUSDBalance(address?: string): Promise<Decimal>;
     getLUSDInStabilityPool(): Promise<Decimal>;
+    getLUSDTokenAddress(): Promise<string>;
     getNumberOfTroves(): Promise<number>;
     getPrice(): Promise<Decimal>;
     getRemainingLiquidityMiningLQTYReward(): Promise<Decimal>;

@@ -94,26 +94,38 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
 
+    constructor(address _lqtyTokenAddress) public {
+        checkContract(_lqtyTokenAddress);
+        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
+
+        int responseCode = HederaTokenService.associateToken(address(this), lqtyToken.getTokenAddress());
+
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert ();
+        }
+
+        emit LQTYTokenAddressChanged(_lqtyTokenAddress);
+    }
+
     // initialization function
     function setParams(
         address _lqtyTokenAddress,
         address _uniTokenAddress,
         uint _duration
     )
-        external
-        override
-        onlyOwner
+    external
+    override
+    onlyOwner
     {
-        checkContract(_lqtyTokenAddress);
         checkContract(_uniTokenAddress);
 
         uniToken = IERC20(_uniTokenAddress);
-        lqtyToken = IHLQTYToken(_lqtyTokenAddress);
+
         duration = _duration;
 
         _notifyRewardAmount(lqtyToken.getLpRewardsEntitlement(), _duration);
 
-        emit LQTYTokenAddressChanged(_lqtyTokenAddress);
+
         emit UniTokenAddressChanged(_uniTokenAddress);
 
         _renounceOwnership();
@@ -131,21 +143,21 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         }
         return
             rewardPerTokenStored.add(
-                lastTimeRewardApplicable()
-                    .sub(lastUpdateTime)
-                    .mul(rewardRate)
-                    .mul(1e8)
-                    .div(totalSupply())
-            );
+            lastTimeRewardApplicable()
+            .sub(lastUpdateTime)
+            .mul(rewardRate)
+            .mul(1e8)
+            .div(totalSupply())
+        );
     }
 
     // Returns the amount that an account can claim
     function earned(address account) public view override returns (uint256) {
         return
             balanceOf(account)
-                .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
-                .div(1e8)
-                .add(rewards[account]);
+            .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
+            .div(1e8)
+            .add(rewards[account]);
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function

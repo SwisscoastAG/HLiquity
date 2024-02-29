@@ -27,8 +27,10 @@ Implemented by [EthersLiquity](./lib-ethers.ethersliquity.md)<!-- -->.
 |  [getLiquidityMiningStake(address)](./lib-base.readableliquity.getliquidityminingstake.md) | Get the amount of Uniswap ETH/LUSD LP tokens currently staked by an address in liquidity mining. |
 |  [getLQTYBalance(address)](./lib-base.readableliquity.getlqtybalance.md) | Get the amount of LQTY held by an address. |
 |  [getLQTYStake(address)](./lib-base.readableliquity.getlqtystake.md) | Get the current state of an LQTY Stake. |
+|  [getLQTYTokenAddress()](./lib-base.readableliquity.getlqtytokenaddress.md) | Get the address of the HST Token of HLQTY |
 |  [getLUSDBalance(address)](./lib-base.readableliquity.getlusdbalance.md) | Get the amount of LUSD held by an address. |
 |  [getLUSDInStabilityPool()](./lib-base.readableliquity.getlusdinstabilitypool.md) | Get the total amount of LUSD currently deposited in the Stability Pool. |
+|  [getLUSDTokenAddress()](./lib-base.readableliquity.getlusdtokenaddress.md) | Get the address of the HST Token of LUSD (DCHF) |
 |  [getNumberOfTroves()](./lib-base.readableliquity.getnumberoftroves.md) | Get number of Troves that are currently open. |
 |  [getPrice()](./lib-base.readableliquity.getprice.md) | Get the current price of the native currency (e.g. Ether) in USD. |
 |  [getRemainingLiquidityMiningLQTYReward()](./lib-base.readableliquity.getremainingliquiditymininglqtyreward.md) | Get the remaining LQTY that will be collectively rewarded to liquidity miners. |

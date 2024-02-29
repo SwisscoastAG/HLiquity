@@ -149,6 +149,8 @@ contract HLQTYToken is CheckContract, IHLQTYToken, ExpiryHelper, KeyHelper, Hede
             .sub(lpRewardsEntitlement);
 
         _mint(multisigAddress, multisigEntitlement);
+
+        initialized = true;
     }
 
     // --- External functions ---

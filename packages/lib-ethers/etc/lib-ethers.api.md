@@ -135,9 +135,13 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     getLQTYStake(address?: string, overrides?: EthersCallOverrides): Promise<LQTYStake>;
     // (undocumented)
+    getLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
+    // (undocumented)
     getLUSDBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getLUSDInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getLUSDTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
     getNumberOfTroves(overrides?: EthersCallOverrides): Promise<number>;
     // (undocumented)
@@ -420,9 +424,13 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     // (undocumented)
     getLQTYStake(address?: string, overrides?: EthersCallOverrides): Promise<LQTYStake>;
     // (undocumented)
+    getLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
+    // (undocumented)
     getLUSDBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getLUSDInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getLUSDTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
     getNumberOfTroves(overrides?: EthersCallOverrides): Promise<number>;
     // (undocumented)

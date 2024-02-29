@@ -23,8 +23,10 @@ export interface LiquityStoreBaseState
 |  [liquidityMiningStake](./lib-base.liquitystorebasestate.liquidityminingstake.md) | [Decimal](./lib-base.decimal.md) | Amount of Uniswap ETH/LUSD LP tokens the user has staked in liquidity mining. |
 |  [lqtyBalance](./lib-base.liquitystorebasestate.lqtybalance.md) | [Decimal](./lib-base.decimal.md) | User's LQTY token balance. |
 |  [lqtyStake](./lib-base.liquitystorebasestate.lqtystake.md) | [LQTYStake](./lib-base.lqtystake.md) | User's LQTY stake. |
+|  [lqtyTokenAddress](./lib-base.liquitystorebasestate.lqtytokenaddress.md) | string | LQTY HST Token address |
 |  [lusdBalance](./lib-base.liquitystorebasestate.lusdbalance.md) | [Decimal](./lib-base.decimal.md) | User's LUSD token balance. |
 |  [lusdInStabilityPool](./lib-base.liquitystorebasestate.lusdinstabilitypool.md) | [Decimal](./lib-base.decimal.md) | Total amount of LUSD currently deposited in the Stability Pool. |
+|  [lusdTokenAddress](./lib-base.liquitystorebasestate.lusdtokenaddress.md) | string | LUSD HST Token address |
 |  [numberOfTroves](./lib-base.liquitystorebasestate.numberoftroves.md) | number | Number of Troves that are currently open. |
 |  [ownFrontend](./lib-base.liquitystorebasestate.ownfrontend.md) | [FrontendStatus](./lib-base.frontendstatus.md) | Status of user's own frontend. |
 |  [price](./lib-base.liquitystorebasestate.price.md) | [Decimal](./lib-base.decimal.md) | Current price of the native currency (e.g. Ether) in USD. |

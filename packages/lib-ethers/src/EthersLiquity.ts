@@ -213,6 +213,14 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     return this._readable.getLUSDBalance(address, overrides);
   }
 
+  getLUSDTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
+    return this._readable.getLUSDTokenAddress(overrides);
+  }
+
+  getLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
+    return this._readable.getLQTYTokenAddress(overrides);
+  }
+
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getLQTYBalance} */
   getLQTYBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
     return this._readable.getLQTYBalance(address, overrides);

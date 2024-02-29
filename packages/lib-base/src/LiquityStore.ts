@@ -28,6 +28,12 @@ export interface LiquityStoreBaseState {
   /** User's LUSD token balance. */
   lusdBalance: Decimal;
 
+  /** LUSD HST Token address */
+  lusdTokenAddress: string,
+
+  /** LQTY HST Token address */
+  lqtyTokenAddress: string,
+
   /** User's LQTY token balance. */
   lqtyBalance: Decimal;
 
@@ -357,6 +363,20 @@ export abstract class LiquityStore<T = unknown> {
         "lusdBalance",
         baseState.lusdBalance,
         baseStateUpdate.lusdBalance
+      ),
+
+      lusdTokenAddress: this._updateIfChanged(
+          strictEquals,
+          "lusdTokenAddress",
+          baseState.lusdTokenAddress,
+          baseStateUpdate.lusdTokenAddress
+      ),
+
+      lqtyTokenAddress: this._updateIfChanged(
+          strictEquals,
+          "lqtyTokenAddress",
+          baseState.lqtyTokenAddress,
+          baseStateUpdate.lqtyTokenAddress
       ),
 
       lqtyBalance: this._updateIfChanged(

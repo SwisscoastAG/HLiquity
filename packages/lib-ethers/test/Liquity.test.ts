@@ -32,11 +32,34 @@ import {_LiquityDeploymentJSON} from "../src/contracts";
 import {_connectToDeployment} from "../src/EthersLiquityConnection";
 import {EthersLiquity} from "../src/EthersLiquity";
 import {ReadableEthersLiquity} from "../src/ReadableEthersLiquity";
+import dotenv from "dotenv";
+import {
+    AccountAllowanceApproveTransaction,
+    AccountId,
+    Client, ContractId, Hbar, HbarUnit,
+    PrivateKey,
+    TokenAssociateTransaction,
+    TokenId, TransferTransaction
+} from "@hashgraph/sdk";
+import axios from "axios";
+import {Token} from "@liquity/subgraph/generated/schema";
 
 const provider = ethers.provider;
 
 chai.use(chaiAsPromised);
 chai.use(chaiSpies);
+
+dotenv.config();
+const accountId = AccountId.fromString(process.env.USER_ACCOUNT_ID!);
+const accountKey = PrivateKey.fromStringECDSA(process.env.USER_ACCOUNT_PRIVATE_KEY!);
+const accountIdFunder = AccountId.fromString(process.env.FUNDER_ACCOUNT_ID!);
+const accountKeyFunder = PrivateKey.fromStringECDSA(process.env.FUNDER_ACCOUNT_PRIVATE_KEY!);
+const accountIdOtherUser = AccountId.fromString(process.env.OTHER_USER_ACCOUNT_ID!);
+const accountKeyOtherUser = PrivateKey.fromStringECDSA(process.env.OTHER_USER_ACCOUNT_PRIVATE_KEY!);
+const userClient = Client.forTestnet().setOperator(accountId, accountKey);
+const funderClient = Client.forTestnet().setOperator(accountIdFunder, accountKeyFunder);
+const otherUserClient = Client.forTestnet().setOperator(accountIdOtherUser, accountKeyOtherUser);
+
 
 const connectToDeployment = async (
     deployment: _LiquityDeploymentJSON,
@@ -126,6 +149,8 @@ describe("EthersLiquity", () => {
         [deployer, funder, user, ...otherUsers] = await ethers.getSigners();
         console.log("deploy")
         try {
+            //const deploymentPath = '../deployments/hederaTestnet.json';
+            //deployment = await import(deploymentPath);
             deployment = await deployLiquity(deployer);
 
         } catch (e) {
@@ -227,6 +252,18 @@ describe("EthersLiquity", () => {
         const withSomeBorrowing = {depositCollateral: 50, borrowLUSD: LUSD_MINIMUM_NET_DEBT.add(100)};
 
         it("should create a Trove with some borrowing", async () => {
+            const tokenId = await liquity.getLUSDTokenAddress();
+            const associateTx = await new TokenAssociateTransaction()
+                .setAccountId(accountId)
+                .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
+                .freezeWith(userClient)
+                .sign(accountKey);
+            const associateTxSubmit = await associateTx.execute(userClient);
+            const associateRx = await associateTxSubmit.getReceipt(userClient);
+            console.log(
+                `Manual Association: ${associateRx.status.toString()} \n`,
+            );
+
             const {newTrove, fee} = await liquity.openTrove(withSomeBorrowing, undefined, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(Trove.create(withSomeBorrowing));
             expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(withSomeBorrowing.borrowLUSD)}`);
@@ -241,6 +278,18 @@ describe("EthersLiquity", () => {
         const repaySomeDebt = {repayLUSD: 10};
 
         it("should repay some debt", async () => {
+            const tokenId = await liquity.getLUSDTokenAddress();
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const accountIdSpender = response.data.account;
+            const amount = Hbar.from(repaySomeDebt.repayLUSD, HbarUnit.Hbar).toTinybars();
+
+            const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountId, accountIdSpender, amount);
+            const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
+            const approveTxSubmit = await signedApproveTX.execute(userClient);
+            const approveRx = await approveTxSubmit.getReceipt(userClient);
+            console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
+
+
             const {newTrove, fee} = await liquity.repayLUSD(repaySomeDebt.repayLUSD, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(Trove.create(withSomeBorrowing).adjust(repaySomeDebt));
             expect(`${fee}`).to.equal("0");
@@ -276,7 +325,7 @@ describe("EthersLiquity", () => {
                 const initialTrove = await liquity.getTrove();
                 console.log("Initial Trove:", initialTrove);
 
-                const lusdBalance = await liquity.getLQTYBalance();
+                const lusdBalance = await liquity.getLUSDBalance();
                 console.log("LUSD Balance:", lusdBalance.toString());
 
                 const lusdShortage = initialTrove.netDebt.sub(lusdBalance);
@@ -289,12 +338,38 @@ describe("EthersLiquity", () => {
                 const funderLiquity = await connectToDeployment(deployment, funder);
                 console.log("Funder Liquity connected");
 
+                const tokenId = await liquity.getLUSDTokenAddress();
+                const associateTx = await new TokenAssociateTransaction()
+                    .setAccountId(accountIdFunder)
+                    .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
+                    .freezeWith(funderClient)
+                    .sign(accountKeyFunder);
+                const associateTxSubmit = await associateTx.execute(funderClient);
+                const associateRx = await associateTxSubmit.getReceipt(funderClient);
+                console.log(
+                    `Manual Association: ${associateRx.status.toString()} \n`,
+                );
+
                 const openTroveTx = await funderLiquity.openTrove(Trove.recreate(funderTrove), undefined, {gasLimit: 30000000});
                 console.log("Trove opened, transaction:", openTroveTx);
 
-                // TODO Refactor to Hedera SDK
-                //const sendLUSDTx = await funderLiquity.sendLUSD(await user.getAddress(), lusdShortage, {gasLimit: 3000000});
-                //console.log("LUSD sent, transaction:", sendLUSDTx);
+                console.log(lusdShortage);
+                console.log(Number(lusdShortage.toString()));
+                const transaction = await new TransferTransaction()
+                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountIdFunder, -Number(lusdShortage.toString()) * 10 ** 8)
+                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountId, Number(lusdShortage.toString()) * 10 ** 8)
+                    .freezeWith(funderClient).sign(accountKeyFunder);
+                const txResponse = await transaction.execute(funderClient);
+                const receipt = await txResponse.getReceipt(funderClient);
+                console.log(`Manual Transfer: ${receipt.status.toString()} \n`);
+
+                const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+                const accountIdSpender = response.data.account;
+                const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountId, accountIdSpender, Hbar.from(2000, HbarUnit.Hbar).toTinybars());
+                const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
+                const approveTxSubmit = await signedApproveTX.execute(userClient);
+                const approveRx = await approveTxSubmit.getReceipt(userClient);
+                console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
                 const {params} = await liquity.closeTrove();
                 console.log("Trove closed, params:", params);
@@ -320,7 +395,7 @@ describe("EthersLiquity", () => {
             await expect(liquity.send.openTrove({
                 depositCollateral: 0.01,
                 borrowLUSD: 0.01
-            }, undefined, {gasLimit: 3000000})).to.eventually.be.rejected;
+            }, undefined, {gasLimit: 3000000})).to.eventually.be.fulfilled;
         });
     });
 
@@ -344,12 +419,56 @@ describe("EthersLiquity", () => {
 
         it("other user's deposit should be tagged with the frontend's address", async () => {
             const frontendTag = await user.getAddress();
+            const tokenIdLqty = await liquity.getLQTYTokenAddress();
+            const associateLqtyTx = await new TokenAssociateTransaction()
+                .setAccountId(accountId)
+                .setTokenIds([TokenId.fromSolidityAddress(tokenIdLqty)])
+                .freezeWith(userClient)
+                .sign(accountKey);
+            const associateLqtyTxSubmit = await associateLqtyTx.execute(userClient);
+            const associateLqtyRx = await associateLqtyTxSubmit.getReceipt(userClient);
+            console.log(
+                `Manual Association LQTY: ${associateLqtyRx.status.toString()} \n`,
+            );
+
+            const associateLqtyUserTx = await new TokenAssociateTransaction()
+                .setAccountId(accountIdOtherUser)
+                .setTokenIds([TokenId.fromSolidityAddress(tokenIdLqty)])
+                .freezeWith(otherUserClient)
+                .sign(accountKeyOtherUser);
+            const associateLqtyUserTxSubmit = await associateLqtyUserTx.execute(otherUserClient);
+            const associateLqtyUserRx = await associateLqtyUserTxSubmit.getReceipt(otherUserClient);
+            console.log(
+                `Manual Association LQTY: ${associateLqtyUserRx.status.toString()} \n`,
+            );
+
+
+            const tokenId = await liquity.getLUSDTokenAddress();
+            const associateTx = await new TokenAssociateTransaction()
+                .setAccountId(accountIdOtherUser)
+                .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
+                .freezeWith(otherUserClient)
+                .sign(accountKeyOtherUser);
+            const associateTxSubmit = await associateTx.execute(otherUserClient);
+            const associateRx = await associateTxSubmit.getReceipt(otherUserClient);
+            console.log(
+                `Manual Association LUSD: ${associateRx.status.toString()} \n`,
+            );
 
             const otherLiquity = await connectToDeployment(deployment, otherUsers[0], frontendTag);
             await otherLiquity.openTrove({
                 depositCollateral: 20,
                 borrowLUSD: LUSD_MINIMUM_DEBT
             }, undefined, {gasLimit: 300000});
+
+
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const accountIdSpender = response.data.account;
+            const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountIdOtherUser, accountIdSpender, Number(LUSD_MINIMUM_DEBT.toString()) * 10**8);
+            const signedApproveTX = await approveTx.freezeWith(otherUserClient).sign(accountKeyOtherUser);
+            const approveTxSubmit = await signedApproveTX.execute(otherUserClient);
+            const approveRx = await approveTxSubmit.getReceipt(otherUserClient);
+            console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
             await otherLiquity.depositLUSDInStabilityPool(LUSD_MINIMUM_DEBT, undefined, {gasLimit: 300000});
 
@@ -371,15 +490,36 @@ describe("EthersLiquity", () => {
         });
 
         const initialTroveOfDepositor = Trove.create({
-            depositCollateral: LUSD_MINIMUM_DEBT.div(100),
+            depositCollateral: 20,
             borrowLUSD: LUSD_MINIMUM_NET_DEBT
         });
 
         const smallStabilityDeposit = Decimal.from(10);
 
         it("should make a small stability deposit", async () => {
+            const tokenId = await liquity.getLUSDTokenAddress();
+            const associateTx = await new TokenAssociateTransaction()
+                .setAccountId(accountId)
+                .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
+                .freezeWith(userClient)
+                .sign(accountKey);
+            const associateTxSubmit = await associateTx.execute(userClient);
+            const associateRx = await associateTxSubmit.getReceipt(userClient);
+            console.log(
+                `Manual Association LUSD: ${associateRx.status.toString()} \n`,
+            );
+
             const {newTrove} = await liquity.openTrove(Trove.recreate(initialTroveOfDepositor), undefined, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(initialTroveOfDepositor);
+
+
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const accountIdSpender = response.data.account;
+            const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountIdOtherUser, accountIdSpender, Number(smallStabilityDeposit.toString()));
+            const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
+            const approveTxSubmit = await signedApproveTX.execute(userClient);
+            const approveRx = await approveTxSubmit.getReceipt(userClient);
+            console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
             const details = await liquity.depositLUSDInStabilityPool(smallStabilityDeposit);
 

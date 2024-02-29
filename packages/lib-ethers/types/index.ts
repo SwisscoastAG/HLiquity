@@ -412,11 +412,10 @@ export interface DCHFToken
     MintedToken(newTotalSupply?: null, serialNumbers?: null): EventFilter;
     ResponseCode(responseCode?: null): EventFilter;
     StabilityPoolAddressChanged(_newStabilityPoolAddress?: null): EventFilter;
-    TokenTransfer(token?: string | null, sender?: string | null, receiver?: string | null, amount?: null): EventFilter;
     TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
     TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
     TokensMinted(minter?: string | null, token?: string | null, amount?: null, account?: string | null): EventFilter;
-    Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
+    Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
     TroveManagerAddressChanged(_troveManagerAddress?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
@@ -425,11 +424,10 @@ export interface DCHFToken
   extractEvents(logs: Log[], name: "MintedToken"): _TypedLogDescription<{ newTotalSupply: BigNumber; serialNumbers: BigNumber[] }>[];
   extractEvents(logs: Log[], name: "ResponseCode"): _TypedLogDescription<{ responseCode: BigNumber }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _newStabilityPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "TokenTransfer"): _TypedLogDescription<{ token: string; sender: string; receiver: string; amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
   extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "TokensMinted"): _TypedLogDescription<{ minter: string; token: string; amount: BigNumber; account: string }>[];
-  extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ from: string; to: string; value: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _troveManagerAddress: string }>[];
 }
 

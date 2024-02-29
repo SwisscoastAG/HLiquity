@@ -56,7 +56,7 @@ contract EchidnaTester {
             address(borrowerOperations)
         );
 
-        gasPool = new GasPool(address(lusdToken), address(troveManager));
+        gasPool = new GasPool(address(lusdToken), address(troveManager), address(borrowerOperations));
         collSurplusPool = new CollSurplusPool();
         priceFeedTestnet = new PriceFeedTestnet();
 

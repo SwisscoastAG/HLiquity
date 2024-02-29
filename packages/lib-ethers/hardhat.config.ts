@@ -4,19 +4,19 @@ import path from "path";
 import dotenv from "dotenv";
 import "colors";
 
-import { JsonFragment } from "@ethersproject/abi";
-import { Wallet } from "@ethersproject/wallet";
-import { Signer } from "@ethersproject/abstract-signer";
-import { ContractFactory, Overrides } from "@ethersproject/contracts";
+import {JsonFragment} from "@ethersproject/abi";
+import {Wallet} from "@ethersproject/wallet";
+import {Signer} from "@ethersproject/abstract-signer";
+import {ContractFactory, Overrides} from "@ethersproject/contracts";
 
-import { task, HardhatUserConfig, types, extendEnvironment } from "hardhat/config";
-import { HardhatRuntimeEnvironment, NetworkUserConfig } from "hardhat/types";
+import {task, HardhatUserConfig, types, extendEnvironment} from "hardhat/config";
+import {HardhatRuntimeEnvironment, NetworkUserConfig} from "hardhat/types";
 import "@nomiclabs/hardhat-ethers";
 
-import { Decimal } from "@liquity/lib-base";
+import {Decimal} from "@liquity/lib-base";
 
-import { deployAndSetupContracts, deployTellorCaller, setSilent } from "./utils/deploy";
-import { _connectToContracts, _LiquityDeploymentJSON, _priceFeedIsTestnet } from "./src/contracts";
+import {deployAndSetupContracts, deployTellorCaller, setSilent} from "./utils/deploy";
+import {_connectToContracts, _LiquityDeploymentJSON, _priceFeedIsTestnet} from "./src/contracts";
 
 import accounts from "./accounts.json";
 
@@ -119,7 +119,7 @@ const config: HardhatUserConfig = {
             gasPrice: 1490000000000,
             chainId: 296,
             timeout: 1000000,
-            accounts: ['4c01eff6764673ab79a4cbfb954801f7d4ae8538a6496896ce72b73e6b63b0d4', '3d5410259092c2fd609239cababe3ef4690f48057aba853c0da7ed6cedae835a']
+            accounts: ['3d5410259092c2fd609239cababe3ef4690f48057aba853c0da7ed6cedae835a', '4c01eff6764673ab79a4cbfb954801f7d4ae8538a6496896ce72b73e6b63b0d4', 'aaf63f1eac2a78e34cee46e7ee90bb51fe7dbf36e6e4da7edb6c952e24abe484', '3b6f552386dc800cef28e2a02e1aff4774480e718a2d30b092d011eb6e0d4418']
         },
 
         hederaPreviewnet: {
@@ -168,7 +168,7 @@ const getContractFactory: (
     env: HardhatRuntimeEnvironment
 ) => (name: string, signer: Signer) => Promise<ContractFactory> = useLiveVersion
     ? env => (name, signer) => {
-        const { abi, bytecode } = getLiveArtifact(name);
+        const {abi, bytecode} = getLiveArtifact(name);
         return env.ethers.getContractFactory(abi, bytecode, signer);
     }
     : env => env.ethers.getContractFactory;
@@ -190,7 +190,7 @@ extendEnvironment(env => {
             overrides
         );
 
-        return { ...deployment, version: contractsVersion };
+        return {...deployment, version: contractsVersion};
     };
 });
 
@@ -219,8 +219,8 @@ task("deploy", "Deploys the contracts to the network")
         types.boolean
     )
     .setAction(
-        async ({ channel, gasPrice, useRealPriceFeed, createUniswapPair }: DeployParams, env) => {
-            const overrides = { gasPrice: gasPrice && Decimal.from(gasPrice).div(1000000000).hex };
+        async ({channel, gasPrice, useRealPriceFeed, createUniswapPair}: DeployParams, env) => {
+            const overrides = {gasPrice: gasPrice && Decimal.from(gasPrice).div(1000000000).hex};
             const [deployer] = await env.ethers.getSigners();
 
             useRealPriceFeed ??= env.network.name === "mainnet";
@@ -266,7 +266,7 @@ task("deploy", "Deploys the contracts to the network")
                 }
             }
 
-            fs.mkdirSync(path.join("deployments", channel), { recursive: true });
+            fs.mkdirSync(path.join("deployments", channel), {recursive: true});
 
             fs.writeFileSync(
                 path.join("deployments", channel, `${env.network.name}.json`),

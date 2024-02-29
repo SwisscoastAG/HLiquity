@@ -126,37 +126,6 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int64",
-        "name": "amount",
-        "type": "int64"
-      }
-    ],
-    "name": "TokenTransfer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
         "components": [
           {
             "internalType": "string",
@@ -277,6 +246,12 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "from",
         "type": "address"
       },
@@ -288,9 +263,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "int64",
         "name": "value",
-        "type": "uint256"
+        "type": "int64"
       }
     ],
     "name": "Transfer",

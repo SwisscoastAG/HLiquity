@@ -13,6 +13,7 @@ import "./Dependencies/LiquityBase.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
+import "./Interfaces/IGasPool.sol";
 
 contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOperations {
     string constant public NAME = "BorrowerOperations";
@@ -24,6 +25,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     address stabilityPoolAddress;
 
     address gasPoolAddress;
+    IGasPool gasPool;
 
     ICollSurplusPool collSurplusPool;
 
@@ -131,6 +133,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         defaultPool = IDefaultPool(_defaultPoolAddress);
         stabilityPoolAddress = _stabilityPoolAddress;
         gasPoolAddress = _gasPoolAddress;
+        gasPool = IGasPool(_gasPoolAddress);
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
@@ -458,6 +461,9 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // Burn the specified amount of LUSD from _account and decreases the total active debt
     function _repayLUSD(IActivePool _activePool, IDCHFToken _lusdToken, address _account, uint _LUSD) internal {
         _activePool.decreaseLUSDDebt(_LUSD);
+        if (_account == gasPoolAddress){
+            gasPool.approveToken(lusdToken.getTokenAddress(), address(lusdToken), _LUSD);
+        }
         _lusdToken.burn(_account, _LUSD);
     }
 

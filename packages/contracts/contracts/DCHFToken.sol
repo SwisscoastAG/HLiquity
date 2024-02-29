@@ -63,7 +63,7 @@ contract DCHFToken is IDCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         token.tokenKeys = keys;
 
         (int responseCode, address createdTokenAddress) =
-                                HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
+                            HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
 
         _checkResponse(responseCode);
         tokenAddress = createdTokenAddress;
@@ -173,6 +173,7 @@ contract DCHFToken is IDCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         _transfer(address(this), account, amount);
 
         emit TokensMinted(msg.sender, currentTokenAddress, safeAmount, account);
+        emit Transfer(currentTokenAddress, address(0), account, safeAmount);
 
         return success;
     }
@@ -197,6 +198,7 @@ contract DCHFToken is IDCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         bool success = _checkResponse(responseCode);
 
         emit TokensBurned(msg.sender, currentTokenAddress, safeAmount);
+        emit Transfer(currentTokenAddress, account, address(0), safeAmount);
 
         return success;
     }
@@ -239,7 +241,7 @@ contract DCHFToken is IDCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
         _checkResponse(responseCode);
 
-        emit TokenTransfer(currentTokenAddress, sender, recipient, safeAmount);
+        emit Transfer(currentTokenAddress, sender, recipient, safeAmount);
     }
 
     /**

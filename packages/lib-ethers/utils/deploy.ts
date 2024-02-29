@@ -1,6 +1,8 @@
 import {Signer} from "@ethersproject/abstract-signer";
 import {ContractTransaction, ContractFactory, Overrides} from "@ethersproject/contracts";
 import {Wallet} from "@ethersproject/wallet";
+import {setNonce} from "@nomicfoundation/hardhat-network-helpers";
+
 
 import {Decimal} from "@liquity/lib-base";
 
@@ -13,6 +15,9 @@ import {
 
 import {createUniswapV2Pair} from "./UniswapV2Factory";
 import {ethers} from "ethers";
+import {AccountId, Client, PrivateKey, TokenAssociateTransaction, TokenId} from "@hashgraph/sdk";
+import dotenv from "dotenv";
+import {fromSolidityAddress} from "@hashgraph/sdk/lib/EntityIdHelper";
 
 let silent = false;
 
@@ -34,6 +39,20 @@ const deployContract = async (
 ) => {
     log(`Deploying ${contractName} ...`);
     log(args)
+    // use if nonce is not fixable
+    /**
+     const nonce = await deployer.provider!.getTransactionCount(await deployer.getAddress());
+     if (args.length > 0 && typeof args[args.length - 1] === 'object' && args[args.length - 1] !== null) {
+        // Properly cast the last element to an object to satisfy TypeScript's type system.
+        const lastArg = args[args.length - 1] as { [key: string]: unknown };
+        args[args.length - 1] = { ...lastArg, nonce: nonce + 1 };
+    } else {
+        // If the last argument is not an object, add a new object with the nonce.
+        args.push({ nonce: nonce + 1 });
+    }
+     console.log(args)
+     **/
+
     const contract = await (await getContractFactory(contractName, deployer)).deploy(...args);
 
     log(`Waiting for transaction ${contract.deployTransaction.hash} ...`);
@@ -109,7 +128,6 @@ const deployContracts = async (
     const stabilityPool = await deployContract(deployer, getContractFactory, "StabilityPool", {
         ...overrides, gasLimit: 3000000
     });
-    const unipool = await deployContract(deployer, getContractFactory, "Unipool", {...overrides, gasLimit: 3000000})
 
 
     const lusdToken = await deployContract(
@@ -129,9 +147,11 @@ const deployContracts = async (
         communityIssuance,
         lqtyStaking,
         lockupContractFactory,
-        deployer.getAddress(), // _multisigAddress (TODO: parameterize this)
+        await deployer.getAddress(), // _multisigAddress (TODO: parameterize this)
         {...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20")}
     )
+
+    const unipool = await deployContract(deployer, getContractFactory, "Unipool", lqtyToken, {...overrides, gasLimit: 3000000})
 
     const gasPool = await deployContract(
         deployer,
@@ -139,6 +159,7 @@ const deployContracts = async (
         "GasPool",
         lusdToken,
         troveManager,
+        borrowerOperations,
         {...overrides, gasLimit: 3000000}
     );
 
@@ -349,6 +370,17 @@ const connectContracts = async (
                 nonce
             }),
 
+        nonce => {
+            return deployer.getAddress().then((address) => {
+                return lqtyToken.initialize(address, unipool.address, {
+                    ...overrides,
+                    gasLimit: 3000000,
+                    nonce
+                });
+            });
+        },
+
+
         nonce =>
             unipool.setParams(lqtyToken.address, uniToken.address, 2 * 30 * 24 * 60 * 60, {
                 ...overrides,
@@ -356,14 +388,29 @@ const connectContracts = async (
                 nonce
             }),
 
-
-        nonce =>
-            lqtyToken.initialize(deployer.getAddress(), gasPool.address, {
-                ...overrides,
-                gasLimit: 3000000,
-                nonce
-            })
     ];
+
+    dotenv.config();
+    if (!process.env.ACCOUNT_ID ||
+        !process.env.ACCOUNT_PRIVATE_KEY) {
+        throw new Error('Please set required keys in .env file.');
+    }
+    const accountId = AccountId.fromString(process.env.ACCOUNT_ID);
+    const accountKey = PrivateKey.fromStringECDSA(process.env.ACCOUNT_PRIVATE_KEY);
+    const client = Client.forTestnet().setOperator(accountId, accountKey);
+
+    const tokenId = await lqtyToken.getTokenAddress();
+    console.log(tokenId);
+    const associateTx = await new TokenAssociateTransaction()
+        .setAccountId(accountId)
+        .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
+        .freezeWith(client)
+        .sign(accountKey);
+    const associateTxSubmit = await associateTx.execute(client);
+    const associateRx = await associateTxSubmit.getReceipt(client);
+    console.log(
+        `Manual Association: ${associateRx.status.toString()} \n`,
+    );
 
     let i = 0;
     for (const connect of connections) {
@@ -399,6 +446,7 @@ export const deployAndSetupContracts = async (
     if (!deployer.provider) {
         throw new Error("Signer must have a provider.");
     }
+
 
     log("Deploying contracts...");
     log();
