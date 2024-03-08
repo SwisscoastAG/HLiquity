@@ -11,11 +11,9 @@ contract LQTYTokenTester is HLQTYToken {
         address _communityIssuanceAddress, 
         address _lqtyStakingAddress,
         address _lockupFactoryAddress,
-        address _bountyAddress,
-        address _lpRewardsAddress,
         address _multisigAddress
     ) 
-        public 
+        payable public
         HLQTYToken
     (
         _communityIssuanceAddress,
@@ -40,12 +38,5 @@ contract LQTYTokenTester is HLQTYToken {
 
     function callInternalTransfer(address sender, address recipient, uint256 amount) external returns (bool) {
         _transfer(sender, recipient, amount);
-    }
-
-    function getChainId() external pure returns (uint256 chainID) {
-        //return _chainID(); // it’s private
-        assembly {
-            chainID := chainid()
-        }
     }
 }

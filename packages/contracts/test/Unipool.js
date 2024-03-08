@@ -7,7 +7,7 @@ const { TestHelper } = require('../utils/testHelpers.js');
 const { assertRevert } = TestHelper;
 
 const Uni = artifacts.require('ERC20Mock');
-const Lqty = artifacts.require('LQTYToken');
+const Lqty = artifacts.require('HLQTYToken');
 const Unipool = artifacts.require('Unipool');
 const NonPayable = artifacts.require('NonPayable');
 

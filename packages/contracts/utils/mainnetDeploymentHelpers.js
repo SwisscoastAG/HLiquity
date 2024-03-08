@@ -74,8 +74,8 @@ class MainnetDeploymentHelper {
     const collSurplusPoolFactory = await this.getFactory("CollSurplusPool")
     const borrowerOperationsFactory = await this.getFactory("BorrowerOperations")
     const hintHelpersFactory = await this.getFactory("HintHelpers")
-    const lusdTokenFactory = await this.getFactory("LUSDToken")
-    const tellorCallerFactory = await this.getFactory("TellorCaller")
+    const lusdTokenFactory = await this.getFactory("DCHFToken")
+    const tellorCallerFactory = await this.getFactory("SupraCaller")
 
     // Deploy txs
     const priceFeed = await this.loadOrDeploy(priceFeedFactory, 'priceFeed', deploymentState)
@@ -88,7 +88,7 @@ class MainnetDeploymentHelper {
     const collSurplusPool = await this.loadOrDeploy(collSurplusPoolFactory, 'collSurplusPool', deploymentState)
     const borrowerOperations = await this.loadOrDeploy(borrowerOperationsFactory, 'borrowerOperations', deploymentState)
     const hintHelpers = await this.loadOrDeploy(hintHelpersFactory, 'hintHelpers', deploymentState)
-    const tellorCaller = await this.loadOrDeploy(tellorCallerFactory, 'tellorCaller', deploymentState, [tellorMasterAddr])
+    const tellorCaller = await this.loadOrDeploy(tellorCallerFactory, 'supraCaller', deploymentState, [tellorMasterAddr])
 
     const lusdTokenParams = [
       troveManager.address,
@@ -97,7 +97,7 @@ class MainnetDeploymentHelper {
     ]
     const lusdToken = await this.loadOrDeploy(
       lusdTokenFactory,
-      'lusdToken',
+      'dchfToken',
       deploymentState,
       lusdTokenParams
     )
@@ -116,7 +116,7 @@ class MainnetDeploymentHelper {
       await this.verifyContract('borrowerOperations', deploymentState)
       await this.verifyContract('hintHelpers', deploymentState)
       await this.verifyContract('tellorCaller', deploymentState, [tellorMasterAddr])
-      await this.verifyContract('lusdToken', deploymentState, lusdTokenParams)
+      await this.verifyContract('dchfToken', deploymentState, lusdTokenParams)
     }
 
     const coreContracts = {
@@ -137,12 +137,12 @@ class MainnetDeploymentHelper {
   }
 
   async deployLQTYContractsMainnet(bountyAddress, lpRewardsAddress, multisigAddress, deploymentState) {
-    const lqtyStakingFactory = await this.getFactory("LQTYStaking")
+    const lqtyStakingFactory = await this.getFactory("HLQTYStaking")
     const lockupContractFactory_Factory = await this.getFactory("LockupContractFactory")
     const communityIssuanceFactory = await this.getFactory("CommunityIssuance")
-    const lqtyTokenFactory = await this.getFactory("LQTYToken")
+    const lqtyTokenFactory = await this.getFactory("HLQTYToken")
 
-    const lqtyStaking = await this.loadOrDeploy(lqtyStakingFactory, 'lqtyStaking', deploymentState)
+    const lqtyStaking = await this.loadOrDeploy(lqtyStakingFactory, 'hlqtyStaking', deploymentState)
     const lockupContractFactory = await this.loadOrDeploy(lockupContractFactory_Factory, 'lockupContractFactory', deploymentState)
     const communityIssuance = await this.loadOrDeploy(communityIssuanceFactory, 'communityIssuance', deploymentState)
 
@@ -157,7 +157,7 @@ class MainnetDeploymentHelper {
     ]
     const lqtyToken = await this.loadOrDeploy(
       lqtyTokenFactory,
-      'lqtyToken',
+      'hlqtyToken',
       deploymentState,
       lqtyTokenParams
     )
@@ -165,10 +165,10 @@ class MainnetDeploymentHelper {
     if (!this.configParams.ETHERSCAN_BASE_URL) {
       console.log('No Etherscan Url defined, skipping verification')
     } else {
-      await this.verifyContract('lqtyStaking', deploymentState)
+      await this.verifyContract('hlqtyStaking', deploymentState)
       await this.verifyContract('lockupContractFactory', deploymentState)
       await this.verifyContract('communityIssuance', deploymentState)
-      await this.verifyContract('lqtyToken', deploymentState, lqtyTokenParams)
+      await this.verifyContract('hlqtyToken', deploymentState, lqtyTokenParams)
     }
 
     const LQTYContracts = {

@@ -3,7 +3,7 @@ const PriceFeed = artifacts.require("./PriceFeedTester.sol")
 const PriceFeedTestnet = artifacts.require("./PriceFeedTestnet.sol")
 const MockChainlink = artifacts.require("./MockAggregator.sol")
 const MockTellor = artifacts.require("./MockTellor.sol")
-const TellorCaller = artifacts.require("./TellorCaller.sol")
+const TellorCaller = artifacts.require("./SupraCaller.sol")
 
 const testHelpers = require("../utils/testHelpers.js")
 const th = testHelpers.TestHelper

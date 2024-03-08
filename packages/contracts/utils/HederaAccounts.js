@@ -1,0 +1,58 @@
+const HEDERA_LOCAL_TESTNET_ACCOUNTS = [{
+    accountId: "0.0.1014",
+    publicAddress: "0x927E41Ff8307835A1C081e0d7fD250625F2D4D0E",
+    privateKey: "0x45a5a7108a18dd5013cf2d5857a28144beadc9c70b3bdbd914e38df4e804b8d8"
+}, {
+    accountId: "0.0.1015",
+    publicAddress: "0xc37f417fA09933335240FCA72DD257BFBdE9C275",
+    privateKey: "0x6e9d61a325be3f6675cf8b7676c70e4a004d2308e3e182370a41f5653d52c6bd"
+}, {
+    accountId: "0.0.1016",
+    publicAddress: "0xD927017F5a6a7A92458b81468Dc71FCE6115B325",
+    privateKey: "0x0b58b1bd44469ac9f813b5aeaf6213ddaea26720f0b2f133d08b6f234130a64f"
+}, {
+    accountId: "0.0.1017",
+    publicAddress: "0x5C41A21F14cFe9808cBEc1d91b55Ba75ed327Eb6",
+    privateKey: "0x95eac372e0f0df3b43740fa780e62458b2d2cc32d6a440877f1cc2a9ad0c35cc"
+}, {
+    accountId: "0.0.1003",
+    publicAddress: "0xcE16e8eb8F4BF2E65BA9536C07E305b912BAFaCF",
+    privateKey: "0x6ec1f2e7d126a74a1d2ff9e1c5d90b92378c725e506651ff8bb8616a5c724628"
+}, {
+    accountId: "0.0.1004",
+    publicAddress: "0x02f1c4C93AFEd946Cce5Ad7D34354A150bEfCFcF",
+    privateKey: "0xb4d7f7e82f61d81c95985771b8abf518f9328d019c36849d4214b5f995d13814"
+}, {
+    accountId: "0.0.1005",
+    publicAddress: "0x0B75F0b70076Fab3F18F94700Ecaf3B00fE528E7",
+    privateKey: "0x941536648ac10d5734973e94df413c17809d6cc5e24cd11e947e685acfbd12ae"
+}, {
+    accountId: "0.0.1006",
+    publicAddress: "0x7194d1F1d43c2c58302BB61a224D41B649e65C93",
+    privateKey: "0x5829cf333ef66b6bdd34950f096cb24e06ef041c5f63e577b4f3362309125863"
+}, {
+    accountId: "0.0.1007",
+    publicAddress: "0xC9A2d92c5913eDEAd9a7C936C96631F0F2241063",
+    privateKey: "0x8fc4bffe2b40b2b7db7fd937736c4575a0925511d7a0a2dfc3274e8c17b41d20"
+}, {
+    accountId: "0.0.1008",
+    publicAddress: "0xD79BcDE5Cb11cECD1dfC6685B65690bE5b6a611e",
+    privateKey: "0xb6c10e2baaeba1fa4a8b73644db4f28f4bf0912cceb6e8959f73bb423c33bd84"
+}, {
+    accountId: "0.0.1009",
+    publicAddress: "0xb6D080353f40dEcA2E67108087c356d3A1AfcD64",
+    privateKey: "0xfe8875acb38f684b2025d5472445b8e4745705a9e7adc9b0485a05df790df700"
+}, {
+    accountId: "0.0.1010",
+    publicAddress: "0x31A064DeeaD74DE7B9453beB4F780416D8859d3b",
+    privateKey: "0xbdc6e0a69f2921a78e9af930111334a41d3fab44653c8de0775572c526feea2d"
+}, {
+    accountId: "0.0.1011",
+    publicAddress: "0x37524a360a40C682F201Fb011DB7bbC8c8A247c6",
+    privateKey: "0x3e215c3d2a59626a669ed04ec1700f36c05c9b216e592f58bbfd3d8aa6ea25f9"
+}, {
+    accountId: "0.0.1018",
+    publicAddress: "0xcdaD5844f865F379beA057fb435AEfeF38361B68",
+    privateKey: "0x6c6e6727b40c8d4b616ab0d26af357af09337299f09c66704146e14236972106"
+},]
+module.exports = {HEDERA_LOCAL_TESTNET_ACCOUNTS};

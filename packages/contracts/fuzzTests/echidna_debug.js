@@ -2,7 +2,7 @@ const { TestHelper: { dec } } = require("../utils/testHelpers.js")
 
 const EchidnaTester = artifacts.require('EchidnaTester')
 const TroveManager = artifacts.require('TroveManager')
-const LUSDToken = artifacts.require('LUSDToken')
+const LUSDToken = artifacts.require('DCHFToken')
 const ActivePool = artifacts.require('ActivePool')
 const DefaultPool = artifacts.require('DefaultPool')
 const StabilityPool = artifacts.require('StabilityPool')

@@ -9,7 +9,7 @@ const mv = testHelpers.MoneyValues
 const timeValues = testHelpers.TimeValues
 
 const TroveManagerTester = artifacts.require("./TroveManagerTester")
-const LUSDToken = artifacts.require("./LUSDToken.sol")
+const LUSDToken = artifacts.require("./DCHFToken.sol")
 
 const GAS_PRICE = 10000000
 

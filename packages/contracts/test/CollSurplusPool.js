@@ -9,7 +9,7 @@ const mv = testHelpers.MoneyValues
 const timeValues = testHelpers.TimeValues
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const LUSDToken = artifacts.require("DCHFToken")
 
 contract('CollSurplusPool', async accounts => {
   const [

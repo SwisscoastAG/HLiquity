@@ -13,16 +13,16 @@ const MoneyValues = {
   negative_eth: (amount) => "-" + web3.utils.toWei(amount, 'ether'),
 
   _zeroBN: web3.utils.toBN('0'),
-  _1e18BN: web3.utils.toBN('1000000000000000000'),
-  _10e18BN: web3.utils.toBN('10000000000000000000'),
-  _100e18BN: web3.utils.toBN('100000000000000000000'),
+  _1e18BN: web3.utils.toBN('100000000'),
+  _10e18BN: web3.utils.toBN('10000000000'),
+  _100e18BN: web3.utils.toBN('1000000000000'),
   _100BN: web3.utils.toBN('100'),
   _110BN: web3.utils.toBN('110'),
   _150BN: web3.utils.toBN('150'),
 
-  _MCR: web3.utils.toBN('1100000000000000000'),
-  _ICR100: web3.utils.toBN('1000000000000000000'),
-  _CCR: web3.utils.toBN('1500000000000000000'),
+  _MCR: web3.utils.toBN('1100000000'),
+  _ICR100: web3.utils.toBN('1000000000'),
+  _CCR: web3.utils.toBN('1500000000'),
 }
 
 const TimeValues = {
@@ -681,7 +681,7 @@ class TestHelper {
     ).add(this.toBN(1)) // add 1 to avoid rounding issues
     const lusdAmount = MIN_DEBT.add(extraLUSDAmount)
 
-    if (!ICR && !extraParams.value) ICR = this.toBN(this.dec(15, 17)) // 150%
+    if (!ICR && !extraParams.value) ICR = this.toBN(this.dec(15, 7)) // 150%
     else if (typeof ICR == 'string') ICR = this.toBN(ICR)
 
     const totalDebt = await this.getOpenTroveTotalDebt(contracts, lusdAmount)
@@ -689,7 +689,7 @@ class TestHelper {
 
     if (ICR) {
       const price = await contracts.priceFeedTestnet.getPrice()
-      extraParams.value = ICR.mul(totalDebt).div(price)
+      extraParams.value = ICR.mul(totalDebt).div(price).mul(new BN(10).pow(new BN(10)))
     }
 
     const tx = await contracts.borrowerOperations.openTrove(maxFeePercentage, lusdAmount, upperHint, lowerHint, extraParams)
@@ -1212,7 +1212,7 @@ class TestHelper {
 
 TestHelper.ZERO_ADDRESS = '0x' + '0'.repeat(40)
 TestHelper.maxBytes32 = '0x' + 'f'.repeat(64)
-TestHelper._100pct = '1000000000000000000'
+TestHelper._100pct = '100000000'
 TestHelper.latestRandomSeed = 31337
 
 module.exports = {

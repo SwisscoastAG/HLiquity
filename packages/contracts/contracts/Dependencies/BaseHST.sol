@@ -14,6 +14,13 @@ import "./HederaTokenService.sol";
 
 contract BaseHST is HederaTokenService
 {
+    event Transfer(
+        address indexed token,
+        address indexed from,
+        address indexed to,
+        int64 value
+    );
+
     function _associateToken(address account, address token) internal returns (bool success) {
         int responseCode = HederaTokenService.associateToken(account, token);
         return _checkResponse(responseCode);
@@ -28,11 +35,11 @@ contract BaseHST is HederaTokenService
         require(amount <= uint256(type(int64).max), "transfer amount exceeds int64 limits");
         int64 safeAmount = int64(amount);
         int responseCode = HederaTokenService.transferToken(token, sender, receiver, safeAmount);
+        emit Transfer(token, sender, receiver, safeAmount);
         return _checkResponse(responseCode);
     }
 
     function _checkResponse(int responseCode) internal pure returns (bool) {
-        // Using require to check the condition, and provide a custom error message if it fails.
         require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
         return true;
     }

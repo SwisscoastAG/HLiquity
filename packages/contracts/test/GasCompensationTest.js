@@ -2,7 +2,7 @@ const deploymentHelper = require("../utils/deploymentHelpers.js")
 const testHelpers = require("../utils/testHelpers.js")
 const TroveManagerTester = artifacts.require("./TroveManagerTester.sol")
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
-const LUSDToken = artifacts.require("LUSDToken")
+const LUSDToken = artifacts.require("DCHFToken")
 
 const th = testHelpers.TestHelper
 const dec = th.dec

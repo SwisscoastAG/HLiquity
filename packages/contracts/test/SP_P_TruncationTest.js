@@ -9,7 +9,7 @@ const toBN = th.toBN
 const getDifference = th.getDifference
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const LUSDToken = artifacts.require("DCHFToken")
 
 const GAS_PRICE = 10000000
 

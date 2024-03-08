@@ -8,7 +8,7 @@ const getDifference = th.getDifference
 const mv = testHelpers.MoneyValues
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const LUSDToken = artifacts.require("DCHFToken")
 
 contract('TroveManager - Redistribution reward calculations', async accounts => {
 
