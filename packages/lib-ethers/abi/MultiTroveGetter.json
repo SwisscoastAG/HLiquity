@@ -59,7 +59,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "snapshotLUSDDebt",
+            "name": "snapshotDCHFDebt",
             "type": "uint256"
           }
         ],

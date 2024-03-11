@@ -17,6 +17,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "_newBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "DCHFBalanceUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "_newDefaultPoolAddress",
         "type": "address"
@@ -31,11 +44,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_ETH",
+        "name": "_DCHFDebt",
         "type": "uint256"
       }
     ],
-    "name": "DefaultPoolETHBalanceUpdated",
+    "name": "DefaultPoolDCHFDebtUpdated",
     "type": "event"
   },
   {
@@ -44,11 +57,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_LUSDDebt",
+        "name": "_ETH",
         "type": "uint256"
       }
     ],
-    "name": "DefaultPoolLUSDDebtUpdated",
+    "name": "DefaultPoolETHBalanceUpdated",
     "type": "event"
   },
   {
@@ -81,19 +94,6 @@
       }
     ],
     "name": "EtherSent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_newBalance",
-        "type": "uint256"
-      }
-    ],
-    "name": "LUSDBalanceUpdated",
     "type": "event"
   },
   {
@@ -175,14 +175,14 @@
         "type": "uint256"
       }
     ],
-    "name": "decreaseLUSDDebt",
+    "name": "decreaseDCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "getETH",
+    "name": "getDCHFDebt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -195,7 +195,7 @@
   },
   {
     "inputs": [],
-    "name": "getLUSDDebt",
+    "name": "getETH",
     "outputs": [
       {
         "internalType": "uint256",
@@ -214,7 +214,7 @@
         "type": "uint256"
       }
     ],
-    "name": "increaseLUSDDebt",
+    "name": "increaseDCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

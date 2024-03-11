@@ -1,10 +1,10 @@
-import { LiquityStore } from "@liquity/lib-base";
+import { HLiquityStore } from "@liquity/lib-base";
 import React, { createContext, useEffect, useState } from "react";
 
-export const LiquityStoreContext = createContext<LiquityStore | undefined>(undefined);
+export const LiquityStoreContext = createContext<HLiquityStore | undefined>(undefined);
 
 type LiquityStoreProviderProps = {
-  store: LiquityStore;
+  store: HLiquityStore;
   loader?: React.ReactNode;
 };
 
@@ -13,7 +13,7 @@ export const LiquityStoreProvider: React.FC<LiquityStoreProviderProps> = ({
   loader,
   children
 }) => {
-  const [loadedStore, setLoadedStore] = useState<LiquityStore>();
+  const [loadedStore, setLoadedStore] = useState<HLiquityStore>();
 
   useEffect(() => {
     store.onLoaded = () => setLoadedStore(store);

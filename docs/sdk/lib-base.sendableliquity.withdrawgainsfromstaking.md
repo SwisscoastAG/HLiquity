@@ -4,7 +4,7 @@
 
 ## SendableLiquity.withdrawGainsFromStaking() method
 
-Withdraw [collateral gain](./lib-base.lqtystake.collateralgain.md) and [LUSD gain](./lib-base.lqtystake.lusdgain.md) from LQTY stake.
+Withdraw [collateral gain](./lib-base.hlqtystake.collateralgain.md) and  from HLQTY stake.
 
 <b>Signature:</b>
 

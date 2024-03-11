@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_lusdTokenAddress",
+        "name": "_dchfTokenAddress",
         "type": "address"
       },
       {
@@ -51,7 +51,7 @@
   },
   {
     "inputs": [],
-    "name": "lusdToken",
+    "name": "dchfToken",
     "outputs": [
       {
         "internalType": "contract IDCHFToken",

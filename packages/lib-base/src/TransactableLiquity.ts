@@ -31,7 +31,7 @@ export interface TroveCreationDetails {
   /** The Trove that was created by the transaction. */
   newTrove: Trove;
 
-  /** Amount of LUSD added to the Trove's debt as borrowing fee. */
+  /** Amount of DCHF added to the Trove's debt as borrowing fee. */
   fee: Decimal;
 }
 
@@ -47,7 +47,7 @@ export interface TroveAdjustmentDetails {
   /** New state of the adjusted Trove directly after the transaction. */
   newTrove: Trove;
 
-  /** Amount of LUSD added to the Trove's debt as borrowing fee. */
+  /** Amount of DCHF added to the Trove's debt as borrowing fee. */
   fee: Decimal;
 }
 
@@ -74,32 +74,32 @@ export interface LiquidationDetails {
   /** Total collateral liquidated and debt cleared by the transaction. */
   totalLiquidated: Trove;
 
-  /** Amount of LUSD paid to the liquidator as gas compensation. */
-  lusdGasCompensation: Decimal;
+  /** Amount of DCHF paid to the liquidator as gas compensation. */
+  dchfGasCompensation: Decimal;
 
   /** Amount of native currency (e.g. Ether) paid to the liquidator as gas compensation. */
   collateralGasCompensation: Decimal;
 }
 
 /**
- * Details of a {@link TransactableLiquity.redeemLUSD | redeemLUSD()} transaction.
+ * Details of a {@link TransactableLiquity.redeemDCHF | redeemDCHF()} transaction.
  *
  * @public
  */
 export interface RedemptionDetails {
-  /** Amount of LUSD the redeemer tried to redeem. */
-  attemptedLUSDAmount: Decimal;
+  /** Amount of DCHF the redeemer tried to redeem. */
+  attemptedDCHFAmount: Decimal;
 
   /**
-   * Amount of LUSD that was actually redeemed by the transaction.
+   * Amount of DCHF that was actually redeemed by the transaction.
    *
    * @remarks
-   * This can end up being lower than `attemptedLUSDAmount` due to interference from another
+   * This can end up being lower than `attemptedDCHFAmount` due to interference from another
    * transaction that modifies the list of Troves.
    *
    * @public
    */
-  actualLUSDAmount: Decimal;
+  actualDCHFAmount: Decimal;
 
   /** Amount of collateral (e.g. Ether) taken from Troves by the transaction. */
   collateralTaken: Decimal;
@@ -116,23 +116,23 @@ export interface RedemptionDetails {
  * @public
  */
 export interface StabilityPoolGainsWithdrawalDetails {
-  /** Amount of LUSD burned from the deposit by liquidations since the last modification. */
-  lusdLoss: Decimal;
+  /** Amount of DCHF burned from the deposit by liquidations since the last modification. */
+  dchfLoss: Decimal;
 
-  /** Amount of LUSD in the deposit directly after this transaction. */
-  newLUSDDeposit: Decimal;
+  /** Amount of DCHF in the deposit directly after this transaction. */
+  newDCHFDeposit: Decimal;
 
   /** Amount of native currency (e.g. Ether) paid out to the depositor in this transaction. */
   collateralGain: Decimal;
 
-  /** Amount of LQTY rewarded to the depositor in this transaction. */
-  lqtyReward: Decimal;
+  /** Amount of HLQTY rewarded to the depositor in this transaction. */
+  hlqtyReward: Decimal;
 }
 
 /**
  * Details of a
- * {@link TransactableLiquity.depositLUSDInStabilityPool | depositLUSDInStabilityPool()} or
- * {@link TransactableLiquity.withdrawLUSDFromStabilityPool | withdrawLUSDFromStabilityPool()}
+ * {@link TransactableLiquity.depositDCHFInStabilityPool | depositDCHFInStabilityPool()} or
+ * {@link TransactableLiquity.withdrawDCHFFromStabilityPool | withdrawDCHFFromStabilityPool()}
  * transaction.
  *
  * @public
@@ -167,7 +167,7 @@ export interface CollateralGainTransferDetails extends StabilityPoolGainsWithdra
  */
 export interface TransactableLiquity {
   /**
-   * Open a new Trove by depositing collateral and borrowing LUSD.
+   * Open a new Trove by depositing collateral and borrowing DCHF.
    *
    * @param params - How much to deposit and borrow.
    * @param maxBorrowingRate - Maximum acceptable
@@ -199,14 +199,14 @@ export interface TransactableLiquity {
    * @param params - Parameters of the adjustment.
    * @param maxBorrowingRate - Maximum acceptable
    *                           {@link @liquity/lib-base#Fees.borrowingRate | borrowing rate} if
-   *                           `params` includes `borrowLUSD`.
+   *                           `params` includes `borrowDCHF`.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    *
    * @remarks
    * The transaction will fail if the Trove's debt would fall below
-   * {@link @liquity/lib-base#LUSD_MINIMUM_DEBT}.
+   * {@link @liquity/lib-base#DCHF_MINIMUM_DEBT}.
    *
    * If `maxBorrowingRate` is omitted, the current borrowing rate plus 0.5% is used as maximum
    * acceptable rate.
@@ -251,9 +251,9 @@ export interface TransactableLiquity {
   withdrawCollateral(amount: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /**
-   * Adjust existing Trove by borrowing more LUSD.
+   * Adjust existing Trove by borrowing more DCHF.
    *
-   * @param amount - The amount of LUSD to borrow.
+   * @param amount - The amount of DCHF to borrow.
    * @param maxBorrowingRate - Maximum acceptable
    *                           {@link @liquity/lib-base#Fees.borrowingRate | borrowing rate}.
    *
@@ -264,15 +264,15 @@ export interface TransactableLiquity {
    * Equivalent to:
    *
    * ```typescript
-   * adjustTrove({ borrowLUSD: amount }, maxBorrowingRate)
+   * adjustTrove({ borrowDCHF: amount }, maxBorrowingRate)
    * ```
    */
-  borrowLUSD(amount: Decimalish, maxBorrowingRate?: Decimalish): Promise<TroveAdjustmentDetails>;
+  borrowDCHF(amount: Decimalish, maxBorrowingRate?: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /**
    * Adjust existing Trove by repaying some of its debt.
    *
-   * @param amount - The amount of LUSD to repay.
+   * @param amount - The amount of DCHF to repay.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -281,10 +281,10 @@ export interface TransactableLiquity {
    * Equivalent to:
    *
    * ```typescript
-   * adjustTrove({ repayLUSD: amount })
+   * adjustTrove({ repayDCHF: amount })
    * ```
    */
-  repayLUSD(amount: Decimalish): Promise<TroveAdjustmentDetails>;
+  repayDCHF(amount: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /** @internal */
   setPrice(price: Decimalish): Promise<void>;
@@ -312,8 +312,8 @@ export interface TransactableLiquity {
   /**
    * Make a new Stability Deposit, or top up existing one.
    *
-   * @param amount - Amount of LUSD to add to new or existing deposit.
-   * @param frontendTag - Address that should receive a share of this deposit's LQTY rewards.
+   * @param amount - Amount of DCHF to add to new or existing deposit.
+   * @param frontendTag - Address that should receive a share of this deposit's HLQTY rewards.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -323,17 +323,17 @@ export interface TransactableLiquity {
    *
    * As a side-effect, the transaction will also pay out an existing Stability Deposit's
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.lqtyReward | LQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
    */
-  depositLUSDInStabilityPool(
+  depositDCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string
   ): Promise<StabilityDepositChangeDetails>;
 
   /**
-   * Withdraw LUSD from Stability Deposit.
+   * Withdraw DCHF from Stability Deposit.
    *
-   * @param amount - Amount of LUSD to withdraw.
+   * @param amount - Amount of DCHF to withdraw.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -341,13 +341,13 @@ export interface TransactableLiquity {
    * @remarks
    * As a side-effect, the transaction will also pay out the Stability Deposit's
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.lqtyReward | LQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
    */
-  withdrawLUSDFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
+  withdrawDCHFFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
 
   /**
    * Withdraw {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.lqtyReward | LQTY reward} from Stability Deposit.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward} from Stability Deposit.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -365,14 +365,14 @@ export interface TransactableLiquity {
    * The collateral gain is transfered to the Trove as additional collateral.
    *
    * As a side-effect, the transaction will also pay out the Stability Deposit's
-   * {@link @liquity/lib-base#StabilityDeposit.lqtyReward | LQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
    */
   transferCollateralGainToTrove(): Promise<CollateralGainTransferDetails>;
 
   /**
-   * Redeem LUSD to native currency (e.g. Ether) at face value.
+   * Redeem DCHF to native currency (e.g. Ether) at face value.
    *
-   * @param amount - Amount of LUSD to be redeemed.
+   * @param amount - Amount of DCHF to be redeemed.
    * @param maxRedemptionRate - Maximum acceptable
    *                            {@link @liquity/lib-base#Fees.redemptionRate | redemption rate}.
    *
@@ -383,7 +383,7 @@ export interface TransactableLiquity {
    * If `maxRedemptionRate` is omitted, the current redemption rate (based on `amount`) plus 0.1%
    * is used as maximum acceptable rate.
    */
-  redeemLUSD(amount: Decimalish, maxRedemptionRate?: Decimalish): Promise<RedemptionDetails>;
+  redeemDCHF(amount: Decimalish, maxRedemptionRate?: Decimalish): Promise<RedemptionDetails>;
 
   /**
    * Claim leftover collateral after a liquidation or redemption.
@@ -398,38 +398,38 @@ export interface TransactableLiquity {
   claimCollateralSurplus(): Promise<void>;
 
   /**
-   * Stake LQTY to start earning fee revenue or increase existing stake.
+   * Stake HLQTY to start earning fee revenue or increase existing stake.
    *
-   * @param amount - Amount of LQTY to add to new or existing stake.
-   *
-   * @throws
-   * Throws {@link TransactionFailedError} in case of transaction failure.
-   *
-   * @remarks
-   * As a side-effect, the transaction will also pay out an existing LQTY stake's
-   * {@link @liquity/lib-base#LQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#LQTYStake.lusdGain | LUSD gain}.
-   */
-  stakeLQTY(amount: Decimalish): Promise<void>;
-
-  /**
-   * Withdraw LQTY from staking.
-   *
-   * @param amount - Amount of LQTY to withdraw.
+   * @param amount - Amount of HLQTY to add to new or existing stake.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    *
    * @remarks
-   * As a side-effect, the transaction will also pay out the LQTY stake's
-   * {@link @liquity/lib-base#LQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#LQTYStake.lusdGain | LUSD gain}.
+   * As a side-effect, the transaction will also pay out an existing HLQTY stake's
+   * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain}.
    */
-  unstakeLQTY(amount: Decimalish): Promise<void>;
+  stakeHLQTY(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw {@link @liquity/lib-base#LQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#LQTYStake.lusdGain | LUSD gain} from LQTY stake.
+   * Withdraw HLQTY from staking.
+   *
+   * @param amount - Amount of HLQTY to withdraw.
+   *
+   * @throws
+   * Throws {@link TransactionFailedError} in case of transaction failure.
+   *
+   * @remarks
+   * As a side-effect, the transaction will also pay out the HLQTY stake's
+   * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain}.
+   */
+  unstakeHLQTY(amount: Decimalish): Promise<void>;
+
+  /**
+   * Withdraw {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain} from HLQTY stake.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -437,7 +437,7 @@ export interface TransactableLiquity {
   withdrawGainsFromStaking(): Promise<void>;
 
   /**
-   * Allow the liquidity mining contract to use Uniswap ETH/LUSD LP tokens for
+   * Allow the liquidity mining contract to use Uniswap ETH/DCHF LP tokens for
    * {@link @liquity/lib-base#TransactableLiquity.stakeUniTokens | staking}.
    *
    * @param allowance - Maximum amount of LP tokens that will be transferrable to liquidity mining
@@ -453,7 +453,7 @@ export interface TransactableLiquity {
   approveUniTokens(allowance?: Decimalish): Promise<void>;
 
   /**
-   * Stake Uniswap ETH/LUSD LP tokens to participate in liquidity mining and earn LQTY.
+   * Stake Uniswap ETH/DCHF LP tokens to participate in liquidity mining and earn HLQTY.
    *
    * @param amount - Amount of LP tokens to add to new or existing stake.
    *
@@ -463,7 +463,7 @@ export interface TransactableLiquity {
   stakeUniTokens(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw Uniswap ETH/LUSD LP tokens from liquidity mining.
+   * Withdraw Uniswap ETH/DCHF LP tokens from liquidity mining.
    *
    * @param amount - Amount of LP tokens to withdraw.
    *
@@ -473,12 +473,12 @@ export interface TransactableLiquity {
   unstakeUniTokens(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw LQTY that has been earned by mining liquidity.
+   * Withdraw HLQTY that has been earned by mining liquidity.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    */
-  withdrawLQTYRewardFromLiquidityMining(): Promise<void>;
+  withdrawHLQTYRewardFromLiquidityMining(): Promise<void>;
 
   /**
    * Withdraw all staked LP tokens from liquidity mining and claim reward.
@@ -491,7 +491,7 @@ export interface TransactableLiquity {
   /**
    * Register current wallet address as a Liquity frontend.
    *
-   * @param kickbackRate - The portion of LQTY rewards to pass onto users of the frontend
+   * @param kickbackRate - The portion of HLQTY rewards to pass onto users of the frontend
    *                       (between 0 and 1).
    *
    * @throws

@@ -3,15 +3,15 @@
 pragma solidity 0.6.11;
 pragma experimental ABIEncoderV2;
 
-import "../LQTY/CommunityIssuance.sol";
+import "../HLQTY/CommunityIssuance.sol";
 import "../Interfaces/IHederaTokenService.sol";
 import "../Dependencies/HederaResponseCodes.sol";
 
 contract CommunityIssuanceTester is CommunityIssuance {
-    function obtainLQTY(uint _amount) external {
-        require(_amount <= uint256(type(int64).max), "LUSDGain exceeds int64 limits");
+    function obtainHLQTY(uint _amount) external {
+        require(_amount <= uint256(type(int64).max), "DCHFGain exceeds int64 limits");
         int64 safeAmount = int64(_amount);
-        int responseCode = HederaTokenService.transferToken(lqtyToken.getTokenAddress(), address(this),msg.sender, safeAmount);
+        int responseCode = HederaTokenService.transferToken(hlqtyToken.getTokenAddress(), address(this),msg.sender, safeAmount);
         _checkResponse(responseCode);
     }
 
@@ -19,13 +19,13 @@ contract CommunityIssuanceTester is CommunityIssuance {
        return _getCumulativeIssuanceFraction();
     }
 
-    function unprotectedIssueLQTY() external returns (uint) {
+    function unprotectedIssueHLQTY() external returns (uint) {
         // No checks on caller address
        
-        uint latestTotalLQTYIssued = LQTYSupplyCap.mul(_getCumulativeIssuanceFraction()).div(DECIMAL_PRECISION);
-        uint issuance = latestTotalLQTYIssued.sub(totalLQTYIssued);
+        uint latestTotalHLQTYIssued = HLQTYSupplyCap.mul(_getCumulativeIssuanceFraction()).div(DECIMAL_PRECISION);
+        uint issuance = latestTotalHLQTYIssued.sub(totalHLQTYIssued);
       
-        totalLQTYIssued = latestTotalLQTYIssued;
+        totalHLQTYIssued = latestTotalHLQTYIssued;
         return issuance;
     }
 }

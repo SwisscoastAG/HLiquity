@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_lqtyStakingAddress",
+        "name": "_hlqtyStakingAddress",
         "type": "address"
       },
       {
@@ -44,11 +44,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_lqtyStakingAddress",
+        "name": "_hlqtyStakingAddress",
         "type": "address"
       }
     ],
-    "name": "LQTYStakingAddressSet",
+    "name": "HLQTYStakingAddressSet",
     "type": "event"
   },
   {
@@ -380,6 +380,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "hlqtyStakingAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -416,19 +429,6 @@
     "outputs": [
       {
         "internalType": "contract ILockupContractFactory",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lqtyStakingAddress",
-    "outputs": [
-      {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -488,7 +488,7 @@
         "type": "uint256"
       }
     ],
-    "name": "sendToLQTYStaking",
+    "name": "sendToHLQTYStaking",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

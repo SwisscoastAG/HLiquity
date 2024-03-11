@@ -164,46 +164,46 @@ export class ObservableEthersLiquity implements ObservableLiquity {
     };
   }
 
-  watchLUSDInStabilityPool(
-    onLUSDInStabilityPoolChanged: (lusdInStabilityPool: Decimal) => void
+  watchDCHFInStabilityPool(
+    onDCHFInStabilityPoolChanged: (dchfInStabilityPool: Decimal) => void
   ): () => void {
-    const { lusdToken, stabilityPool } = _getContracts(this._readable.connection);
-    const { Transfer } = lusdToken.filters;
+    const { dchfToken, stabilityPool } = _getContracts(this._readable.connection);
+    const { Transfer } = dchfToken.filters;
 
-    const transferLUSDFromStabilityPool = Transfer(stabilityPool.address);
-    const transferLUSDToStabilityPool = Transfer(null, stabilityPool.address);
+    const transferDCHFFromStabilityPool = Transfer(stabilityPool.address);
+    const transferDCHFToStabilityPool = Transfer(null, stabilityPool.address);
 
-    const stabilityPoolLUSDFilters = [transferLUSDFromStabilityPool, transferLUSDToStabilityPool];
+    const stabilityPoolDCHFFilters = [transferDCHFFromStabilityPool, transferDCHFToStabilityPool];
 
-    const stabilityPoolLUSDListener = debounce((blockTag: number) => {
-      this._readable.getLUSDInStabilityPool({ blockTag }).then(onLUSDInStabilityPoolChanged);
+    const stabilityPoolDCHFListener = debounce((blockTag: number) => {
+      this._readable.getDCHFInStabilityPool({ blockTag }).then(onDCHFInStabilityPoolChanged);
     });
 
-    stabilityPoolLUSDFilters.forEach(filter => lusdToken.on(filter, stabilityPoolLUSDListener));
+    stabilityPoolDCHFFilters.forEach(filter => dchfToken.on(filter, stabilityPoolDCHFListener));
 
     return () =>
-      stabilityPoolLUSDFilters.forEach(filter =>
-        lusdToken.removeListener(filter, stabilityPoolLUSDListener)
+      stabilityPoolDCHFFilters.forEach(filter =>
+        dchfToken.removeListener(filter, stabilityPoolDCHFListener)
       );
   }
 
-  watchLUSDBalance(onLUSDBalanceChanged: (balance: Decimal) => void, address?: string): () => void {
+  watchDCHFBalance(onDCHFBalanceChanged: (balance: Decimal) => void, address?: string): () => void {
     address ??= _requireAddress(this._readable.connection);
 
-    const { lusdToken } = _getContracts(this._readable.connection);
-    const { Transfer } = lusdToken.filters;
-    const transferLUSDFromUser = Transfer(address);
-    const transferLUSDToUser = Transfer(null, address);
+    const { dchfToken } = _getContracts(this._readable.connection);
+    const { Transfer } = dchfToken.filters;
+    const transferDCHFFromUser = Transfer(address);
+    const transferDCHFToUser = Transfer(null, address);
 
-    const lusdTransferFilters = [transferLUSDFromUser, transferLUSDToUser];
+    const dchfTransferFilters = [transferDCHFFromUser, transferDCHFToUser];
 
-    const lusdTransferListener = debounce((blockTag: number) => {
-      this._readable.getLUSDBalance(address, { blockTag }).then(onLUSDBalanceChanged);
+    const dchfTransferListener = debounce((blockTag: number) => {
+      this._readable.getDCHFBalance(address, { blockTag }).then(onDCHFBalanceChanged);
     });
 
-    lusdTransferFilters.forEach(filter => lusdToken.on(filter, lusdTransferListener));
+    dchfTransferFilters.forEach(filter => dchfToken.on(filter, dchfTransferListener));
 
     return () =>
-      lusdTransferFilters.forEach(filter => lusdToken.removeListener(filter, lusdTransferListener));
+      dchfTransferFilters.forEach(filter => dchfToken.removeListener(filter, dchfTransferListener));
   }
 }

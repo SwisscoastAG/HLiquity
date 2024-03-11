@@ -24,27 +24,27 @@ Implemented by [PopulatableEthersLiquity](./lib-ethers.populatableethersliquity.
 |  Method | Description |
 |  --- | --- |
 |  [adjustTrove(params, maxBorrowingRate)](./lib-base.populatableliquity.adjusttrove.md) | Adjust existing Trove by changing its collateral, debt, or both. |
-|  [approveUniTokens(allowance)](./lib-base.populatableliquity.approveunitokens.md) | Allow the liquidity mining contract to use Uniswap ETH/LUSD LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
-|  [borrowLUSD(amount, maxBorrowingRate)](./lib-base.populatableliquity.borrowlusd.md) | Adjust existing Trove by borrowing more LUSD. |
+|  [approveUniTokens(allowance)](./lib-base.populatableliquity.approveunitokens.md) | Allow the liquidity mining contract to use Uniswap ETH/DCHF LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
+|  [borrowDCHF(amount, maxBorrowingRate)](./lib-base.populatableliquity.borrowdchf.md) | Adjust existing Trove by borrowing more DCHF. |
 |  [claimCollateralSurplus()](./lib-base.populatableliquity.claimcollateralsurplus.md) | Claim leftover collateral after a liquidation or redemption. |
 |  [closeTrove()](./lib-base.populatableliquity.closetrove.md) | Close existing Trove by repaying all debt and withdrawing all collateral. |
 |  [depositCollateral(amount)](./lib-base.populatableliquity.depositcollateral.md) | Adjust existing Trove by depositing more collateral. |
-|  [depositLUSDInStabilityPool(amount, frontendTag)](./lib-base.populatableliquity.depositlusdinstabilitypool.md) | Make a new Stability Deposit, or top up existing one. |
+|  [depositDCHFInStabilityPool(amount, frontendTag)](./lib-base.populatableliquity.depositdchfinstabilitypool.md) | Make a new Stability Deposit, or top up existing one. |
 |  [exitLiquidityMining()](./lib-base.populatableliquity.exitliquiditymining.md) | Withdraw all staked LP tokens from liquidity mining and claim reward. |
 |  [liquidate(address)](./lib-base.populatableliquity.liquidate.md) | Liquidate one or more undercollateralized Troves. |
 |  [liquidateUpTo(maximumNumberOfTrovesToLiquidate)](./lib-base.populatableliquity.liquidateupto.md) | Liquidate the least collateralized Troves up to a maximum number. |
-|  [openTrove(params, maxBorrowingRate)](./lib-base.populatableliquity.opentrove.md) | Open a new Trove by depositing collateral and borrowing LUSD. |
-|  [redeemLUSD(amount, maxRedemptionRate)](./lib-base.populatableliquity.redeemlusd.md) | Redeem LUSD to native currency (e.g. Ether) at face value. |
+|  [openTrove(params, maxBorrowingRate)](./lib-base.populatableliquity.opentrove.md) | Open a new Trove by depositing collateral and borrowing DCHF. |
+|  [redeemDCHF(amount, maxRedemptionRate)](./lib-base.populatableliquity.redeemdchf.md) | Redeem DCHF to native currency (e.g. Ether) at face value. |
 |  [registerFrontend(kickbackRate)](./lib-base.populatableliquity.registerfrontend.md) | Register current wallet address as a Liquity frontend. |
-|  [repayLUSD(amount)](./lib-base.populatableliquity.repaylusd.md) | Adjust existing Trove by repaying some of its debt. |
-|  [stakeLQTY(amount)](./lib-base.populatableliquity.stakelqty.md) | Stake LQTY to start earning fee revenue or increase existing stake. |
-|  [stakeUniTokens(amount)](./lib-base.populatableliquity.stakeunitokens.md) | Stake Uniswap ETH/LUSD LP tokens to participate in liquidity mining and earn LQTY. |
+|  [repayDCHF(amount)](./lib-base.populatableliquity.repaydchf.md) | Adjust existing Trove by repaying some of its debt. |
+|  [stakeHLQTY(amount)](./lib-base.populatableliquity.stakehlqty.md) | Stake HLQTY to start earning fee revenue or increase existing stake. |
+|  [stakeUniTokens(amount)](./lib-base.populatableliquity.stakeunitokens.md) | Stake Uniswap ETH/DCHF LP tokens to participate in liquidity mining and earn HLQTY. |
 |  [transferCollateralGainToTrove()](./lib-base.populatableliquity.transfercollateralgaintotrove.md) | Transfer [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) from Stability Deposit to Trove. |
-|  [unstakeLQTY(amount)](./lib-base.populatableliquity.unstakelqty.md) | Withdraw LQTY from staking. |
-|  [unstakeUniTokens(amount)](./lib-base.populatableliquity.unstakeunitokens.md) | Withdraw Uniswap ETH/LUSD LP tokens from liquidity mining. |
+|  [unstakeHLQTY(amount)](./lib-base.populatableliquity.unstakehlqty.md) | Withdraw HLQTY from staking. |
+|  [unstakeUniTokens(amount)](./lib-base.populatableliquity.unstakeunitokens.md) | Withdraw Uniswap ETH/DCHF LP tokens from liquidity mining. |
 |  [withdrawCollateral(amount)](./lib-base.populatableliquity.withdrawcollateral.md) | Adjust existing Trove by withdrawing some of its collateral. |
-|  [withdrawGainsFromStabilityPool()](./lib-base.populatableliquity.withdrawgainsfromstabilitypool.md) | Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [LQTY reward](./lib-base.stabilitydeposit.lqtyreward.md) from Stability Deposit. |
-|  [withdrawGainsFromStaking()](./lib-base.populatableliquity.withdrawgainsfromstaking.md) | Withdraw [collateral gain](./lib-base.lqtystake.collateralgain.md) and [LUSD gain](./lib-base.lqtystake.lusdgain.md) from LQTY stake. |
-|  [withdrawLQTYRewardFromLiquidityMining()](./lib-base.populatableliquity.withdrawlqtyrewardfromliquiditymining.md) | Withdraw LQTY that has been earned by mining liquidity. |
-|  [withdrawLUSDFromStabilityPool(amount)](./lib-base.populatableliquity.withdrawlusdfromstabilitypool.md) | Withdraw LUSD from Stability Deposit. |
+|  [withdrawDCHFFromStabilityPool(amount)](./lib-base.populatableliquity.withdrawdchffromstabilitypool.md) | Withdraw DCHF from Stability Deposit. |
+|  [withdrawGainsFromStabilityPool()](./lib-base.populatableliquity.withdrawgainsfromstabilitypool.md) | Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQTY reward](./lib-base.stabilitydeposit.hlqtyreward.md) from Stability Deposit. |
+|  [withdrawGainsFromStaking()](./lib-base.populatableliquity.withdrawgainsfromstaking.md) | Withdraw [collateral gain](./lib-base.hlqtystake.collateralgain.md) and  from HLQTY stake. |
+|  [withdrawHLQTYRewardFromLiquidityMining()](./lib-base.populatableliquity.withdrawhlqtyrewardfromliquiditymining.md) | Withdraw HLQTY that has been earned by mining liquidity. |
 

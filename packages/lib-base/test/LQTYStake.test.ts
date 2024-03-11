@@ -2,12 +2,12 @@ import { describe, it } from "mocha";
 import fc from "fast-check";
 
 import { Decimal } from "../src/Decimal";
-import { LQTYStake } from "../src/LQTYStake";
+import { HLQTYStake } from "../src/HLQTYStake";
 
 const arbitraryStake = () =>
   fc
     .tuple(fc.float(), fc.float(), fc.float())
-    .map(([a, b, c]) => new LQTYStake(Decimal.from(a), Decimal.from(b), Decimal.from(c)));
+    .map(([a, b, c]) => new HLQTYStake(Decimal.from(a), Decimal.from(b), Decimal.from(c)));
 
 const nonZeroStake = () => arbitraryStake().filter(({ stakedLQTY }) => !stakedLQTY.isZero);
 

@@ -42,8 +42,6 @@ interface IDCHFToken {
     event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
     event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
 
-    event LUSDTokenBalanceUpdated(address _user, uint _amount);
-
     /**
  * @dev Emitted when the `amount` tokens have been minted to account
      *

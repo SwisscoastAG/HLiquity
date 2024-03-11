@@ -4,12 +4,12 @@
 
 ## EthersLiquityWithStore interface
 
-Variant of [EthersLiquity](./lib-ethers.ethersliquity.md) that exposes a [LiquityStore](./lib-base.liquitystore.md)<!-- -->.
+Variant of [EthersLiquity](./lib-ethers.ethersliquity.md) that exposes a .
 
 <b>Signature:</b>
 
 ```typescript
-export interface EthersLiquityWithStore<T extends LiquityStore = LiquityStore> extends EthersLiquity 
+export interface EthersLiquityWithStore<T extends HLiquityStore = HLiquityStore> extends EthersLiquity 
 ```
 <b>Extends:</b> [EthersLiquity](./lib-ethers.ethersliquity.md)
 
@@ -17,5 +17,5 @@ export interface EthersLiquityWithStore<T extends LiquityStore = LiquityStore> e
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [store](./lib-ethers.ethersliquitywithstore.store.md) | T | An object that implements LiquityStore. |
+|  [store](./lib-ethers.ethersliquitywithstore.store.md) | T | An object that implements HLiquityStore. |
 

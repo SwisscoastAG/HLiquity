@@ -15,6 +15,14 @@ const HEDERA_LOCAL_TESTNET_ACCOUNTS = [{
     publicAddress: "0x5C41A21F14cFe9808cBEc1d91b55Ba75ed327Eb6",
     privateKey: "0x95eac372e0f0df3b43740fa780e62458b2d2cc32d6a440877f1cc2a9ad0c35cc"
 }, {
+    accountId: "0.0.1018",
+    publicAddress: "0xcdaD5844f865F379beA057fb435AEfeF38361B68",
+    privateKey: "0x6c6e6727b40c8d4b616ab0d26af357af09337299f09c66704146e14236972106"
+}, {
+    accountId: "0.0.1019",
+    publicAddress: "0x6e5D3858f53FC66727188690946631bDE0466B1A",
+    privateKey: "0x5072e7aa1b03f531b4731a32a021f6a5d20d5ddc4e55acbb71ae202fc6f3a26d"
+}, {
     accountId: "0.0.1003",
     publicAddress: "0xcE16e8eb8F4BF2E65BA9536C07E305b912BAFaCF",
     privateKey: "0x6ec1f2e7d126a74a1d2ff9e1c5d90b92378c725e506651ff8bb8616a5c724628"
@@ -50,9 +58,5 @@ const HEDERA_LOCAL_TESTNET_ACCOUNTS = [{
     accountId: "0.0.1011",
     publicAddress: "0x37524a360a40C682F201Fb011DB7bbC8c8A247c6",
     privateKey: "0x3e215c3d2a59626a669ed04ec1700f36c05c9b216e592f58bbfd3d8aa6ea25f9"
-}, {
-    accountId: "0.0.1018",
-    publicAddress: "0xcdaD5844f865F379beA057fb435AEfeF38361B68",
-    privateKey: "0x6c6e6727b40c8d4b616ab0d26af357af09337299f09c66704146e14236972106"
 },]
 module.exports = {HEDERA_LOCAL_TESTNET_ACCOUNTS};

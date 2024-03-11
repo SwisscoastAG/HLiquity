@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_lqtyTokenAddress",
+        "name": "_hlqtyTokenAddress",
         "type": "address"
       }
     ],
@@ -16,11 +16,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_lqtyTokenAddress",
+        "name": "_hlqtyTokenAddress",
         "type": "address"
       }
     ],
-    "name": "LQTYTokenAddressChanged",
+    "name": "HLQTYTokenAddressChanged",
     "type": "event"
   },
   {
@@ -198,6 +198,19 @@
   },
   {
     "inputs": [],
+    "name": "hlqtyToken",
+    "outputs": [
+      {
+        "internalType": "contract IHLQTYToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "isOwner",
     "outputs": [
       {
@@ -230,19 +243,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lqtyToken",
-    "outputs": [
-      {
-        "internalType": "contract IHLQTYToken",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -334,11 +334,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_lqtyTokenAddress",
-        "type": "address"
-      },
       {
         "internalType": "address",
         "name": "_uniTokenAddress",

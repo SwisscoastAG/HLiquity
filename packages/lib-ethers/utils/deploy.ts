@@ -382,7 +382,7 @@ const connectContracts = async (
 
 
         nonce =>
-            unipool.setParams(lqtyToken.address, uniToken.address, 2 * 30 * 24 * 60 * 60, {
+            unipool.setParams(uniToken.address, 2 * 30 * 24 * 60 * 60, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce

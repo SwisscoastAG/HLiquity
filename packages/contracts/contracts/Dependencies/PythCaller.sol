@@ -45,8 +45,8 @@ contract PythCaller is IPythCaller {
         uint256 _timestampRetrieved
     )
     {
-        (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPrice(HBAR_USD_PYTH);
-        (int64 priceUSDCHF, , int32 expoUSDCHF, ) = pyth.getPrice(USD_CHF_PYTH);
+        (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPriceUnsafe(HBAR_USD_PYTH);
+        (int64 priceUSDCHF, , int32 expoUSDCHF, ) = pyth.getPriceUnsafe(USD_CHF_PYTH);
 
         uint256 basePriceHBARUSD = convertToUint(priceHBARUSD, expoHBARUSD, 8);
         uint256 basePriceUSDCHF = convertToUint(priceUSDCHF, expoUSDCHF, 8);

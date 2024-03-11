@@ -15,12 +15,12 @@ interface IBorrowerOperations {
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address  _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event LUSDTokenAddressChanged(address _lusdTokenAddress);
-    event LQTYStakingAddressChanged(address _lqtyStakingAddress);
+    event DCHFTokenAddressChanged(address _dchfTokenAddress);
+    event HLQTYStakingAddressChanged(address _hlqtyStakingAddress);
 
     event TroveCreated(address indexed _borrower, uint arrayIndex);
     event TroveUpdated(address indexed _borrower, uint _debt, uint _coll, uint stake, uint8 operation);
-    event LUSDBorrowingFeePaid(address indexed _borrower, uint _LUSDFee);
+    event DCHFBorrowingFeePaid(address indexed _borrower, uint _DCHFFee);
 
     // --- Functions ---
 
@@ -33,11 +33,11 @@ interface IBorrowerOperations {
         address _collSurplusPoolAddress,
         address _priceFeedAddress,
         address _sortedTrovesAddress,
-        address _lusdTokenAddress,
-        address _lqtyStakingAddress
+        address _dchfTokenAddress,
+        address _hlqtyStakingAddress
     ) external;
 
-    function openTrove(uint _maxFee, uint _LUSDAmount, address _upperHint, address _lowerHint) external payable;
+    function openTrove(uint _maxFee, uint _DCHFAmount, address _upperHint, address _lowerHint) external payable;
 
     function addColl(address _upperHint, address _lowerHint) external payable;
 
@@ -45,9 +45,9 @@ interface IBorrowerOperations {
 
     function withdrawColl(uint _amount, address _upperHint, address _lowerHint) external;
 
-    function withdrawLUSD(uint _maxFee, uint _amount, address _upperHint, address _lowerHint) external;
+    function withdrawDCHF(uint _maxFee, uint _amount, address _upperHint, address _lowerHint) external;
 
-    function repayLUSD(uint _amount, address _upperHint, address _lowerHint) external;
+    function repayDCHF(uint _amount, address _upperHint, address _lowerHint) external;
 
     function closeTrove() external;
 

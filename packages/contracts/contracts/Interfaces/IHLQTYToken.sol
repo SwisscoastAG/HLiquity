@@ -12,7 +12,7 @@ interface IHLQTYToken {
     // --- Events ---
     
     event CommunityIssuanceAddressSet(address _communityIssuanceAddress);
-    event LQTYStakingAddressSet(address _lqtyStakingAddress);
+    event HLQTYStakingAddressSet(address _hlqtyStakingAddress);
     event LockupContractFactoryAddressSet(address _lockupContractFactoryAddress);
 
     struct InitializeStruct {
@@ -157,7 +157,7 @@ interface IHLQTYToken {
 
     function getTokenAddress() external view returns (address);
 
-    function sendToLQTYStaking(address _sender, uint256 _amount) external;
+    function sendToHLQTYStaking(address _sender, uint256 _amount) external;
 
     function getDeploymentStartTime() external view returns (uint256);
 

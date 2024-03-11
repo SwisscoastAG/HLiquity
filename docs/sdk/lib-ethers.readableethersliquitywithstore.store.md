@@ -4,7 +4,7 @@
 
 ## ReadableEthersLiquityWithStore.store property
 
-An object that implements LiquityStore.
+An object that implements HLiquityStore.
 
 <b>Signature:</b>
 

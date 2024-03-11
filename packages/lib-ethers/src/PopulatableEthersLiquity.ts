@@ -11,7 +11,7 @@ import {
   Decimalish,
   LiquidationDetails,
   LiquityReceipt,
-  LUSD_MINIMUM_NET_DEBT,
+  DCHF_MINIMUM_NET_DEBT,
   MinedReceipt,
   PopulatableLiquity,
   PopulatedLiquityTransaction,
@@ -74,7 +74,7 @@ const addGasForPotentialLastFeeOperationTimeUpdate = (gas: BigNumber) => gas.add
 // An extra traversal can take ~12K.
 const addGasForPotentialListTraversal = (gas: BigNumber) => gas.add(25000);
 
-const addGasForLQTYIssuance = (gas: BigNumber) => gas.add(50000);
+const addGasForHLQTYIssuance = (gas: BigNumber) => gas.add(50000);
 
 const addGasForUnipoolRewardUpdate = (gas: BigNumber) => gas.add(20000);
 
@@ -219,11 +219,11 @@ export class PopulatedEthersRedemption
     EthersTransactionResponse,
     EthersTransactionReceipt
   > {
-  /** {@inheritDoc @liquity/lib-base#PopulatedRedemption.attemptedLUSDAmount} */
-  readonly attemptedLUSDAmount: Decimal;
+  /** {@inheritDoc @liquity/lib-base#PopulatedRedemption.attemptedDCHFAmount} */
+  readonly attemptedDCHFAmount: Decimal;
 
-  /** {@inheritDoc @liquity/lib-base#PopulatedRedemption.redeemableLUSDAmount} */
-  readonly redeemableLUSDAmount: Decimal;
+  /** {@inheritDoc @liquity/lib-base#PopulatedRedemption.redeemableDCHFAmount} */
+  readonly redeemableDCHFAmount: Decimal;
 
   /** {@inheritDoc @liquity/lib-base#PopulatedRedemption.isTruncated} */
   readonly isTruncated: boolean;
@@ -236,8 +236,8 @@ export class PopulatedEthersRedemption
   constructor(
     rawPopulatedTransaction: EthersPopulatedTransaction,
     connection: EthersLiquityConnection,
-    attemptedLUSDAmount: Decimal,
-    redeemableLUSDAmount: Decimal,
+    attemptedDCHFAmount: Decimal,
+    redeemableDCHFAmount: Decimal,
     increaseAmountByMinimumNetDebt?: (
       maxRedemptionRate?: Decimalish
     ) => Promise<PopulatedEthersRedemption>
@@ -251,17 +251,17 @@ export class PopulatedEthersRedemption
       ({ logs }) =>
         troveManager
           .extractEvents(logs, "Redemption")
-          .map(({ args: { _ETHSent, _ETHFee, _actualLUSDAmount, _attemptedLUSDAmount } }) => ({
-            attemptedLUSDAmount: decimalify(_attemptedLUSDAmount),
-            actualLUSDAmount: decimalify(_actualLUSDAmount),
+          .map(({ args: { _ETHSent, _ETHFee, _actualDCHFAmount, _attemptedDCHFAmount } }) => ({
+            attemptedDCHFAmount: decimalify(_attemptedDCHFAmount),
+            actualDCHFAmount: decimalify(_actualDCHFAmount),
             collateralTaken: decimalify(_ETHSent),
             fee: decimalify(_ETHFee)
           }))[0]
     );
 
-    this.attemptedLUSDAmount = attemptedLUSDAmount;
-    this.redeemableLUSDAmount = redeemableLUSDAmount;
-    this.isTruncated = redeemableLUSDAmount.lt(attemptedLUSDAmount);
+    this.attemptedDCHFAmount = attemptedDCHFAmount;
+    this.redeemableDCHFAmount = redeemableDCHFAmount;
+    this.isTruncated = redeemableDCHFAmount.lt(attemptedDCHFAmount);
     this._increaseAmountByMinimumNetDebt = increaseAmountByMinimumNetDebt;
   }
 
@@ -330,8 +330,8 @@ export class PopulatableEthersLiquity
           .map(({ args: { _coll, _debt } }) => new Trove(decimalify(_coll), decimalify(_debt)));
 
         const [fee] = borrowerOperations
-          .extractEvents(logs, "LUSDBorrowingFeePaid")
-          .map(({ args: { _LUSDFee } }) => decimalify(_LUSDFee));
+          .extractEvents(logs, "DCHFBorrowingFeePaid")
+          .map(({ args: { _DCHFFee } }) => decimalify(_DCHFFee));
         return {
           params,
           newTrove,
@@ -344,14 +344,14 @@ export class PopulatableEthersLiquity
   private async _wrapTroveClosure(
     rawPopulatedTransaction: EthersPopulatedTransaction
   ): Promise<PopulatedEthersLiquityTransaction<TroveClosureDetails>> {
-    const { activePool, lusdToken } = _getContracts(this._readable.connection);
+    const { activePool, dchfToken } = _getContracts(this._readable.connection);
 
     return new PopulatedEthersLiquityTransaction(
       rawPopulatedTransaction,
       this._readable.connection,
 
       ({ logs, from: userAddress }) => {
-        const [repayLUSD] = lusdToken
+        const [repayDCHF] = dchfToken
           .extractEvents(logs, "Transfer")
           .filter(({ args: { from, to } }) => from === userAddress && to === AddressZero)
           .map(({ args: { value } }) => decimalify(value));
@@ -362,7 +362,7 @@ export class PopulatableEthersLiquity
           .map(({ args: { _amount } }) => decimalify(_amount));
 
         return {
-          params: repayLUSD.nonZero ? { withdrawCollateral, repayLUSD } : { withdrawCollateral }
+          params: repayDCHF.nonZero ? { withdrawCollateral, repayDCHF } : { withdrawCollateral }
         };
       }
     );
@@ -386,10 +386,10 @@ export class PopulatableEthersLiquity
           .extractEvents(logs, "Liquidation")
           .map(
             ({
-              args: { _LUSDGasCompensation, _collGasCompensation, _liquidatedColl, _liquidatedDebt }
+              args: { _DCHFGasCompensation, _collGasCompensation, _liquidatedColl, _liquidatedDebt }
             }) => ({
               collateralGasCompensation: decimalify(_collGasCompensation),
-              lusdGasCompensation: decimalify(_LUSDGasCompensation),
+              dchfGasCompensation: decimalify(_DCHFGasCompensation),
               totalLiquidated: new Trove(decimalify(_liquidatedColl), decimalify(_liquidatedDebt))
             })
           );
@@ -407,23 +407,23 @@ export class PopulatableEthersLiquity
   ): StabilityPoolGainsWithdrawalDetails {
     const { stabilityPool } = _getContracts(this._readable.connection);
 
-    const [newLUSDDeposit] = stabilityPool
+    const [newDCHFDeposit] = stabilityPool
       .extractEvents(logs, "UserDepositChanged")
       .map(({ args: { _newDeposit } }) => decimalify(_newDeposit));
 
-    const [[collateralGain, lusdLoss]] = stabilityPool
+    const [[collateralGain, dchfLoss]] = stabilityPool
       .extractEvents(logs, "ETHGainWithdrawn")
-      .map(({ args: { _ETH, _LUSDLoss } }) => [decimalify(_ETH), decimalify(_LUSDLoss)]);
+      .map(({ args: { _ETH, _DCHFLoss } }) => [decimalify(_ETH), decimalify(_DCHFLoss)]);
 
-    const [lqtyReward] = stabilityPool
-      .extractEvents(logs, "LQTYPaidToDepositor")
-      .map(({ args: { _LQTY } }) => decimalify(_LQTY));
+    const [hlqtyReward] = stabilityPool
+      .extractEvents(logs, "HLQTYPaidToDepositor")
+      .map(({ args: { _HLQTY } }) => decimalify(_HLQTY));
 
     return {
-      lusdLoss,
-      newLUSDDeposit,
+      dchfLoss,
+      newDCHFDeposit,
       collateralGain,
-      lqtyReward
+      hlqtyReward
     };
   }
 
@@ -438,7 +438,7 @@ export class PopulatableEthersLiquity
   }
 
   private _wrapStabilityDepositTopup(
-    change: { depositLUSD: Decimal },
+    change: { depositDCHF: Decimal },
     rawPopulatedTransaction: EthersPopulatedTransaction
   ): PopulatedEthersLiquityTransaction<StabilityDepositChangeDetails> {
     return new PopulatedEthersLiquityTransaction(
@@ -455,7 +455,7 @@ export class PopulatableEthersLiquity
   private async _wrapStabilityDepositWithdrawal(
     rawPopulatedTransaction: EthersPopulatedTransaction
   ): Promise<PopulatedEthersLiquityTransaction<StabilityDepositChangeDetails>> {
-    const { stabilityPool, lusdToken } = _getContracts(this._readable.connection);
+    const { stabilityPool, dchfToken } = _getContracts(this._readable.connection);
 
     return new PopulatedEthersLiquityTransaction(
       rawPopulatedTransaction,
@@ -464,14 +464,14 @@ export class PopulatableEthersLiquity
       ({ logs, from: userAddress }) => {
         const gainsWithdrawalDetails = this._extractStabilityPoolGainsWithdrawalDetails(logs);
 
-        const [withdrawLUSD] = lusdToken
+        const [withdrawDCHF] = dchfToken
           .extractEvents(logs, "Transfer")
           .filter(({ args: { from, to } }) => from === stabilityPool.address && to === userAddress)
           .map(({ args: { value } }) => decimalify(value));
 
         return {
           ...gainsWithdrawalDetails,
-          change: { withdrawLUSD, withdrawAllLUSD: gainsWithdrawalDetails.newLUSDDeposit.isZero }
+          change: { withdrawDCHF, withdrawAllDCHF: gainsWithdrawalDetails.newDCHFDeposit.isZero }
         };
       }
     );
@@ -568,7 +568,7 @@ export class PopulatableEthersLiquity
     const {
       firstRedemptionHint,
       partialRedemptionHintNICR,
-      truncatedLUSDamount
+      truncatedDCHFamount
     } = await hintHelpers.getRedemptionHints(amount.hex, price.hex, _redeemMaxIterations);
 
     const [
@@ -579,7 +579,7 @@ export class PopulatableEthersLiquity
         : await this._findHintsForNominalCollateralRatio(decimalify(partialRedemptionHintNICR));
 
     return [
-      decimalify(truncatedLUSDamount),
+      decimalify(truncatedDCHFamount),
       firstRedemptionHint,
       partialRedemptionUpperHint,
       partialRedemptionLowerHint,
@@ -595,7 +595,7 @@ export class PopulatableEthersLiquity
   ): Promise<PopulatedEthersLiquityTransaction<TroveCreationDetails>> {
     const { borrowerOperations } = _getContracts(this._readable.connection);
     const normalized = _normalizeTroveCreation(params);
-    const { depositCollateral, borrowLUSD } = normalized;
+    const { depositCollateral, borrowDCHF } = normalized;
     const fees = await this._readable.getFees();
     const borrowingRate = fees.borrowingRate();
     const newTrove = Trove.create(normalized, borrowingRate);
@@ -610,7 +610,7 @@ export class PopulatableEthersLiquity
       { value: ethers.utils.parseEther(depositCollateral.toString()), gasLimit: 3000000 },
       compose(addGasForPotentialLastFeeOperationTimeUpdate, addGasForPotentialListTraversal),
       maxBorrowingRate.hex,
-      borrowLUSD.hex,
+      borrowDCHF.hex,
       ...(await this._findHints(newTrove))
     )
 
@@ -648,21 +648,21 @@ export class PopulatableEthersLiquity
     return this.adjustTrove({ withdrawCollateral: amount }, undefined, overrides);
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.borrowLUSD} */
-  borrowLUSD(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.borrowDCHF} */
+  borrowDCHF(
     amount: Decimalish,
     maxBorrowingRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<TroveAdjustmentDetails>> {
-    return this.adjustTrove({ borrowLUSD: amount }, maxBorrowingRate, overrides);
+    return this.adjustTrove({ borrowDCHF: amount }, maxBorrowingRate, overrides);
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.repayLUSD} */
-  repayLUSD(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.repayDCHF} */
+  repayDCHF(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<TroveAdjustmentDetails>> {
-    return this.adjustTrove({ repayLUSD: amount }, undefined, overrides);
+    return this.adjustTrove({ repayDCHF: amount }, undefined, overrides);
   }
 
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.adjustTrove} */
@@ -675,11 +675,11 @@ export class PopulatableEthersLiquity
     const { borrowerOperations } = _getContracts(this._readable.connection);
 
     const normalized = _normalizeTroveAdjustment(params);
-    const { depositCollateral, withdrawCollateral, borrowLUSD, repayLUSD } = normalized;
+    const { depositCollateral, withdrawCollateral, borrowDCHF, repayDCHF } = normalized;
 
     const [trove, fees] = await Promise.all([
       this._readable.getTrove(address),
-      borrowLUSD && this._readable.getFees()
+      borrowDCHF && this._readable.getFees()
     ]);
 
     const borrowingRate = fees?.borrowingRate();
@@ -700,13 +700,13 @@ export class PopulatableEthersLiquity
       await borrowerOperations.estimateAndPopulate.adjustTrove(
         { value: value, gasLimit: 3000000 },
         compose(
-          borrowLUSD ? addGasForPotentialLastFeeOperationTimeUpdate : id,
+          borrowDCHF ? addGasForPotentialLastFeeOperationTimeUpdate : id,
           addGasForPotentialListTraversal
         ),
         maxBorrowingRate.hex,
         (withdrawCollateral ?? Decimal.ZERO).hex,
-        (borrowLUSD ?? repayLUSD ?? Decimal.ZERO).hex,
-        !!borrowLUSD,
+        (borrowDCHF ?? repayDCHF ?? Decimal.ZERO).hex,
+        !!borrowDCHF,
         ...(await this._findHints(finalTrove))
       )
     );
@@ -750,7 +750,7 @@ export class PopulatableEthersLiquity
       return this._wrapLiquidation(
         await troveManager.estimateAndPopulate.batchLiquidateTroves(
           { gasLimit: 3000000 },
-          addGasForLQTYIssuance,
+          addGasForHLQTYIssuance,
           address
         )
       );
@@ -758,7 +758,7 @@ export class PopulatableEthersLiquity
       return this._wrapLiquidation(
         await troveManager.estimateAndPopulate.liquidate(
           { gasLimit: 3000000 },
-          addGasForLQTYIssuance,
+          addGasForHLQTYIssuance,
           address
         )
       );
@@ -775,33 +775,33 @@ export class PopulatableEthersLiquity
     return this._wrapLiquidation(
       await troveManager.estimateAndPopulate.liquidateTroves(
         { gasLimit: 3000000 },
-        addGasForLQTYIssuance,
+        addGasForHLQTYIssuance,
         maximumNumberOfTrovesToLiquidate
       )
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.depositLUSDInStabilityPool} */
-  async depositLUSDInStabilityPool(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.depositDCHFInStabilityPool} */
+  async depositDCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<StabilityDepositChangeDetails>> {
     const { stabilityPool } = _getContracts(this._readable.connection);
-    const depositLUSD = Decimal.from(amount);
+    const depositDCHF = Decimal.from(amount);
     return this._wrapStabilityDepositTopup(
-      { depositLUSD },
+      { depositDCHF },
       await stabilityPool.estimateAndPopulate.provideToSP(
         { gasLimit: 3000000 },
-        addGasForLQTYIssuance,
-        depositLUSD.hex,
+        addGasForHLQTYIssuance,
+        depositDCHF.hex,
         frontendTag ?? this._readable.connection.frontendTag ?? AddressZero
       )
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawLUSDFromStabilityPool} */
-  async withdrawLUSDFromStabilityPool(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawDCHFFromStabilityPool} */
+  async withdrawDCHFFromStabilityPool(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<StabilityDepositChangeDetails>> {
@@ -810,7 +810,7 @@ export class PopulatableEthersLiquity
     return this._wrapStabilityDepositWithdrawal(
       await stabilityPool.estimateAndPopulate.withdrawFromSP(
         { gasLimit: 3000000 },
-        addGasForLQTYIssuance,
+        addGasForHLQTYIssuance,
         Decimal.from(amount).hex
       )
     );
@@ -825,7 +825,7 @@ export class PopulatableEthersLiquity
     return this._wrapStabilityPoolGainsWithdrawal(
       await stabilityPool.estimateAndPopulate.withdrawFromSP(
         { gasLimit: 3000000 },
-        addGasForLQTYIssuance,
+        addGasForHLQTYIssuance,
         Decimal.ZERO.hex
       )
     );
@@ -848,20 +848,20 @@ export class PopulatableEthersLiquity
     return this._wrapCollateralGainTransfer(
       await stabilityPool.estimateAndPopulate.withdrawETHGainToTrove(
         { gasLimit: 3000000 },
-        compose(addGasForPotentialListTraversal, addGasForLQTYIssuance),
+        compose(addGasForPotentialListTraversal, addGasForHLQTYIssuance),
         ...(await this._findHints(finalTrove))
       )
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.redeemLUSD} */
-  async redeemLUSD(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.redeemDCHF} */
+  async redeemDCHF(
     amount: Decimalish,
     maxRedemptionRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersRedemption> {
     const { troveManager } = _getContracts(this._readable.connection);
-    const attemptedLUSDAmount = Decimal.from(amount);
+    const attemptedDCHFAmount = Decimal.from(amount);
 
     const [
       fees,
@@ -870,12 +870,12 @@ export class PopulatableEthersLiquity
     ] = await Promise.all([
       this._readable.getFees(),
       this._readable.getTotal(),
-      this._findRedemptionHints(attemptedLUSDAmount)
+      this._findRedemptionHints(attemptedDCHFAmount)
     ]);
 
     if (truncatedAmount.isZero) {
       throw new Error(
-        `redeemLUSD: amount too low to redeem (try at least ${LUSD_MINIMUM_NET_DEBT})`
+        `redeemDCHF: amount too low to redeem (try at least ${DCHF_MINIMUM_NET_DEBT})`
       );
     }
 
@@ -886,9 +886,9 @@ export class PopulatableEthersLiquity
       );
 
     const populateRedemption = async (
-      attemptedLUSDAmount: Decimal,
+      attemptedDCHFAmount: Decimal,
       maxRedemptionRate?: Decimalish,
-      truncatedAmount: Decimal = attemptedLUSDAmount,
+      truncatedAmount: Decimal = attemptedDCHFAmount,
       partialHints: [string, string, BigNumberish] = [AddressZero, AddressZero, 0]
     ): Promise<PopulatedEthersRedemption> => {
       const maxRedemptionRateOrDefault =
@@ -908,43 +908,43 @@ export class PopulatableEthersLiquity
         ),
 
         this._readable.connection,
-        attemptedLUSDAmount,
+        attemptedDCHFAmount,
         truncatedAmount,
 
-        truncatedAmount.lt(attemptedLUSDAmount)
+        truncatedAmount.lt(attemptedDCHFAmount)
           ? newMaxRedemptionRate =>
             populateRedemption(
-              truncatedAmount.add(LUSD_MINIMUM_NET_DEBT),
+              truncatedAmount.add(DCHF_MINIMUM_NET_DEBT),
               newMaxRedemptionRate ?? maxRedemptionRate
             )
           : undefined
       );
     };
 
-    return populateRedemption(attemptedLUSDAmount, maxRedemptionRate, truncatedAmount, partialHints);
+    return populateRedemption(attemptedDCHFAmount, maxRedemptionRate, truncatedAmount, partialHints);
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeLQTY} */
-  async stakeLQTY(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeHLQTY} */
+  async stakeHLQTY(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { lqtyStaking } = _getContracts(this._readable.connection);
+    const { hlqtyStaking } = _getContracts(this._readable.connection);
 
     return this._wrapSimpleTransaction(
-      await lqtyStaking.estimateAndPopulate.stake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
+      await hlqtyStaking.estimateAndPopulate.stake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.unstakeLQTY} */
-  async unstakeLQTY(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.unstakeHLQTY} */
+  async unstakeHLQTY(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { lqtyStaking } = _getContracts(this._readable.connection);
+    const { hlqtyStaking } = _getContracts(this._readable.connection);
 
     return this._wrapSimpleTransaction(
-      await lqtyStaking.estimateAndPopulate.unstake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
+      await hlqtyStaking.estimateAndPopulate.unstake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
     );
   }
 
@@ -952,7 +952,7 @@ export class PopulatableEthersLiquity
   withdrawGainsFromStaking(
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    return this.unstakeLQTY(Decimal.ZERO, overrides);
+    return this.unstakeHLQTY(Decimal.ZERO, overrides);
   }
 
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.registerFrontend} */
@@ -1043,8 +1043,8 @@ export class PopulatableEthersLiquity
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawLQTYRewardFromLiquidityMining} */
-  async withdrawLQTYRewardFromLiquidityMining(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawHLQTYRewardFromLiquidityMining} */
+  async withdrawHLQTYRewardFromLiquidityMining(
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
     const { unipool } = _getContracts(this._readable.connection);

@@ -31,6 +31,19 @@
       {
         "indexed": false,
         "internalType": "address",
+        "name": "_dchfTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "DCHFTokenAddressSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "_account",
         "type": "address"
       },
@@ -42,6 +55,19 @@
       }
     ],
     "name": "EtherSent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_F_DCHF",
+        "type": "uint256"
+      }
+    ],
+    "name": "F_DCHFUpdated",
     "type": "event"
   },
   {
@@ -62,38 +88,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "_F_LUSD",
-        "type": "uint256"
-      }
-    ],
-    "name": "F_LUSDUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "_lqtyTokenAddress",
+        "name": "_hlqtyTokenAddress",
         "type": "address"
       }
     ],
-    "name": "LQTYTokenAddressSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_lusdTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "LUSDTokenAddressSet",
+    "name": "HLQTYTokenAddressSet",
     "type": "event"
   },
   {
@@ -152,7 +152,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_LUSD",
+        "name": "_F_DCHF",
         "type": "uint256"
       }
     ],
@@ -171,7 +171,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "LUSDGain",
+        "name": "DCHFGain",
         "type": "uint256"
       },
       {
@@ -190,11 +190,42 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_totalLQTYStaked",
+        "name": "_totalHLQTYStaked",
         "type": "uint256"
       }
     ],
-    "name": "TotalLQTYStakedUpdated",
+    "name": "TotalHLQTYStakedUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int64",
+        "name": "value",
+        "type": "int64"
+      }
+    ],
+    "name": "Transfer",
     "type": "event"
   },
   {
@@ -225,7 +256,7 @@
   },
   {
     "inputs": [],
-    "name": "F_ETH",
+    "name": "F_DCHF",
     "outputs": [
       {
         "internalType": "uint256",
@@ -238,7 +269,7 @@
   },
   {
     "inputs": [],
-    "name": "F_LUSD",
+    "name": "F_ETH",
     "outputs": [
       {
         "internalType": "uint256",
@@ -289,6 +320,38 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "dchfToken",
+    "outputs": [
+      {
+        "internalType": "contract IDCHFToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "getPendingDCHFGain",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -308,22 +371,29 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "hlqtyToken",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "_user",
+        "internalType": "contract IHLQTYToken",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "getPendingLUSDGain",
-    "outputs": [
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_DCHFFee",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "increaseF_DCHF",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -340,19 +410,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_LUSDFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "increaseF_LUSD",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "isOwner",
     "outputs": [
@@ -360,32 +417,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lqtyToken",
-    "outputs": [
-      {
-        "internalType": "contract IHLQTYToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lusdToken",
-    "outputs": [
-      {
-        "internalType": "contract IDCHFToken",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -408,12 +439,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_lqtyTokenAddress",
+        "name": "_hlqtyTokenAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_lusdTokenAddress",
+        "name": "_dchfTokenAddress",
         "type": "address"
       },
       {
@@ -454,7 +485,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "F_LUSD_Snapshot",
+        "name": "F_DCHF_Snapshot",
         "type": "uint256"
       }
     ],
@@ -465,7 +496,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_LQTYamount",
+        "name": "_HLQTYamount",
         "type": "uint256"
       }
     ],
@@ -495,7 +526,7 @@
   },
   {
     "inputs": [],
-    "name": "totalLQTYStaked",
+    "name": "totalHLQTYStaked",
     "outputs": [
       {
         "internalType": "uint256",
@@ -591,7 +622,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_LQTYamount",
+        "name": "_HLQTYamount",
         "type": "uint256"
       }
     ],

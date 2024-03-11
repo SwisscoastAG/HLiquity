@@ -4,7 +4,7 @@
 
 ## LiquityStoreListenerParams interface
 
-Parameters passed to [LiquityStore](./lib-base.liquitystore.md) listeners.
+Parameters passed to [HLiquityStore](./lib-base.hliquitystore.md) listeners.
 
 <b>Signature:</b>
 
@@ -14,7 +14,7 @@ export interface LiquityStoreListenerParams<T = unknown>
 
 ## Remarks
 
-Use the [subscribe()](./lib-base.liquitystore.subscribe.md) function to register a listener.
+Use the [subscribe()](./lib-base.hliquitystore.subscribe.md) function to register a listener.
 
 ## Properties
 

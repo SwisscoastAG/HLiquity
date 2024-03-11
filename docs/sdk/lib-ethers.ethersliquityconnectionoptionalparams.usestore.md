@@ -4,7 +4,7 @@
 
 ## EthersLiquityConnectionOptionalParams.useStore property
 
-Create a [LiquityStore](./lib-base.liquitystore.md) and expose it as the `store` property.
+Create a  and expose it as the `store` property.
 
 <b>Signature:</b>
 
@@ -16,5 +16,5 @@ readonly useStore?: EthersLiquityStoreOption;
 
 When set to one of the available [options](./lib-ethers.ethersliquitystoreoption.md)<!-- -->, [ReadableEthersLiquity.connect()](./lib-ethers.readableethersliquity.connect_1.md) will return a [ReadableEthersLiquityWithStore](./lib-ethers.readableethersliquitywithstore.md)<!-- -->, while [EthersLiquity.connect()](./lib-ethers.ethersliquity.connect_1.md) will return an [EthersLiquityWithStore](./lib-ethers.ethersliquitywithstore.md)<!-- -->.
 
-Note that the store won't start monitoring the blockchain until its [start()](./lib-base.liquitystore.start.md) function is called.
+Note that the store won't start monitoring the blockchain until its  function is called.
 

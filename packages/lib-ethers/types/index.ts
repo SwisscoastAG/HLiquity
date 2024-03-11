@@ -15,8 +15,8 @@ interface ActivePoolCalls {
   NAME(_overrides?: CallOverrides): Promise<string>;
   borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
   defaultPoolAddress(_overrides?: CallOverrides): Promise<string>;
+  getDCHFDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   getETH(_overrides?: CallOverrides): Promise<BigNumber>;
-  getLUSDDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   stabilityPoolAddress(_overrides?: CallOverrides): Promise<string>;
@@ -24,8 +24,8 @@ interface ActivePoolCalls {
 }
 
 interface ActivePoolTransactions {
-  decreaseLUSDDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  increaseLUSDDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  decreaseDCHFDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  increaseDCHFDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   sendETH(_account: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_borrowerOperationsAddress: string, _troveManagerAddress: string, _stabilityPoolAddress: string, _defaultPoolAddress: string, _overrides?: Overrides): Promise<void>;
 }
@@ -34,25 +34,25 @@ export interface ActivePool
   extends _TypedLiquityContract<ActivePoolCalls, ActivePoolTransactions> {
   readonly filters: {
     ActivePoolAddressChanged(_newActivePoolAddress?: null): EventFilter;
+    ActivePoolDCHFDebtUpdated(_DCHFDebt?: null): EventFilter;
     ActivePoolETHBalanceUpdated(_ETH?: null): EventFilter;
-    ActivePoolLUSDDebtUpdated(_LUSDDebt?: null): EventFilter;
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
+    DCHFBalanceUpdated(_newBalance?: null): EventFilter;
     DefaultPoolAddressChanged(_newDefaultPoolAddress?: null): EventFilter;
     ETHBalanceUpdated(_newBalance?: null): EventFilter;
     EtherSent(_to?: null, _amount?: null): EventFilter;
-    LUSDBalanceUpdated(_newBalance?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StabilityPoolAddressChanged(_newStabilityPoolAddress?: null): EventFilter;
     TroveManagerAddressChanged(_newTroveManagerAddress?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _newActivePoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "ActivePoolDCHFDebtUpdated"): _TypedLogDescription<{ _DCHFDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "ActivePoolETHBalanceUpdated"): _TypedLogDescription<{ _ETH: BigNumber }>[];
-  extractEvents(logs: Log[], name: "ActivePoolLUSDDebtUpdated"): _TypedLogDescription<{ _LUSDDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _newDefaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "ETHBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "EtherSent"): _TypedLogDescription<{ _to: string; _amount: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LUSDBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _newStabilityPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _newTroveManagerAddress: string }>[];
@@ -61,22 +61,22 @@ export interface ActivePool
 interface BorrowerOperationsCalls {
   BORROWING_FEE_FLOOR(_overrides?: CallOverrides): Promise<BigNumber>;
   CCR(_overrides?: CallOverrides): Promise<BigNumber>;
+  DCHF_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  LUSD_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   MCR(_overrides?: CallOverrides): Promise<BigNumber>;
   MIN_NET_DEBT(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
   PERCENT_DIVISOR(_overrides?: CallOverrides): Promise<BigNumber>;
   _100pct(_overrides?: CallOverrides): Promise<BigNumber>;
   activePool(_overrides?: CallOverrides): Promise<string>;
+  dchfToken(_overrides?: CallOverrides): Promise<string>;
   defaultPool(_overrides?: CallOverrides): Promise<string>;
   getCompositeDebt(_debt: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
+  hlqtyStaking(_overrides?: CallOverrides): Promise<string>;
+  hlqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
-  lqtyStaking(_overrides?: CallOverrides): Promise<string>;
-  lqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
-  lusdToken(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
   sortedTroves(_overrides?: CallOverrides): Promise<string>;
@@ -85,15 +85,15 @@ interface BorrowerOperationsCalls {
 
 interface BorrowerOperationsTransactions {
   addColl(_upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
-  adjustTrove(_maxFeePercentage: BigNumberish, _collWithdrawal: BigNumberish, _LUSDChange: BigNumberish, _isDebtIncrease: boolean, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
+  adjustTrove(_maxFeePercentage: BigNumberish, _collWithdrawal: BigNumberish, _DCHFChange: BigNumberish, _isDebtIncrease: boolean, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
   claimCollateral(_overrides?: Overrides): Promise<void>;
   closeTrove(_overrides?: Overrides): Promise<void>;
   moveETHGainToTrove(_borrower: string, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
-  openTrove(_maxFeePercentage: BigNumberish, _LUSDAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
-  repayLUSD(_LUSDAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
-  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _sortedTrovesAddress: string, _lusdTokenAddress: string, _lqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
+  openTrove(_maxFeePercentage: BigNumberish, _DCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
+  repayDCHF(_DCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _sortedTrovesAddress: string, _dchfTokenAddress: string, _hlqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
   withdrawColl(_collWithdrawal: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
-  withdrawLUSD(_maxFeePercentage: BigNumberish, _LUSDAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
+  withdrawDCHF(_maxFeePercentage: BigNumberish, _DCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
 }
 
 export interface BorrowerOperations
@@ -101,11 +101,12 @@ export interface BorrowerOperations
   readonly filters: {
     ActivePoolAddressChanged(_activePoolAddress?: null): EventFilter;
     CollSurplusPoolAddressChanged(_collSurplusPoolAddress?: null): EventFilter;
+    DCHFBorrowingFeePaid(_borrower?: string | null, _DCHFFee?: null): EventFilter;
+    DCHFTokenAddressChanged(_dchfTokenAddress?: null): EventFilter;
     DefaultPoolAddressChanged(_defaultPoolAddress?: null): EventFilter;
     GasPoolAddressChanged(_gasPoolAddress?: null): EventFilter;
-    LQTYStakingAddressChanged(_lqtyStakingAddress?: null): EventFilter;
-    LUSDBorrowingFeePaid(_borrower?: string | null, _LUSDFee?: null): EventFilter;
-    LUSDTokenAddressChanged(_lusdTokenAddress?: null): EventFilter;
+    HLQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
+    LQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
     SortedTrovesAddressChanged(_sortedTrovesAddress?: null): EventFilter;
@@ -116,11 +117,12 @@ export interface BorrowerOperations
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _activePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "CollSurplusPoolAddressChanged"): _TypedLogDescription<{ _collSurplusPoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFBorrowingFeePaid"): _TypedLogDescription<{ _borrower: string; _DCHFFee: BigNumber }>[];
+  extractEvents(logs: Log[], name: "DCHFTokenAddressChanged"): _TypedLogDescription<{ _dchfTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _defaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "GasPoolAddressChanged"): _TypedLogDescription<{ _gasPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _lqtyStakingAddress: string }>[];
-  extractEvents(logs: Log[], name: "LUSDBorrowingFeePaid"): _TypedLogDescription<{ _borrower: string; _LUSDFee: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LUSDTokenAddressChanged"): _TypedLogDescription<{ _lusdTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
   extractEvents(logs: Log[], name: "SortedTrovesAddressChanged"): _TypedLogDescription<{ _sortedTrovesAddress: string }>[];
@@ -167,22 +169,22 @@ export interface CollSurplusPool
 
 interface CommunityIssuanceCalls {
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
+  HLQTYSupplyCap(_overrides?: CallOverrides): Promise<BigNumber>;
   ISSUANCE_FACTOR(_overrides?: CallOverrides): Promise<BigNumber>;
-  LQTYSupplyCap(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
   SECONDS_IN_ONE_MINUTE(_overrides?: CallOverrides): Promise<BigNumber>;
   deploymentTime(_overrides?: CallOverrides): Promise<BigNumber>;
+  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
-  lqtyToken(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
   stabilityPoolAddress(_overrides?: CallOverrides): Promise<string>;
-  totalLQTYIssued(_overrides?: CallOverrides): Promise<BigNumber>;
+  totalHLQTYIssued(_overrides?: CallOverrides): Promise<BigNumber>;
 }
 
 interface CommunityIssuanceTransactions {
-  issueLQTY(_overrides?: Overrides): Promise<BigNumber>;
-  sendLQTY(_account: string, _LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_lqtyTokenAddress: string, _stabilityPoolAddress: string, _overrides?: Overrides): Promise<void>;
+  issueHLQTY(_overrides?: Overrides): Promise<BigNumber>;
+  sendHLQTY(_account: string, _HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  setAddresses(_hlqtyTokenAddress: string, _stabilityPoolAddress: string, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
@@ -190,30 +192,32 @@ interface CommunityIssuanceTransactions {
 export interface CommunityIssuance
   extends _TypedLiquityContract<CommunityIssuanceCalls, CommunityIssuanceTransactions> {
   readonly filters: {
-    LQTYTokenAddressSet(_lqtyTokenAddress?: null): EventFilter;
+    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StabilityPoolAddressSet(_stabilityPoolAddress?: null): EventFilter;
-    TotalLQTYIssuedUpdated(_totalLQTYIssued?: null): EventFilter;
+    TotalHLQTYIssuedUpdated(_totalHLQTYIssued?: null): EventFilter;
+    Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "LQTYTokenAddressSet"): _TypedLogDescription<{ _lqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressSet"): _TypedLogDescription<{ _stabilityPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "TotalLQTYIssuedUpdated"): _TypedLogDescription<{ _totalLQTYIssued: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TotalHLQTYIssuedUpdated"): _TypedLogDescription<{ _totalHLQTYIssued: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
 }
 
 interface DefaultPoolCalls {
   NAME(_overrides?: CallOverrides): Promise<string>;
   activePoolAddress(_overrides?: CallOverrides): Promise<string>;
+  getDCHFDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   getETH(_overrides?: CallOverrides): Promise<BigNumber>;
-  getLUSDDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface DefaultPoolTransactions {
-  decreaseLUSDDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  increaseLUSDDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  decreaseDCHFDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  increaseDCHFDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   sendETHToActivePool(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
 }
@@ -222,23 +226,23 @@ export interface DefaultPool
   extends _TypedLiquityContract<DefaultPoolCalls, DefaultPoolTransactions> {
   readonly filters: {
     ActivePoolAddressChanged(_newActivePoolAddress?: null): EventFilter;
+    DCHFBalanceUpdated(_newBalance?: null): EventFilter;
     DefaultPoolAddressChanged(_newDefaultPoolAddress?: null): EventFilter;
+    DefaultPoolDCHFDebtUpdated(_DCHFDebt?: null): EventFilter;
     DefaultPoolETHBalanceUpdated(_ETH?: null): EventFilter;
-    DefaultPoolLUSDDebtUpdated(_LUSDDebt?: null): EventFilter;
     ETHBalanceUpdated(_newBalance?: null): EventFilter;
     EtherSent(_to?: null, _amount?: null): EventFilter;
-    LUSDBalanceUpdated(_newBalance?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StabilityPoolAddressChanged(_newStabilityPoolAddress?: null): EventFilter;
     TroveManagerAddressChanged(_newTroveManagerAddress?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _newActivePoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _newDefaultPoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "DefaultPoolDCHFDebtUpdated"): _TypedLogDescription<{ _DCHFDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "DefaultPoolETHBalanceUpdated"): _TypedLogDescription<{ _ETH: BigNumber }>[];
-  extractEvents(logs: Log[], name: "DefaultPoolLUSDDebtUpdated"): _TypedLogDescription<{ _LUSDDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "ETHBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "EtherSent"): _TypedLogDescription<{ _to: string; _amount: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LUSDBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _newStabilityPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _newTroveManagerAddress: string }>[];
@@ -276,7 +280,7 @@ export interface ERC20Mock
 }
 
 interface GasPoolCalls {
-  lusdToken(_overrides?: CallOverrides): Promise<string>;
+  dchfToken(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface GasPoolTransactions {
@@ -294,8 +298,8 @@ export interface GasPool
 interface HintHelpersCalls {
   BORROWING_FEE_FLOOR(_overrides?: CallOverrides): Promise<BigNumber>;
   CCR(_overrides?: CallOverrides): Promise<BigNumber>;
+  DCHF_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  LUSD_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   MCR(_overrides?: CallOverrides): Promise<BigNumber>;
   MIN_NET_DEBT(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
@@ -308,7 +312,7 @@ interface HintHelpersCalls {
   getApproxHint(_CR: BigNumberish, _numTrials: BigNumberish, _inputRandomSeed: BigNumberish, _overrides?: CallOverrides): Promise<{ hintAddress: string; diff: BigNumber; latestRandomSeed: BigNumber }>;
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
-  getRedemptionHints(_LUSDamount: BigNumberish, _price: BigNumberish, _maxIterations: BigNumberish, _overrides?: CallOverrides): Promise<{ firstRedemptionHint: string; partialRedemptionHintNICR: BigNumber; truncatedLUSDamount: BigNumber }>;
+  getRedemptionHints(_DCHFamount: BigNumberish, _price: BigNumberish, _maxIterations: BigNumberish, _overrides?: CallOverrides): Promise<{ firstRedemptionHint: string; partialRedemptionHintNICR: BigNumber; truncatedDCHFamount: BigNumber }>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
@@ -357,26 +361,26 @@ export interface IERC20
 interface LockupContractFactoryCalls {
   NAME(_overrides?: CallOverrides): Promise<string>;
   SECONDS_IN_ONE_YEAR(_overrides?: CallOverrides): Promise<BigNumber>;
+  hlqtyTokenAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   isRegisteredLockup(_contractAddress: string, _overrides?: CallOverrides): Promise<boolean>;
   lockupContractToDeployer(arg0: string, _overrides?: CallOverrides): Promise<string>;
-  lqtyTokenAddress(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface LockupContractFactoryTransactions {
   deployLockupContract(_beneficiary: string, _unlockTime: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setLQTYTokenAddress(_lqtyTokenAddress: string, _overrides?: Overrides): Promise<void>;
+  setHLQTYTokenAddress(_hlqtyTokenAddress: string, _overrides?: Overrides): Promise<void>;
 }
 
 export interface LockupContractFactory
   extends _TypedLiquityContract<LockupContractFactoryCalls, LockupContractFactoryTransactions> {
   readonly filters: {
-    LQTYTokenAddressSet(_lqtyTokenAddress?: null): EventFilter;
+    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
     LockupContractDeployedThroughFactory(_lockupContractAddress?: null, _beneficiary?: null, _unlockTime?: null, _deployer?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "LQTYTokenAddressSet"): _TypedLogDescription<{ _lqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractDeployedThroughFactory"): _TypedLogDescription<{ _lockupContractAddress: string; _beneficiary: string; _unlockTime: BigNumber; _deployer: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
 }
@@ -407,7 +411,6 @@ export interface DCHFToken
   extends _TypedLiquityContract<DCHFTokenCalls, DCHFTokenTransactions> {
   readonly filters: {
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
-    LUSDTokenBalanceUpdated(_user?: null, _amount?: null): EventFilter;
     MetadataSet(admin?: string | null, metadata?: null): EventFilter;
     MintedToken(newTotalSupply?: null, serialNumbers?: null): EventFilter;
     ResponseCode(responseCode?: null): EventFilter;
@@ -419,7 +422,6 @@ export interface DCHFToken
     TroveManagerAddressChanged(_troveManagerAddress?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
-  extractEvents(logs: Log[], name: "LUSDTokenBalanceUpdated"): _TypedLogDescription<{ _user: string; _amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
   extractEvents(logs: Log[], name: "MintedToken"): _TypedLogDescription<{ newTotalSupply: BigNumber; serialNumbers: BigNumber[] }>[];
   extractEvents(logs: Log[], name: "ResponseCode"): _TypedLogDescription<{ responseCode: BigNumber }>[];
@@ -433,31 +435,31 @@ export interface DCHFToken
 
 interface HLQTYStakingCalls {
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
+  F_DCHF(_overrides?: CallOverrides): Promise<BigNumber>;
   F_ETH(_overrides?: CallOverrides): Promise<BigNumber>;
-  F_LUSD(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
   activePoolAddress(_overrides?: CallOverrides): Promise<string>;
   borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
+  dchfToken(_overrides?: CallOverrides): Promise<string>;
+  getPendingDCHFGain(_user: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getPendingETHGain(_user: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getPendingLUSDGain(_user: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
-  lqtyToken(_overrides?: CallOverrides): Promise<string>;
-  lusdToken(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
-  snapshots(arg0: string, _overrides?: CallOverrides): Promise<{ F_ETH_Snapshot: BigNumber; F_LUSD_Snapshot: BigNumber }>;
+  snapshots(arg0: string, _overrides?: CallOverrides): Promise<{ F_ETH_Snapshot: BigNumber; F_DCHF_Snapshot: BigNumber }>;
   stakes(arg0: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  totalLQTYStaked(_overrides?: CallOverrides): Promise<BigNumber>;
+  totalHLQTYStaked(_overrides?: CallOverrides): Promise<BigNumber>;
   troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface HLQTYStakingTransactions {
+  increaseF_DCHF(_DCHFFee: BigNumberish, _overrides?: Overrides): Promise<void>;
   increaseF_ETH(_ETHFee: BigNumberish, _overrides?: Overrides): Promise<void>;
-  increaseF_LUSD(_LUSDFee: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_lqtyTokenAddress: string, _lusdTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
-  stake(_LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  setAddresses(_hlqtyTokenAddress: string, _dchfTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
+  stake(_HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
-  unstake(_LQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  unstake(_HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
 }
 
 export interface HLQTYStaking
@@ -465,30 +467,32 @@ export interface HLQTYStaking
   readonly filters: {
     ActivePoolAddressSet(_activePoolAddress?: null): EventFilter;
     BorrowerOperationsAddressSet(_borrowerOperationsAddress?: null): EventFilter;
+    DCHFTokenAddressSet(_dchfTokenAddress?: null): EventFilter;
     EtherSent(_account?: null, _amount?: null): EventFilter;
+    F_DCHFUpdated(_F_DCHF?: null): EventFilter;
     F_ETHUpdated(_F_ETH?: null): EventFilter;
-    F_LUSDUpdated(_F_LUSD?: null): EventFilter;
-    LQTYTokenAddressSet(_lqtyTokenAddress?: null): EventFilter;
-    LUSDTokenAddressSet(_lusdTokenAddress?: null): EventFilter;
+    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StakeChanged(staker?: string | null, newStake?: null): EventFilter;
-    StakerSnapshotsUpdated(_staker?: null, _F_ETH?: null, _F_LUSD?: null): EventFilter;
-    StakingGainsWithdrawn(staker?: string | null, LUSDGain?: null, ETHGain?: null): EventFilter;
-    TotalLQTYStakedUpdated(_totalLQTYStaked?: null): EventFilter;
+    StakerSnapshotsUpdated(_staker?: null, _F_ETH?: null, _F_DCHF?: null): EventFilter;
+    StakingGainsWithdrawn(staker?: string | null, DCHFGain?: null, ETHGain?: null): EventFilter;
+    TotalHLQTYStakedUpdated(_totalHLQTYStaked?: null): EventFilter;
+    Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
     TroveManagerAddressSet(_troveManager?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressSet"): _TypedLogDescription<{ _activePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressSet"): _TypedLogDescription<{ _borrowerOperationsAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFTokenAddressSet"): _TypedLogDescription<{ _dchfTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "EtherSent"): _TypedLogDescription<{ _account: string; _amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "F_DCHFUpdated"): _TypedLogDescription<{ _F_DCHF: BigNumber }>[];
   extractEvents(logs: Log[], name: "F_ETHUpdated"): _TypedLogDescription<{ _F_ETH: BigNumber }>[];
-  extractEvents(logs: Log[], name: "F_LUSDUpdated"): _TypedLogDescription<{ _F_LUSD: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LQTYTokenAddressSet"): _TypedLogDescription<{ _lqtyTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "LUSDTokenAddressSet"): _TypedLogDescription<{ _lusdTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StakeChanged"): _TypedLogDescription<{ staker: string; newStake: BigNumber }>[];
-  extractEvents(logs: Log[], name: "StakerSnapshotsUpdated"): _TypedLogDescription<{ _staker: string; _F_ETH: BigNumber; _F_LUSD: BigNumber }>[];
-  extractEvents(logs: Log[], name: "StakingGainsWithdrawn"): _TypedLogDescription<{ staker: string; LUSDGain: BigNumber; ETHGain: BigNumber }>[];
-  extractEvents(logs: Log[], name: "TotalLQTYStakedUpdated"): _TypedLogDescription<{ _totalLQTYStaked: BigNumber }>[];
+  extractEvents(logs: Log[], name: "StakerSnapshotsUpdated"): _TypedLogDescription<{ _staker: string; _F_ETH: BigNumber; _F_DCHF: BigNumber }>[];
+  extractEvents(logs: Log[], name: "StakingGainsWithdrawn"): _TypedLogDescription<{ staker: string; DCHFGain: BigNumber; ETHGain: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TotalHLQTYStakedUpdated"): _TypedLogDescription<{ _totalHLQTYStaked: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressSet"): _TypedLogDescription<{ _troveManager: string }>[];
 }
 
@@ -500,9 +504,9 @@ interface HLQTYTokenCalls {
   getDeploymentStartTime(_overrides?: CallOverrides): Promise<BigNumber>;
   getLpRewardsEntitlement(_overrides?: CallOverrides): Promise<BigNumber>;
   getTokenAddress(_overrides?: CallOverrides): Promise<string>;
+  hlqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lockupContractFactory(_overrides?: CallOverrides): Promise<string>;
-  lqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
   multisigAddress(_overrides?: CallOverrides): Promise<string>;
   name(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
@@ -513,7 +517,7 @@ interface HLQTYTokenCalls {
 
 interface HLQTYTokenTransactions {
   initialize(_bountyAddress: string, _lpRewardsAddress: string, _overrides?: Overrides): Promise<void>;
-  sendToLQTYStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  sendToHLQTYStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
@@ -522,7 +526,7 @@ export interface HLQTYToken
   extends _TypedLiquityContract<HLQTYTokenCalls, HLQTYTokenTransactions> {
   readonly filters: {
     CommunityIssuanceAddressSet(_communityIssuanceAddress?: null): EventFilter;
-    LQTYStakingAddressSet(_lqtyStakingAddress?: null): EventFilter;
+    HLQTYStakingAddressSet(_hlqtyStakingAddress?: null): EventFilter;
     LockupContractFactoryAddressSet(_lockupContractFactoryAddress?: null): EventFilter;
     MetadataSet(admin?: string | null, metadata?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
@@ -533,7 +537,7 @@ export interface HLQTYToken
     Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "CommunityIssuanceAddressSet"): _TypedLogDescription<{ _communityIssuanceAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYStakingAddressSet"): _TypedLogDescription<{ _lqtyStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYStakingAddressSet"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractFactoryAddressSet"): _TypedLogDescription<{ _lockupContractFactoryAddress: string }>[];
   extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
@@ -545,7 +549,7 @@ export interface HLQTYToken
 }
 
 interface MultiTroveGetterCalls {
-  getMultipleSortedTroves(_startIdx: BigNumberish, _count: BigNumberish, _overrides?: CallOverrides): Promise<{ owner: string; debt: BigNumber; coll: BigNumber; stake: BigNumber; snapshotETH: BigNumber; snapshotLUSDDebt: BigNumber }[]>;
+  getMultipleSortedTroves(_startIdx: BigNumberish, _count: BigNumberish, _overrides?: CallOverrides): Promise<{ owner: string; debt: BigNumber; coll: BigNumber; stake: BigNumber; snapshotETH: BigNumber; snapshotDCHFDebt: BigNumber }[]>;
   sortedTroves(_overrides?: CallOverrides): Promise<string>;
   troveManager(_overrides?: CallOverrides): Promise<string>;
 }
@@ -663,8 +667,8 @@ export interface SortedTroves
 interface StabilityPoolCalls {
   BORROWING_FEE_FLOOR(_overrides?: CallOverrides): Promise<BigNumber>;
   CCR(_overrides?: CallOverrides): Promise<BigNumber>;
+  DCHF_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  LUSD_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   MCR(_overrides?: CallOverrides): Promise<BigNumber>;
   MIN_NET_DEBT(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
@@ -677,6 +681,7 @@ interface StabilityPoolCalls {
   communityIssuance(_overrides?: CallOverrides): Promise<string>;
   currentEpoch(_overrides?: CallOverrides): Promise<BigNumber>;
   currentScale(_overrides?: CallOverrides): Promise<BigNumber>;
+  dchfToken(_overrides?: CallOverrides): Promise<string>;
   defaultPool(_overrides?: CallOverrides): Promise<string>;
   depositSnapshots(arg0: string, _overrides?: CallOverrides): Promise<{ S: BigNumber; P: BigNumber; G: BigNumber; scale: BigNumber; epoch: BigNumber }>;
   deposits(arg0: string, _overrides?: CallOverrides): Promise<{ initialValue: BigNumber; frontEndTag: string }>;
@@ -685,20 +690,19 @@ interface StabilityPoolCalls {
   frontEndSnapshots(arg0: string, _overrides?: CallOverrides): Promise<{ S: BigNumber; P: BigNumber; G: BigNumber; scale: BigNumber; epoch: BigNumber }>;
   frontEndStakes(arg0: string, _overrides?: CallOverrides): Promise<BigNumber>;
   frontEnds(arg0: string, _overrides?: CallOverrides): Promise<{ kickbackRate: BigNumber; registered: boolean }>;
+  getCompoundedDCHFDeposit(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getCompoundedFrontEndStake(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getCompoundedLUSDDeposit(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getDepositorETHGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getDepositorLQTYGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  getDepositorHLQTYGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getETH(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
-  getFrontEndLQTYGain(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getTotalLUSDDeposits(_overrides?: CallOverrides): Promise<BigNumber>;
+  getFrontEndHLQTYGain(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  getTotalDCHFDeposits(_overrides?: CallOverrides): Promise<BigNumber>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
+  lastDCHFLossError_Offset(_overrides?: CallOverrides): Promise<BigNumber>;
   lastETHError_Offset(_overrides?: CallOverrides): Promise<BigNumber>;
-  lastLQTYError(_overrides?: CallOverrides): Promise<BigNumber>;
-  lastLUSDLossError_Offset(_overrides?: CallOverrides): Promise<BigNumber>;
-  lusdToken(_overrides?: CallOverrides): Promise<string>;
+  lastHLQTYError(_overrides?: CallOverrides): Promise<BigNumber>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
   sortedTroves(_overrides?: CallOverrides): Promise<string>;
@@ -709,7 +713,7 @@ interface StabilityPoolTransactions {
   offset(_debtToOffset: BigNumberish, _collToAdd: BigNumberish, _overrides?: Overrides): Promise<void>;
   provideToSP(_amount: BigNumberish, _frontEndTag: string, _overrides?: Overrides): Promise<void>;
   registerFrontEnd(_kickbackRate: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_borrowerOperationsAddress: string, _troveManagerAddress: string, _activePoolAddress: string, _lusdTokenAddress: string, _sortedTrovesAddress: string, _priceFeedAddress: string, _communityIssuanceAddress: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_borrowerOperationsAddress: string, _troveManagerAddress: string, _activePoolAddress: string, _dchfTokenAddress: string, _sortedTrovesAddress: string, _priceFeedAddress: string, _communityIssuanceAddress: string, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   withdrawETHGainToTrove(_upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
@@ -722,9 +726,10 @@ export interface StabilityPool
     ActivePoolAddressChanged(_newActivePoolAddress?: null): EventFilter;
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
     CommunityIssuanceAddressChanged(_newCommunityIssuanceAddress?: null): EventFilter;
+    DCHFTokenAddressChanged(_newDCHFTokenAddress?: null): EventFilter;
     DefaultPoolAddressChanged(_newDefaultPoolAddress?: null): EventFilter;
     DepositSnapshotUpdated(_depositor?: string | null, _P?: null, _S?: null, _G?: null): EventFilter;
-    ETHGainWithdrawn(_depositor?: string | null, _ETH?: null, _LUSDLoss?: null): EventFilter;
+    ETHGainWithdrawn(_depositor?: string | null, _ETH?: null, _DCHFLoss?: null): EventFilter;
     EpochUpdated(_currentEpoch?: null): EventFilter;
     EtherSent(_to?: null, _amount?: null): EventFilter;
     FrontEndRegistered(_frontEnd?: string | null, _kickbackRate?: null): EventFilter;
@@ -732,26 +737,27 @@ export interface StabilityPool
     FrontEndStakeChanged(_frontEnd?: string | null, _newFrontEndStake?: null, _depositor?: null): EventFilter;
     FrontEndTagSet(_depositor?: string | null, _frontEnd?: string | null): EventFilter;
     G_Updated(_G?: null, _epoch?: null, _scale?: null): EventFilter;
-    LQTYPaidToDepositor(_depositor?: string | null, _LQTY?: null): EventFilter;
-    LQTYPaidToFrontEnd(_frontEnd?: string | null, _LQTY?: null): EventFilter;
-    LUSDTokenAddressChanged(_newLUSDTokenAddress?: null): EventFilter;
+    HLQTYPaidToDepositor(_depositor?: string | null, _HLQTY?: null): EventFilter;
+    HLQTYPaidToFrontEnd(_frontEnd?: string | null, _HLQTY?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     P_Updated(_P?: null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
     S_Updated(_S?: null, _epoch?: null, _scale?: null): EventFilter;
     ScaleUpdated(_currentScale?: null): EventFilter;
     SortedTrovesAddressChanged(_newSortedTrovesAddress?: null): EventFilter;
+    StabilityPoolDCHFBalanceUpdated(_newBalance?: null): EventFilter;
     StabilityPoolETHBalanceUpdated(_newBalance?: null): EventFilter;
-    StabilityPoolLUSDBalanceUpdated(_newBalance?: null): EventFilter;
+    Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
     TroveManagerAddressChanged(_newTroveManagerAddress?: null): EventFilter;
     UserDepositChanged(_depositor?: string | null, _newDeposit?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _newActivePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
   extractEvents(logs: Log[], name: "CommunityIssuanceAddressChanged"): _TypedLogDescription<{ _newCommunityIssuanceAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFTokenAddressChanged"): _TypedLogDescription<{ _newDCHFTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _newDefaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "DepositSnapshotUpdated"): _TypedLogDescription<{ _depositor: string; _P: BigNumber; _S: BigNumber; _G: BigNumber }>[];
-  extractEvents(logs: Log[], name: "ETHGainWithdrawn"): _TypedLogDescription<{ _depositor: string; _ETH: BigNumber; _LUSDLoss: BigNumber }>[];
+  extractEvents(logs: Log[], name: "ETHGainWithdrawn"): _TypedLogDescription<{ _depositor: string; _ETH: BigNumber; _DCHFLoss: BigNumber }>[];
   extractEvents(logs: Log[], name: "EpochUpdated"): _TypedLogDescription<{ _currentEpoch: BigNumber }>[];
   extractEvents(logs: Log[], name: "EtherSent"): _TypedLogDescription<{ _to: string; _amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "FrontEndRegistered"): _TypedLogDescription<{ _frontEnd: string; _kickbackRate: BigNumber }>[];
@@ -759,17 +765,17 @@ export interface StabilityPool
   extractEvents(logs: Log[], name: "FrontEndStakeChanged"): _TypedLogDescription<{ _frontEnd: string; _newFrontEndStake: BigNumber; _depositor: string }>[];
   extractEvents(logs: Log[], name: "FrontEndTagSet"): _TypedLogDescription<{ _depositor: string; _frontEnd: string }>[];
   extractEvents(logs: Log[], name: "G_Updated"): _TypedLogDescription<{ _G: BigNumber; _epoch: BigNumber; _scale: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LQTYPaidToDepositor"): _TypedLogDescription<{ _depositor: string; _LQTY: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LQTYPaidToFrontEnd"): _TypedLogDescription<{ _frontEnd: string; _LQTY: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LUSDTokenAddressChanged"): _TypedLogDescription<{ _newLUSDTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYPaidToDepositor"): _TypedLogDescription<{ _depositor: string; _HLQTY: BigNumber }>[];
+  extractEvents(logs: Log[], name: "HLQTYPaidToFrontEnd"): _TypedLogDescription<{ _frontEnd: string; _HLQTY: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "P_Updated"): _TypedLogDescription<{ _P: BigNumber }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
   extractEvents(logs: Log[], name: "S_Updated"): _TypedLogDescription<{ _S: BigNumber; _epoch: BigNumber; _scale: BigNumber }>[];
   extractEvents(logs: Log[], name: "ScaleUpdated"): _TypedLogDescription<{ _currentScale: BigNumber }>[];
   extractEvents(logs: Log[], name: "SortedTrovesAddressChanged"): _TypedLogDescription<{ _newSortedTrovesAddress: string }>[];
+  extractEvents(logs: Log[], name: "StabilityPoolDCHFBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "StabilityPoolETHBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
-  extractEvents(logs: Log[], name: "StabilityPoolLUSDBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _newTroveManagerAddress: string }>[];
   extractEvents(logs: Log[], name: "UserDepositChanged"): _TypedLogDescription<{ _depositor: string; _newDeposit: BigNumber }>[];
 }
@@ -779,10 +785,10 @@ interface TroveManagerCalls {
   BOOTSTRAP_PERIOD(_overrides?: CallOverrides): Promise<BigNumber>;
   BORROWING_FEE_FLOOR(_overrides?: CallOverrides): Promise<BigNumber>;
   CCR(_overrides?: CallOverrides): Promise<BigNumber>;
+  DCHF_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  LUSD_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
+  L_DCHFDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   L_ETH(_overrides?: CallOverrides): Promise<BigNumber>;
-  L_LUSDDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   MAX_BORROWING_FEE(_overrides?: CallOverrides): Promise<BigNumber>;
   MCR(_overrides?: CallOverrides): Promise<BigNumber>;
   MINUTE_DECAY_FACTOR(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -798,18 +804,19 @@ interface TroveManagerCalls {
   baseRate(_overrides?: CallOverrides): Promise<BigNumber>;
   borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
   checkRecoveryMode(_price: BigNumberish, _overrides?: CallOverrides): Promise<boolean>;
+  dchfToken(_overrides?: CallOverrides): Promise<string>;
   defaultPool(_overrides?: CallOverrides): Promise<string>;
-  getBorrowingFee(_LUSDDebt: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
-  getBorrowingFeeWithDecay(_LUSDDebt: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
+  getBorrowingFee(_DCHFDebt: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
+  getBorrowingFeeWithDecay(_DCHFDebt: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
   getBorrowingRate(_overrides?: CallOverrides): Promise<BigNumber>;
   getBorrowingRateWithDecay(_overrides?: CallOverrides): Promise<BigNumber>;
   getCurrentICR(_borrower: string, _price: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
-  getEntireDebtAndColl(_borrower: string, _overrides?: CallOverrides): Promise<{ debt: BigNumber; coll: BigNumber; pendingLUSDDebtReward: BigNumber; pendingETHReward: BigNumber }>;
+  getEntireDebtAndColl(_borrower: string, _overrides?: CallOverrides): Promise<{ debt: BigNumber; coll: BigNumber; pendingDCHFDebtReward: BigNumber; pendingETHReward: BigNumber }>;
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   getNominalICR(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  getPendingDCHFDebtReward(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getPendingETHReward(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getPendingLUSDDebtReward(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getRedemptionFeeWithDecay(_ETHDrawn: BigNumberish, _overrides?: CallOverrides): Promise<BigNumber>;
   getRedemptionRate(_overrides?: CallOverrides): Promise<BigNumber>;
   getRedemptionRateWithDecay(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -821,16 +828,15 @@ interface TroveManagerCalls {
   getTroveStake(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getTroveStatus(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
   hasPendingRewards(_borrower: string, _overrides?: CallOverrides): Promise<boolean>;
+  hlqtyStaking(_overrides?: CallOverrides): Promise<string>;
+  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
+  lastDCHFDebtError_Redistribution(_overrides?: CallOverrides): Promise<BigNumber>;
   lastETHError_Redistribution(_overrides?: CallOverrides): Promise<BigNumber>;
   lastFeeOperationTime(_overrides?: CallOverrides): Promise<BigNumber>;
-  lastLUSDDebtError_Redistribution(_overrides?: CallOverrides): Promise<BigNumber>;
-  lqtyStaking(_overrides?: CallOverrides): Promise<string>;
-  lqtyToken(_overrides?: CallOverrides): Promise<string>;
-  lusdToken(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
-  rewardSnapshots(arg0: string, _overrides?: CallOverrides): Promise<{ ETH: BigNumber; LUSDDebt: BigNumber }>;
+  rewardSnapshots(arg0: string, _overrides?: CallOverrides): Promise<{ ETH: BigNumber; DCHFDebt: BigNumber }>;
   sortedTroves(_overrides?: CallOverrides): Promise<string>;
   stabilityPool(_overrides?: CallOverrides): Promise<string>;
   totalCollateralSnapshot(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -850,9 +856,9 @@ interface TroveManagerTransactions {
   increaseTroveDebt(_borrower: string, _debtIncrease: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   liquidate(_borrower: string, _overrides?: Overrides): Promise<void>;
   liquidateTroves(_n: BigNumberish, _overrides?: Overrides): Promise<void>;
-  redeemCollateral(_LUSDamount: BigNumberish, _firstRedemptionHint: string, _upperPartialRedemptionHint: string, _lowerPartialRedemptionHint: string, _partialRedemptionHintNICR: BigNumberish, _maxIterations: BigNumberish, _maxFeePercentage: BigNumberish, _overrides?: Overrides): Promise<void>;
+  redeemCollateral(_DCHFamount: BigNumberish, _firstRedemptionHint: string, _upperPartialRedemptionHint: string, _lowerPartialRedemptionHint: string, _partialRedemptionHintNICR: BigNumberish, _maxIterations: BigNumberish, _maxFeePercentage: BigNumberish, _overrides?: Overrides): Promise<void>;
   removeStake(_borrower: string, _overrides?: Overrides): Promise<void>;
-  setAddresses(_borrowerOperationsAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _lusdTokenAddress: string, _sortedTrovesAddress: string, _lqtyTokenAddress: string, _lqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_borrowerOperationsAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _dchfTokenAddress: string, _sortedTrovesAddress: string, _hlqtyTokenAddress: string, _hlqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
   setTroveStatus(_borrower: string, _num: BigNumberish, _overrides?: Overrides): Promise<void>;
   updateStakeAndTotalStakes(_borrower: string, _overrides?: Overrides): Promise<BigNumber>;
   updateTroveRewardSnapshots(_borrower: string, _overrides?: Overrides): Promise<void>;
@@ -865,48 +871,48 @@ export interface TroveManager
     BaseRateUpdated(_baseRate?: null): EventFilter;
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
     CollSurplusPoolAddressChanged(_collSurplusPoolAddress?: null): EventFilter;
+    DCHFTokenAddressChanged(_newDCHFTokenAddress?: null): EventFilter;
     DefaultPoolAddressChanged(_defaultPoolAddress?: null): EventFilter;
     GasPoolAddressChanged(_gasPoolAddress?: null): EventFilter;
-    LQTYStakingAddressChanged(_lqtyStakingAddress?: null): EventFilter;
-    LQTYTokenAddressChanged(_lqtyTokenAddress?: null): EventFilter;
-    LTermsUpdated(_L_ETH?: null, _L_LUSDDebt?: null): EventFilter;
-    LUSDTokenAddressChanged(_newLUSDTokenAddress?: null): EventFilter;
+    LQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
+    LQTYTokenAddressChanged(_hlqtyTokenAddress?: null): EventFilter;
+    LTermsUpdated(_L_ETH?: null, _L_DCHFDebt?: null): EventFilter;
     LastFeeOpTimeUpdated(_lastFeeOpTime?: null): EventFilter;
-    Liquidation(_liquidatedDebt?: null, _liquidatedColl?: null, _collGasCompensation?: null, _LUSDGasCompensation?: null): EventFilter;
+    Liquidation(_liquidatedDebt?: null, _liquidatedColl?: null, _collGasCompensation?: null, _DCHFGasCompensation?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
-    Redemption(_attemptedLUSDAmount?: null, _actualLUSDAmount?: null, _ETHSent?: null, _ETHFee?: null): EventFilter;
+    Redemption(_attemptedDCHFAmount?: null, _actualDCHFAmount?: null, _ETHSent?: null, _ETHFee?: null): EventFilter;
     SortedTrovesAddressChanged(_sortedTrovesAddress?: null): EventFilter;
     StabilityPoolAddressChanged(_stabilityPoolAddress?: null): EventFilter;
     SystemSnapshotsUpdated(_totalStakesSnapshot?: null, _totalCollateralSnapshot?: null): EventFilter;
     TotalStakesUpdated(_newTotalStakes?: null): EventFilter;
     TroveIndexUpdated(_borrower?: null, _newIndex?: null): EventFilter;
     TroveLiquidated(_borrower?: string | null, _debt?: null, _coll?: null, _operation?: null): EventFilter;
-    TroveSnapshotsUpdated(_L_ETH?: null, _L_LUSDDebt?: null): EventFilter;
+    TroveSnapshotsUpdated(_L_ETH?: null, _L_DCHFDebt?: null): EventFilter;
     TroveUpdated(_borrower?: string | null, _debt?: null, _coll?: null, _stake?: null, _operation?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _activePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "BaseRateUpdated"): _TypedLogDescription<{ _baseRate: BigNumber }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
   extractEvents(logs: Log[], name: "CollSurplusPoolAddressChanged"): _TypedLogDescription<{ _collSurplusPoolAddress: string }>[];
+  extractEvents(logs: Log[], name: "DCHFTokenAddressChanged"): _TypedLogDescription<{ _newDCHFTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _defaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "GasPoolAddressChanged"): _TypedLogDescription<{ _gasPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _lqtyStakingAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYTokenAddressChanged"): _TypedLogDescription<{ _lqtyTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "LTermsUpdated"): _TypedLogDescription<{ _L_ETH: BigNumber; _L_LUSDDebt: BigNumber }>[];
-  extractEvents(logs: Log[], name: "LUSDTokenAddressChanged"): _TypedLogDescription<{ _newLUSDTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYTokenAddressChanged"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "LTermsUpdated"): _TypedLogDescription<{ _L_ETH: BigNumber; _L_DCHFDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "LastFeeOpTimeUpdated"): _TypedLogDescription<{ _lastFeeOpTime: BigNumber }>[];
-  extractEvents(logs: Log[], name: "Liquidation"): _TypedLogDescription<{ _liquidatedDebt: BigNumber; _liquidatedColl: BigNumber; _collGasCompensation: BigNumber; _LUSDGasCompensation: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Liquidation"): _TypedLogDescription<{ _liquidatedDebt: BigNumber; _liquidatedColl: BigNumber; _collGasCompensation: BigNumber; _DCHFGasCompensation: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
-  extractEvents(logs: Log[], name: "Redemption"): _TypedLogDescription<{ _attemptedLUSDAmount: BigNumber; _actualLUSDAmount: BigNumber; _ETHSent: BigNumber; _ETHFee: BigNumber }>[];
+  extractEvents(logs: Log[], name: "Redemption"): _TypedLogDescription<{ _attemptedDCHFAmount: BigNumber; _actualDCHFAmount: BigNumber; _ETHSent: BigNumber; _ETHFee: BigNumber }>[];
   extractEvents(logs: Log[], name: "SortedTrovesAddressChanged"): _TypedLogDescription<{ _sortedTrovesAddress: string }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _stabilityPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "SystemSnapshotsUpdated"): _TypedLogDescription<{ _totalStakesSnapshot: BigNumber; _totalCollateralSnapshot: BigNumber }>[];
   extractEvents(logs: Log[], name: "TotalStakesUpdated"): _TypedLogDescription<{ _newTotalStakes: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveIndexUpdated"): _TypedLogDescription<{ _borrower: string; _newIndex: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveLiquidated"): _TypedLogDescription<{ _borrower: string; _debt: BigNumber; _coll: BigNumber; _operation: number }>[];
-  extractEvents(logs: Log[], name: "TroveSnapshotsUpdated"): _TypedLogDescription<{ _L_ETH: BigNumber; _L_LUSDDebt: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TroveSnapshotsUpdated"): _TypedLogDescription<{ _L_ETH: BigNumber; _L_DCHFDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveUpdated"): _TypedLogDescription<{ _borrower: string; _debt: BigNumber; _coll: BigNumber; _stake: BigNumber; _operation: number }>[];
 }
 
@@ -915,10 +921,10 @@ interface UnipoolCalls {
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   duration(_overrides?: CallOverrides): Promise<BigNumber>;
   earned(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lastTimeRewardApplicable(_overrides?: CallOverrides): Promise<BigNumber>;
   lastUpdateTime(_overrides?: CallOverrides): Promise<BigNumber>;
-  lqtyToken(_overrides?: CallOverrides): Promise<string>;
   owner(_overrides?: CallOverrides): Promise<string>;
   periodFinish(_overrides?: CallOverrides): Promise<BigNumber>;
   rewardPerToken(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -932,7 +938,7 @@ interface UnipoolCalls {
 
 interface UnipoolTransactions {
   claimReward(_overrides?: Overrides): Promise<void>;
-  setParams(_lqtyTokenAddress: string, _uniTokenAddress: string, _duration: BigNumberish, _overrides?: Overrides): Promise<void>;
+  setParams(_uniTokenAddress: string, _duration: BigNumberish, _overrides?: Overrides): Promise<void>;
   stake(amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
@@ -943,7 +949,7 @@ interface UnipoolTransactions {
 export interface Unipool
   extends _TypedLiquityContract<UnipoolCalls, UnipoolTransactions> {
   readonly filters: {
-    LQTYTokenAddressChanged(_lqtyTokenAddress?: null): EventFilter;
+    HLQTYTokenAddressChanged(_hlqtyTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     RewardAdded(reward?: null): EventFilter;
     RewardPaid(user?: string | null, reward?: null): EventFilter;
@@ -951,7 +957,7 @@ export interface Unipool
     UniTokenAddressChanged(_uniTokenAddress?: null): EventFilter;
     Withdrawn(user?: string | null, amount?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "LQTYTokenAddressChanged"): _TypedLogDescription<{ _lqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTYTokenAddressChanged"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "RewardAdded"): _TypedLogDescription<{ reward: BigNumber }>[];
   extractEvents(logs: Log[], name: "RewardPaid"): _TypedLogDescription<{ user: string; reward: BigNumber }>[];

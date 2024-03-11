@@ -4,7 +4,7 @@
 
 ## LiquityStoreState type
 
-Type of [LiquityStore](./lib-base.liquitystore.md)<!-- -->'s [state](./lib-base.liquitystore.state.md)<!-- -->.
+Type of [HLiquityStore](./lib-base.hliquitystore.md)<!-- -->'s [state](./lib-base.hliquitystore.state.md)<!-- -->.
 
 <b>Signature:</b>
 
