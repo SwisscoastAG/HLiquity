@@ -111,7 +111,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     {
         checkContract(_uniTokenAddress);
 
-        uniToken = IERC20(_uniTokenAddress);
+        uniToken = _uniTokenAddress;
 
         duration = _duration;
 
@@ -155,7 +155,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     // stake visibility is public as overriding LPTokenWrapper's stake() function
     function stake(uint256 amount) public override {
         require(amount > 0, "Cannot stake 0");
-        require(address(uniToken) != address(0), "Liquidity Pool Token has not been set yet");
+        require(uniToken != address(0), "Liquidity Pool Token has not been set yet");
 
         _updatePeriodFinish();
         _updateAccountReward(msg.sender);
@@ -167,7 +167,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
 
     function withdraw(uint256 amount) public override {
         require(amount > 0, "Cannot withdraw 0");
-        require(address(uniToken) != address(0), "Liquidity Pool Token has not been set yet");
+        require(uniToken != address(0), "Liquidity Pool Token has not been set yet");
 
         _updateAccountReward(msg.sender);
 
@@ -183,7 +183,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     }
 
     function claimReward() public override {
-        require(address(uniToken) != address(0), "Liquidity Pool Token has not been set yet");
+        require(uniToken != address(0), "Liquidity Pool Token has not been set yet");
 
         _updatePeriodFinish();
         _updateAccountReward(msg.sender);
