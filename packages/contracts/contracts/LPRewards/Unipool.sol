@@ -110,6 +110,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     onlyOwner
     {
         checkContract(_uniTokenAddress);
+        _associateToken(address(this), _uniTokenAddress);
 
         uniToken = _uniTokenAddress;
 
