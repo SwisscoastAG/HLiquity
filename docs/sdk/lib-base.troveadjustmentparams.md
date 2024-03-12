@@ -18,7 +18,7 @@ The type parameter `T` specifies the allowed value type(s) of the particular `Tr
 
 Even though all properties are optional, a valid `TroveAdjustmentParams` object must define at least one.
 
-Defining both `depositCollateral` and `withdrawCollateral`<!-- -->, or both `borrowDCHF` and `repayDCHF` at the same time is disallowed, and will result in a type-checking error.
+Defining both `depositCollateral` and `withdrawCollateral`<!-- -->, or both `borrowHCHF` and `repayHCHF` at the same time is disallowed, and will result in a type-checking error.
 
 <h2>Properties</h2>
 
@@ -30,9 +30,9 @@ Defining both `depositCollateral` and `withdrawCollateral`<!-- -->, or both `bor
 
 <tr> <td> withdrawCollateral? </td> <td> T </td> <td> <i>(Optional)</i> The amount of collateral that's withdrawn. </td> </tr>
 
-<tr> <td> borrowDCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of DCHF that's borrowed. </td> </tr>
+<tr> <td> borrowHCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of HCHF that's borrowed. </td> </tr>
 
-<tr> <td> repayDCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of DCHF that's repaid. </td> </tr>
+<tr> <td> repayHCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of HCHF that's repaid. </td> </tr>
 
 </table>
 

@@ -9,7 +9,7 @@ import "../Dependencies/HederaResponseCodes.sol";
 
 contract CommunityIssuanceTester is CommunityIssuance {
     function obtainHLQTY(uint _amount) external {
-        require(_amount <= uint256(type(int64).max), "DCHFGain exceeds int64 limits");
+        require(_amount <= uint256(type(int64).max), "HCHFGain exceeds int64 limits");
         int64 safeAmount = int64(_amount);
         int responseCode = HederaTokenService.transferToken(hlqtyToken.getTokenAddress(), address(this),msg.sender, safeAmount);
         _checkResponse(responseCode);

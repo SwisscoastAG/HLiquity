@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "DCHFTokenTester",
-  "sourceName": "contracts/TestContracts/DCHFTokenTester.sol",
+  "contractName": "HCHFTokenTester",
+  "sourceName": "contracts/TestContracts/HCHFTokenTester.sol",
   "abi": [
     {
       "inputs": [
@@ -161,7 +161,7 @@
             }
           ],
           "indexed": false,
-          "internalType": "struct IDCHFToken.UpdateTokenStruct",
+          "internalType": "struct IHCHFToken.UpdateTokenStruct",
           "name": "updateTokenStruct",
           "type": "tuple"
         }

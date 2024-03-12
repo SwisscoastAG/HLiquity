@@ -31,10 +31,10 @@
 |  [PopulatedLiquityTransaction](./lib-base.populatedliquitytransaction.md) | A transaction that has been prepared for sending. |
 |  [PopulatedRedemption](./lib-base.populatedredemption.md) | A redemption transaction that has been prepared for sending. |
 |  [ReadableLiquity](./lib-base.readableliquity.md) | Read the state of the Liquity protocol. |
-|  [RedemptionDetails](./lib-base.redemptiondetails.md) | Details of a [redeemDCHF()](./lib-base.transactableliquity.redeemdchf.md) transaction. |
+|  [RedemptionDetails](./lib-base.redemptiondetails.md) | Details of a [redeemHCHF()](./lib-base.transactableliquity.redeemhchf.md) transaction. |
 |  [SendableLiquity](./lib-base.sendableliquity.md) | Send Liquity transactions. |
 |  [SentLiquityTransaction](./lib-base.sentliquitytransaction.md) | A transaction that has already been sent. |
-|  [StabilityDepositChangeDetails](./lib-base.stabilitydepositchangedetails.md) | Details of a [depositDCHFInStabilityPool()](./lib-base.transactableliquity.depositdchfinstabilitypool.md) or [withdrawDCHFFromStabilityPool()](./lib-base.transactableliquity.withdrawdchffromstabilitypool.md) transaction. |
+|  [StabilityDepositChangeDetails](./lib-base.stabilitydepositchangedetails.md) | Details of a [depositHCHFInStabilityPool()](./lib-base.transactableliquity.deposithchfinstabilitypool.md) or [withdrawHCHFFromStabilityPool()](./lib-base.transactableliquity.withdrawhchffromstabilitypool.md) transaction. |
 |  [StabilityPoolGainsWithdrawalDetails](./lib-base.stabilitypoolgainswithdrawaldetails.md) | Details of a [withdrawGainsFromStabilityPool()](./lib-base.transactableliquity.withdrawgainsfromstabilitypool.md) transaction. |
 |  [TransactableLiquity](./lib-base.transactableliquity.md) | Send Liquity transactions and wait for them to succeed. |
 |  [TroveAdjustmentDetails](./lib-base.troveadjustmentdetails.md) | Details of an [adjustTrove()](./lib-base.transactableliquity.adjusttrove.md) transaction. |
@@ -47,9 +47,9 @@
 |  Variable | Description |
 |  --- | --- |
 |  [CRITICAL\_COLLATERAL\_RATIO](./lib-base.critical_collateral_ratio.md) | Total collateral ratio below which recovery mode is triggered. |
-|  [DCHF\_LIQUIDATION\_RESERVE](./lib-base.dchf_liquidation_reserve.md) | Amount of DCHF that's reserved for compensating the liquidator of a Trove. |
-|  [DCHF\_MINIMUM\_DEBT](./lib-base.dchf_minimum_debt.md) | A Trove must always have at least this much debt. |
-|  [DCHF\_MINIMUM\_NET\_DEBT](./lib-base.dchf_minimum_net_debt.md) | A Trove must always have at least this much debt on top of the [liquidation reserve](./lib-base.dchf_liquidation_reserve.md)<!-- -->. |
+|  [HCHF\_LIQUIDATION\_RESERVE](./lib-base.hchf_liquidation_reserve.md) | Amount of HCHF that's reserved for compensating the liquidator of a Trove. |
+|  [HCHF\_MINIMUM\_DEBT](./lib-base.hchf_minimum_debt.md) | A Trove must always have at least this much debt. |
+|  [HCHF\_MINIMUM\_NET\_DEBT](./lib-base.hchf_minimum_net_debt.md) | A Trove must always have at least this much debt on top of the [liquidation reserve](./lib-base.hchf_liquidation_reserve.md)<!-- -->. |
 |  [MAXIMUM\_BORROWING\_RATE](./lib-base.maximum_borrowing_rate.md) | Value that the [borrowing rate](./lib-base.fees.borrowingrate.md) will never exceed. |
 |  [MINIMUM\_BORROWING\_RATE](./lib-base.minimum_borrowing_rate.md) | Value that the [borrowing rate](./lib-base.fees.borrowingrate.md) will never decay below. |
 |  [MINIMUM\_COLLATERAL\_RATIO](./lib-base.minimum_collateral_ratio.md) | Collateral ratio below which a Trove can be liquidated in normal mode. |

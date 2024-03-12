@@ -4,7 +4,7 @@
 
 ## SendableEthersLiquity.approveUniTokens() method
 
-Allow the liquidity mining contract to use Uniswap ETH/DCHF LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->.
+Allow the liquidity mining contract to use Uniswap ETH/HCHF LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->.
 
 <b>Signature:</b>
 

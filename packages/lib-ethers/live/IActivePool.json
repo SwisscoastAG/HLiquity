@@ -35,11 +35,11 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_LUSDDebt",
+          "name": "_HCHFDebt",
           "type": "uint256"
         }
       ],
-      "name": "ActivePoolLUSDDebtUpdated",
+      "name": "ActivePoolHCHFDebtUpdated",
       "type": "event"
     },
     {
@@ -110,7 +110,7 @@
           "type": "uint256"
         }
       ],
-      "name": "LUSDBalanceUpdated",
+      "name": "HCHFBalanceUpdated",
       "type": "event"
     },
     {
@@ -147,7 +147,7 @@
           "type": "uint256"
         }
       ],
-      "name": "decreaseLUSDDebt",
+      "name": "decreaseHCHFDebt",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -167,7 +167,7 @@
     },
     {
       "inputs": [],
-      "name": "getLUSDDebt",
+      "name": "getHCHFDebt",
       "outputs": [
         {
           "internalType": "uint256",
@@ -186,7 +186,7 @@
           "type": "uint256"
         }
       ],
-      "name": "increaseLUSDDebt",
+      "name": "increaseHCHFDebt",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

@@ -4,7 +4,7 @@
 
 ## LiquityStoreBaseState.totalStakedUniTokens property
 
-Total amount of Uniswap ETH/DCHF LP tokens currently staked in liquidity mining.
+Total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining.
 
 <b>Signature:</b>
 

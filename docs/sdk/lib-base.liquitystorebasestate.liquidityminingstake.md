@@ -4,7 +4,7 @@
 
 ## LiquityStoreBaseState.liquidityMiningStake property
 
-Amount of Uniswap ETH/DCHF LP tokens the user has staked in liquidity mining.
+Amount of Uniswap ETH/HCHF LP tokens the user has staked in liquidity mining.
 
 <b>Signature:</b>
 

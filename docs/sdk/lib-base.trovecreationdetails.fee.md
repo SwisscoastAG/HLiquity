@@ -4,7 +4,7 @@
 
 ## TroveCreationDetails.fee property
 
-Amount of DCHF added to the Trove's debt as borrowing fee.
+Amount of HCHF added to the Trove's debt as borrowing fee.
 
 <b>Signature:</b>
 

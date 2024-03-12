@@ -17,19 +17,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "_newBalance",
-        "type": "uint256"
-      }
-    ],
-    "name": "DCHFBalanceUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
         "name": "_newDefaultPoolAddress",
         "type": "address"
@@ -44,11 +31,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_DCHFDebt",
+        "name": "_ETH",
         "type": "uint256"
       }
     ],
-    "name": "DefaultPoolDCHFDebtUpdated",
+    "name": "DefaultPoolETHBalanceUpdated",
     "type": "event"
   },
   {
@@ -57,11 +44,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_ETH",
+        "name": "_HCHFDebt",
         "type": "uint256"
       }
     ],
-    "name": "DefaultPoolETHBalanceUpdated",
+    "name": "DefaultPoolHCHFDebtUpdated",
     "type": "event"
   },
   {
@@ -94,6 +81,19 @@
       }
     ],
     "name": "EtherSent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "HCHFBalanceUpdated",
     "type": "event"
   },
   {
@@ -175,14 +175,14 @@
         "type": "uint256"
       }
     ],
-    "name": "decreaseDCHFDebt",
+    "name": "decreaseHCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "getDCHFDebt",
+    "name": "getETH",
     "outputs": [
       {
         "internalType": "uint256",
@@ -195,7 +195,7 @@
   },
   {
     "inputs": [],
-    "name": "getETH",
+    "name": "getHCHFDebt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -214,7 +214,7 @@
         "type": "uint256"
       }
     ],
-    "name": "increaseDCHFDebt",
+    "name": "increaseHCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

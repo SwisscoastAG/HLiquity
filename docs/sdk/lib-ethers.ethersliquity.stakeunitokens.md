@@ -4,7 +4,7 @@
 
 ## EthersLiquity.stakeUniTokens() method
 
-Stake Uniswap ETH/DCHF LP tokens to participate in liquidity mining and earn HLQTY.
+Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQTY.
 
 <b>Signature:</b>
 

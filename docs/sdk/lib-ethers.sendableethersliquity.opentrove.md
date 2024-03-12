@@ -4,7 +4,7 @@
 
 ## SendableEthersLiquity.openTrove() method
 
-Open a new Trove by depositing collateral and borrowing DCHF.
+Open a new Trove by depositing collateral and borrowing HCHF.
 
 <b>Signature:</b>
 

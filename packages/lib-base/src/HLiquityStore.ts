@@ -25,11 +25,11 @@ export interface LiquityStoreBaseState {
   /** User's native currency balance (e.g. Ether). */
   accountBalance: Decimal;
 
-  /** User's DCHF token balance. */
-  dchfBalance: Decimal;
+  /** User's HCHF token balance. */
+  hchfBalance: Decimal;
 
-  /** DCHF HST Token address */
-  dchfTokenAddress: string,
+  /** HCHF HST Token address */
+  hchfTokenAddress: string,
 
   /** HLQTY HST Token address */
   hlqtyTokenAddress: string,
@@ -37,19 +37,19 @@ export interface LiquityStoreBaseState {
   /** User's HLQTY token balance. */
   hlqtyBalance: Decimal;
 
-  /** User's Uniswap ETH/DCHF LP token balance. */
+  /** User's Uniswap ETH/HCHF LP token balance. */
   uniTokenBalance: Decimal;
 
-  /** The liquidity mining contract's allowance of user's Uniswap ETH/DCHF LP tokens. */
+  /** The liquidity mining contract's allowance of user's Uniswap ETH/HCHF LP tokens. */
   uniTokenAllowance: Decimal;
 
   /** Remaining HLQTY that will be collectively rewarded to liquidity miners. */
   remainingLiquidityMiningHLQTYReward: Decimal;
 
-  /** Amount of Uniswap ETH/DCHF LP tokens the user has staked in liquidity mining. */
+  /** Amount of Uniswap ETH/HCHF LP tokens the user has staked in liquidity mining. */
   liquidityMiningStake: Decimal;
 
-  /** Total amount of Uniswap ETH/DCHF LP tokens currently staked in liquidity mining. */
+  /** Total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. */
   totalStakedUniTokens: Decimal;
 
   /** Amount of HLQTY the user has earned through mining liquidity. */
@@ -67,8 +67,8 @@ export interface LiquityStoreBaseState {
   /** Current price of the native currency (e.g. Ether) in USD. */
   price: Decimal;
 
-  /** Total amount of DCHF currently deposited in the Stability Pool. */
-  dchfInStabilityPool: Decimal;
+  /** Total amount of HCHF currently deposited in the Stability Pool. */
+  hchfInStabilityPool: Decimal;
 
   /** Total collateral and debt in the Liquity system. */
   total: Trove;
@@ -136,7 +136,7 @@ export interface LiquityStoreDerivedState {
    * Current redemption rate.
    *
    * @remarks
-   * Note that the actual rate paid by a redemption transaction will depend on the amount of DCHF
+   * Note that the actual rate paid by a redemption transaction will depend on the amount of HCHF
    * being redeemed.
    *
    * Use {@link Fees.redemptionRate} to calculate a precise redemption rate.
@@ -358,18 +358,18 @@ export abstract class HLiquityStore<T = unknown> {
         baseStateUpdate.accountBalance
       ),
 
-      dchfBalance: this._updateIfChanged(
+      hchfBalance: this._updateIfChanged(
         eq,
-        "dchfBalance",
-        baseState.dchfBalance,
-        baseStateUpdate.dchfBalance
+        "hchfBalance",
+        baseState.hchfBalance,
+        baseStateUpdate.hchfBalance
       ),
 
-      dchfTokenAddress: this._updateIfChanged(
+      hchfTokenAddress: this._updateIfChanged(
           strictEquals,
-          "dchfTokenAddress",
-          baseState.dchfTokenAddress,
-          baseStateUpdate.dchfTokenAddress
+          "hchfTokenAddress",
+          baseState.hchfTokenAddress,
+          baseStateUpdate.hchfTokenAddress
       ),
 
       hlqtyTokenAddress: this._updateIfChanged(
@@ -435,11 +435,11 @@ export abstract class HLiquityStore<T = unknown> {
 
       price: this._updateIfChanged(eq, "price", baseState.price, baseStateUpdate.price),
 
-      dchfInStabilityPool: this._updateIfChanged(
+      hchfInStabilityPool: this._updateIfChanged(
         eq,
-        "dchfInStabilityPool",
-        baseState.dchfInStabilityPool,
-        baseStateUpdate.dchfInStabilityPool
+        "hchfInStabilityPool",
+        baseState.hchfInStabilityPool,
+        baseStateUpdate.hchfInStabilityPool
       ),
 
       total: this._updateIfChanged(equals, "total", baseState.total, baseStateUpdate.total),

@@ -4,19 +4,19 @@
 
 ## StabilityDeposit.whatChanged() method
 
-Calculate the difference between the `currentDCHF` in this Stability Deposit and `thatDCHF`<!-- -->.
+Calculate the difference between the `currentHCHF` in this Stability Deposit and `thatHCHF`<!-- -->.
 
 <b>Signature:</b>
 
 ```typescript
-whatChanged(thatDCHF: Decimalish): StabilityDepositChange<Decimal> | undefined;
+whatChanged(thatHCHF: Decimalish): StabilityDepositChange<Decimal> | undefined;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  thatDCHF | [Decimalish](./lib-base.decimalish.md) |  |
+|  thatHCHF | [Decimalish](./lib-base.decimalish.md) |  |
 
 <b>Returns:</b>
 

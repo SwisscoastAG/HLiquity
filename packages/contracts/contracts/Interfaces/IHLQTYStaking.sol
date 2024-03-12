@@ -8,25 +8,25 @@ interface IHLQTYStaking {
     // --- Events --
     
     event HLQTYTokenAddressSet(address _hlqtyTokenAddress);
-    event DCHFTokenAddressSet(address _DCHFTokenAddress);
+    event HCHFTokenAddressSet(address _HCHFTokenAddress);
     event TroveManagerAddressSet(address _troveManager);
     event BorrowerOperationsAddressSet(address _borrowerOperationsAddress);
     event ActivePoolAddressSet(address _activePoolAddress);
 
     event StakeChanged(address indexed staker, uint newStake);
-    event StakingGainsWithdrawn(address indexed staker, uint DCHFGain, uint ETHGain);
+    event StakingGainsWithdrawn(address indexed staker, uint HCHFGain, uint ETHGain);
     event F_ETHUpdated(uint _F_ETH);
-    event F_DCHFUpdated(uint _F_DCHF);
+    event F_HCHFUpdated(uint _F_HCHF);
     event TotalHLQTYStakedUpdated(uint _totalHLQTYStaked);
     event EtherSent(address _account, uint _amount);
-    event StakerSnapshotsUpdated(address _staker, uint _F_ETH, uint _F_DCHF);
+    event StakerSnapshotsUpdated(address _staker, uint _F_ETH, uint _F_HCHF);
 
     // --- Functions ---
 
     function setAddresses
     (
         address _hlqtyTokenAddress,
-        address _DCHFTokenAddress,
+        address _HCHFTokenAddress,
         address _troveManagerAddress, 
         address _borrowerOperationsAddress,
         address _activePoolAddress
@@ -38,9 +38,9 @@ interface IHLQTYStaking {
 
     function increaseF_ETH(uint _ETHFee) external; 
 
-    function increaseF_DCHF(uint _HLQTYFee) external;
+    function increaseF_HCHF(uint _HLQTYFee) external;
 
     function getPendingETHGain(address _user) external view returns (uint);
 
-    function getPendingDCHFGain(address _user) external view returns (uint);
+    function getPendingHCHFGain(address _user) external view returns (uint);
 }

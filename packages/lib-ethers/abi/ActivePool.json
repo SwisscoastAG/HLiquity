@@ -18,11 +18,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_DCHFDebt",
+        "name": "_ETH",
         "type": "uint256"
       }
     ],
-    "name": "ActivePoolDCHFDebtUpdated",
+    "name": "ActivePoolETHBalanceUpdated",
     "type": "event"
   },
   {
@@ -31,11 +31,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_ETH",
+        "name": "_HCHFDebt",
         "type": "uint256"
       }
     ],
-    "name": "ActivePoolETHBalanceUpdated",
+    "name": "ActivePoolHCHFDebtUpdated",
     "type": "event"
   },
   {
@@ -49,19 +49,6 @@
       }
     ],
     "name": "BorrowerOperationsAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_newBalance",
-        "type": "uint256"
-      }
-    ],
-    "name": "DCHFBalanceUpdated",
     "type": "event"
   },
   {
@@ -107,6 +94,19 @@
       }
     ],
     "name": "EtherSent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "HCHFBalanceUpdated",
     "type": "event"
   },
   {
@@ -188,7 +188,7 @@
         "type": "uint256"
       }
     ],
-    "name": "decreaseDCHFDebt",
+    "name": "decreaseHCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -208,7 +208,7 @@
   },
   {
     "inputs": [],
-    "name": "getDCHFDebt",
+    "name": "getETH",
     "outputs": [
       {
         "internalType": "uint256",
@@ -221,7 +221,7 @@
   },
   {
     "inputs": [],
-    "name": "getETH",
+    "name": "getHCHFDebt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -240,7 +240,7 @@
         "type": "uint256"
       }
     ],
-    "name": "increaseDCHFDebt",
+    "name": "increaseHCHFDebt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

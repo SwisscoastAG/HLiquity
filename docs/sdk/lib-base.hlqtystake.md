@@ -24,7 +24,7 @@ The constructor for this class is marked as internal. Third-party code should no
 |  --- | --- | --- | --- |
 |  [collateralGain](./lib-base.hlqtystake.collateralgain.md) |  | [Decimal](./lib-base.decimal.md) | Collateral gain available to withdraw. |
 |  [isEmpty](./lib-base.hlqtystake.isempty.md) |  | boolean |  |
-|  [lusdGain](./lib-base.hlqtystake.lusdgain.md) |  | [Decimal](./lib-base.decimal.md) | DCHF gain available to withdraw. |
+|  [lusdGain](./lib-base.hlqtystake.lusdgain.md) |  | [Decimal](./lib-base.decimal.md) | HCHF gain available to withdraw. |
 |  [stakedHLQTY](./lib-base.hlqtystake.stakedhlqty.md) |  | [Decimal](./lib-base.decimal.md) | The amount of HLQTY that's staked. |
 
 ## Methods

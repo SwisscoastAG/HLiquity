@@ -159,7 +159,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
 
     const [collateral, debt] = await Promise.all([
       troveManager.L_ETH({ ...overrides }).then(decimalify),
-      troveManager.L_DCHFDebt({ ...overrides }).then(decimalify)
+      troveManager.L_HCHFDebt({ ...overrides }).then(decimalify)
     ]);
 
     return new Trove(collateral, debt);
@@ -185,7 +185,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
         decimalify(trove.coll),
         decimalify(trove.debt),
         decimalify(trove.stake),
-        new Trove(decimalify(snapshot.ETH), decimalify(snapshot.DCHFDebt))
+        new Trove(decimalify(snapshot.ETH), decimalify(snapshot.HCHFDebt))
       );
     } else {
       return new TroveWithPendingRedistribution(address, userTroveStatusFrom(trove.status));
@@ -225,7 +225,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     const [activeCollateral, activeDebt] = await Promise.all(
       [
         activePool.getETH({ ...overrides }),
-        activePool.getDCHFDebt({ ...overrides })
+        activePool.getHCHFDebt({ ...overrides })
       ].map(getBigNumber => getBigNumber.then(decimalify))
     );
 
@@ -239,7 +239,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     const [liquidatedCollateral, closedDebt] = await Promise.all(
       [
         defaultPool.getETH({ ...overrides }),
-        defaultPool.getDCHFDebt({ ...overrides })
+        defaultPool.getHCHFDebt({ ...overrides })
       ].map(getBigNumber => getBigNumber.then(decimalify))
     );
 
@@ -266,19 +266,19 @@ export class ReadableEthersLiquity implements ReadableLiquity {
 
     const [
       { frontEndTag, initialValue },
-      currentDCHF,
+      currentHCHF,
       collateralGain,
       hlqtyReward
     ] = await Promise.all([
       stabilityPool.deposits(address, { ...overrides }),
-      stabilityPool.getCompoundedDCHFDeposit(address, { ...overrides }),
+      stabilityPool.getCompoundedHCHFDeposit(address, { ...overrides }),
       stabilityPool.getDepositorETHGain(address, { ...overrides }),
       stabilityPool.getDepositorHLQTYGain(address, { ...overrides })
     ]);
 
     return new StabilityDeposit(
       decimalify(initialValue),
-      decimalify(currentDCHF),
+      decimalify(currentHCHF),
       decimalify(collateralGain),
       decimalify(hlqtyReward),
       frontEndTag
@@ -296,19 +296,19 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     return issuanceCap.sub(totalHLQTYIssued);
   }
 
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getDCHFInStabilityPool} */
-  getDCHFInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal> {
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getHCHFInStabilityPool} */
+  getHCHFInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal> {
     const { stabilityPool } = _getContracts(this.connection);
 
-    return stabilityPool.getTotalDCHFDeposits({ ...overrides }).then(decimalify);
+    return stabilityPool.getTotalHCHFDeposits({ ...overrides }).then(decimalify);
   }
 
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getDCHFBalance} */
-  getDCHFBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getHCHFBalance} */
+  getHCHFBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
     address ??= _requireAddress(this.connection);
-    const { dchfToken } = _getContracts(this.connection);
+    const { hchfToken } = _getContracts(this.connection);
 
-    return dchfToken.balanceOf(address, { ...overrides }).then(decimalify);
+    return hchfToken.balanceOf(address, { ...overrides }).then(decimalify);
   }
 
   getHLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
@@ -316,10 +316,10 @@ export class ReadableEthersLiquity implements ReadableLiquity {
 
     return hlqtyToken.getTokenAddress( { ...overrides });
   }
-  getDCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
-    const { dchfToken } = _getContracts(this.connection);
+  getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
+    const { hchfToken } = _getContracts(this.connection);
 
-    return dchfToken.getTokenAddress( { ...overrides });
+    return hchfToken.getTokenAddress( { ...overrides });
   }
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getHLQTYBalance} */
@@ -489,15 +489,15 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     address ??= _requireAddress(this.connection);
     const { hlqtyStaking } = _getContracts(this.connection);
 
-    const [stakedHLQTY, collateralGain, dchfGain] = await Promise.all(
+    const [stakedHLQTY, collateralGain, hchfGain] = await Promise.all(
       [
         hlqtyStaking.stakes(address, { ...overrides }),
         hlqtyStaking.getPendingETHGain(address, { ...overrides }),
-        hlqtyStaking.getPendingDCHFGain(address, { ...overrides })
+        hlqtyStaking.getPendingHCHFGain(address, { ...overrides })
       ].map(getBigNumber => getBigNumber.then(decimalify))
     );
 
-    return new HLQTYStake(stakedHLQTY, collateralGain, dchfGain);
+    return new HLQTYStake(stakedHLQTY, collateralGain, hchfGain);
   }
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getTotalStakedHLQTY} */
@@ -535,7 +535,7 @@ const mapBackendTroves = (troves: BackendTroves): TroveWithPendingRedistribution
         decimalify(trove.coll),
         decimalify(trove.debt),
         decimalify(trove.stake),
-        new Trove(decimalify(trove.snapshotETH), decimalify(trove.snapshotDCHFDebt))
+        new Trove(decimalify(trove.snapshotETH), decimalify(trove.snapshotHCHFDebt))
       )
   );
 
@@ -634,21 +634,21 @@ class BlockPolledLiquityStoreBasedCache
     }
   }
 
-  getDCHFInStabilityPool(overrides?: EthersCallOverrides): Decimal | undefined {
+  getHCHFInStabilityPool(overrides?: EthersCallOverrides): Decimal | undefined {
     if (this._blockHit(overrides)) {
-      return this._store.state.dchfInStabilityPool;
+      return this._store.state.hchfInStabilityPool;
     }
   }
 
-  getDCHFBalance(address?: string, overrides?: EthersCallOverrides): Decimal | undefined {
+  getHCHFBalance(address?: string, overrides?: EthersCallOverrides): Decimal | undefined {
     if (this._userHit(address, overrides)) {
-      return this._store.state.dchfBalance;
+      return this._store.state.hchfBalance;
     }
   }
 
-  getDCHFTokenAddress(overrides?: EthersCallOverrides): string | undefined {
+  getHCHFTokenAddress(overrides?: EthersCallOverrides): string | undefined {
     if (this._blockHit(overrides)) {
-      return this._store.state.dchfTokenAddress;
+      return this._store.state.hchfTokenAddress;
     }
   }
 

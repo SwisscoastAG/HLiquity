@@ -24,18 +24,18 @@ export class HLQTYStake {
   /** Collateral gain available to withdraw. */
   readonly collateralGain: Decimal;
 
-  /** DCHF gain available to withdraw. */
-  readonly lusdGain: Decimal;
+  /** HCHF gain available to withdraw. */
+  readonly hchfGain: Decimal;
 
   /** @internal */
-  constructor(stakedHLQTY = Decimal.ZERO, collateralGain = Decimal.ZERO, lusdGain = Decimal.ZERO) {
+  constructor(stakedHLQTY = Decimal.ZERO, collateralGain = Decimal.ZERO, hchfGain = Decimal.ZERO) {
     this.stakedHLQTY = stakedHLQTY;
     this.collateralGain = collateralGain;
-    this.lusdGain = lusdGain;
+    this.hchfGain = hchfGain;
   }
 
   get isEmpty(): boolean {
-    return this.stakedHLQTY.isZero && this.collateralGain.isZero && this.lusdGain.isZero;
+    return this.stakedHLQTY.isZero && this.collateralGain.isZero && this.hchfGain.isZero;
   }
 
   /** @internal */
@@ -43,7 +43,7 @@ export class HLQTYStake {
     return (
       `{ stakedHLQTY: ${this.stakedHLQTY}` +
       `, collateralGain: ${this.collateralGain}` +
-      `, lusdGain: ${this.lusdGain} }`
+      `, hchfGain: ${this.hchfGain} }`
     );
   }
 
@@ -54,7 +54,7 @@ export class HLQTYStake {
     return (
       this.stakedHLQTY.eq(that.stakedHLQTY) &&
       this.collateralGain.eq(that.collateralGain) &&
-      this.lusdGain.eq(that.lusdGain)
+      this.hchfGain.eq(that.hchfGain)
     );
   }
 

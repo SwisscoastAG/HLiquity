@@ -31,7 +31,7 @@ export interface TroveCreationDetails {
   /** The Trove that was created by the transaction. */
   newTrove: Trove;
 
-  /** Amount of DCHF added to the Trove's debt as borrowing fee. */
+  /** Amount of HCHF added to the Trove's debt as borrowing fee. */
   fee: Decimal;
 }
 
@@ -47,7 +47,7 @@ export interface TroveAdjustmentDetails {
   /** New state of the adjusted Trove directly after the transaction. */
   newTrove: Trove;
 
-  /** Amount of DCHF added to the Trove's debt as borrowing fee. */
+  /** Amount of HCHF added to the Trove's debt as borrowing fee. */
   fee: Decimal;
 }
 
@@ -74,32 +74,32 @@ export interface LiquidationDetails {
   /** Total collateral liquidated and debt cleared by the transaction. */
   totalLiquidated: Trove;
 
-  /** Amount of DCHF paid to the liquidator as gas compensation. */
-  dchfGasCompensation: Decimal;
+  /** Amount of HCHF paid to the liquidator as gas compensation. */
+  hchfGasCompensation: Decimal;
 
   /** Amount of native currency (e.g. Ether) paid to the liquidator as gas compensation. */
   collateralGasCompensation: Decimal;
 }
 
 /**
- * Details of a {@link TransactableLiquity.redeemDCHF | redeemDCHF()} transaction.
+ * Details of a {@link TransactableLiquity.redeemHCHF | redeemHCHF()} transaction.
  *
  * @public
  */
 export interface RedemptionDetails {
-  /** Amount of DCHF the redeemer tried to redeem. */
-  attemptedDCHFAmount: Decimal;
+  /** Amount of HCHF the redeemer tried to redeem. */
+  attemptedHCHFAmount: Decimal;
 
   /**
-   * Amount of DCHF that was actually redeemed by the transaction.
+   * Amount of HCHF that was actually redeemed by the transaction.
    *
    * @remarks
-   * This can end up being lower than `attemptedDCHFAmount` due to interference from another
+   * This can end up being lower than `attemptedHCHFAmount` due to interference from another
    * transaction that modifies the list of Troves.
    *
    * @public
    */
-  actualDCHFAmount: Decimal;
+  actualHCHFAmount: Decimal;
 
   /** Amount of collateral (e.g. Ether) taken from Troves by the transaction. */
   collateralTaken: Decimal;
@@ -116,11 +116,11 @@ export interface RedemptionDetails {
  * @public
  */
 export interface StabilityPoolGainsWithdrawalDetails {
-  /** Amount of DCHF burned from the deposit by liquidations since the last modification. */
-  dchfLoss: Decimal;
+  /** Amount of HCHF burned from the deposit by liquidations since the last modification. */
+  hchfLoss: Decimal;
 
-  /** Amount of DCHF in the deposit directly after this transaction. */
-  newDCHFDeposit: Decimal;
+  /** Amount of HCHF in the deposit directly after this transaction. */
+  newHCHFDeposit: Decimal;
 
   /** Amount of native currency (e.g. Ether) paid out to the depositor in this transaction. */
   collateralGain: Decimal;
@@ -131,8 +131,8 @@ export interface StabilityPoolGainsWithdrawalDetails {
 
 /**
  * Details of a
- * {@link TransactableLiquity.depositDCHFInStabilityPool | depositDCHFInStabilityPool()} or
- * {@link TransactableLiquity.withdrawDCHFFromStabilityPool | withdrawDCHFFromStabilityPool()}
+ * {@link TransactableLiquity.depositHCHFInStabilityPool | depositHCHFInStabilityPool()} or
+ * {@link TransactableLiquity.withdrawHCHFFromStabilityPool | withdrawHCHFFromStabilityPool()}
  * transaction.
  *
  * @public
@@ -167,7 +167,7 @@ export interface CollateralGainTransferDetails extends StabilityPoolGainsWithdra
  */
 export interface TransactableLiquity {
   /**
-   * Open a new Trove by depositing collateral and borrowing DCHF.
+   * Open a new Trove by depositing collateral and borrowing HCHF.
    *
    * @param params - How much to deposit and borrow.
    * @param maxBorrowingRate - Maximum acceptable
@@ -199,14 +199,14 @@ export interface TransactableLiquity {
    * @param params - Parameters of the adjustment.
    * @param maxBorrowingRate - Maximum acceptable
    *                           {@link @liquity/lib-base#Fees.borrowingRate | borrowing rate} if
-   *                           `params` includes `borrowDCHF`.
+   *                           `params` includes `borrowHCHF`.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    *
    * @remarks
    * The transaction will fail if the Trove's debt would fall below
-   * {@link @liquity/lib-base#DCHF_MINIMUM_DEBT}.
+   * {@link @liquity/lib-base#HCHF_MINIMUM_DEBT}.
    *
    * If `maxBorrowingRate` is omitted, the current borrowing rate plus 0.5% is used as maximum
    * acceptable rate.
@@ -251,9 +251,9 @@ export interface TransactableLiquity {
   withdrawCollateral(amount: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /**
-   * Adjust existing Trove by borrowing more DCHF.
+   * Adjust existing Trove by borrowing more HCHF.
    *
-   * @param amount - The amount of DCHF to borrow.
+   * @param amount - The amount of HCHF to borrow.
    * @param maxBorrowingRate - Maximum acceptable
    *                           {@link @liquity/lib-base#Fees.borrowingRate | borrowing rate}.
    *
@@ -264,15 +264,15 @@ export interface TransactableLiquity {
    * Equivalent to:
    *
    * ```typescript
-   * adjustTrove({ borrowDCHF: amount }, maxBorrowingRate)
+   * adjustTrove({ borrowHCHF: amount }, maxBorrowingRate)
    * ```
    */
-  borrowDCHF(amount: Decimalish, maxBorrowingRate?: Decimalish): Promise<TroveAdjustmentDetails>;
+  borrowHCHF(amount: Decimalish, maxBorrowingRate?: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /**
    * Adjust existing Trove by repaying some of its debt.
    *
-   * @param amount - The amount of DCHF to repay.
+   * @param amount - The amount of HCHF to repay.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -281,10 +281,10 @@ export interface TransactableLiquity {
    * Equivalent to:
    *
    * ```typescript
-   * adjustTrove({ repayDCHF: amount })
+   * adjustTrove({ repayHCHF: amount })
    * ```
    */
-  repayDCHF(amount: Decimalish): Promise<TroveAdjustmentDetails>;
+  repayHCHF(amount: Decimalish): Promise<TroveAdjustmentDetails>;
 
   /** @internal */
   setPrice(price: Decimalish): Promise<void>;
@@ -312,7 +312,7 @@ export interface TransactableLiquity {
   /**
    * Make a new Stability Deposit, or top up existing one.
    *
-   * @param amount - Amount of DCHF to add to new or existing deposit.
+   * @param amount - Amount of HCHF to add to new or existing deposit.
    * @param frontendTag - Address that should receive a share of this deposit's HLQTY rewards.
    *
    * @throws
@@ -325,15 +325,15 @@ export interface TransactableLiquity {
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
    * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
    */
-  depositDCHFInStabilityPool(
+  depositHCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string
   ): Promise<StabilityDepositChangeDetails>;
 
   /**
-   * Withdraw DCHF from Stability Deposit.
+   * Withdraw HCHF from Stability Deposit.
    *
-   * @param amount - Amount of DCHF to withdraw.
+   * @param amount - Amount of HCHF to withdraw.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -343,7 +343,7 @@ export interface TransactableLiquity {
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
    * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
    */
-  withdrawDCHFFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
+  withdrawHCHFFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
 
   /**
    * Withdraw {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
@@ -370,9 +370,9 @@ export interface TransactableLiquity {
   transferCollateralGainToTrove(): Promise<CollateralGainTransferDetails>;
 
   /**
-   * Redeem DCHF to native currency (e.g. Ether) at face value.
+   * Redeem HCHF to native currency (e.g. Ether) at face value.
    *
-   * @param amount - Amount of DCHF to be redeemed.
+   * @param amount - Amount of HCHF to be redeemed.
    * @param maxRedemptionRate - Maximum acceptable
    *                            {@link @liquity/lib-base#Fees.redemptionRate | redemption rate}.
    *
@@ -383,7 +383,7 @@ export interface TransactableLiquity {
    * If `maxRedemptionRate` is omitted, the current redemption rate (based on `amount`) plus 0.1%
    * is used as maximum acceptable rate.
    */
-  redeemDCHF(amount: Decimalish, maxRedemptionRate?: Decimalish): Promise<RedemptionDetails>;
+  redeemHCHF(amount: Decimalish, maxRedemptionRate?: Decimalish): Promise<RedemptionDetails>;
 
   /**
    * Claim leftover collateral after a liquidation or redemption.
@@ -408,7 +408,7 @@ export interface TransactableLiquity {
    * @remarks
    * As a side-effect, the transaction will also pay out an existing HLQTY stake's
    * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain}.
+   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain}.
    */
   stakeHLQTY(amount: Decimalish): Promise<void>;
 
@@ -423,13 +423,13 @@ export interface TransactableLiquity {
    * @remarks
    * As a side-effect, the transaction will also pay out the HLQTY stake's
    * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain}.
+   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain}.
    */
   unstakeHLQTY(amount: Decimalish): Promise<void>;
 
   /**
    * Withdraw {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.dchfGain | DCHF gain} from HLQTY stake.
+   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain} from HLQTY stake.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -437,7 +437,7 @@ export interface TransactableLiquity {
   withdrawGainsFromStaking(): Promise<void>;
 
   /**
-   * Allow the liquidity mining contract to use Uniswap ETH/DCHF LP tokens for
+   * Allow the liquidity mining contract to use Uniswap ETH/HCHF LP tokens for
    * {@link @liquity/lib-base#TransactableLiquity.stakeUniTokens | staking}.
    *
    * @param allowance - Maximum amount of LP tokens that will be transferrable to liquidity mining
@@ -453,7 +453,7 @@ export interface TransactableLiquity {
   approveUniTokens(allowance?: Decimalish): Promise<void>;
 
   /**
-   * Stake Uniswap ETH/DCHF LP tokens to participate in liquidity mining and earn HLQTY.
+   * Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQTY.
    *
    * @param amount - Amount of LP tokens to add to new or existing stake.
    *
@@ -463,7 +463,7 @@ export interface TransactableLiquity {
   stakeUniTokens(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw Uniswap ETH/DCHF LP tokens from liquidity mining.
+   * Withdraw Uniswap ETH/HCHF LP tokens from liquidity mining.
    *
    * @param amount - Amount of LP tokens to withdraw.
    *

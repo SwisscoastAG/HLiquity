@@ -17,7 +17,7 @@ export interface StabilityPoolGainsWithdrawalDetails
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [collateralGain](./lib-base.stabilitypoolgainswithdrawaldetails.collateralgain.md) | [Decimal](./lib-base.decimal.md) | Amount of native currency (e.g. Ether) paid out to the depositor in this transaction. |
-|  [dchfLoss](./lib-base.stabilitypoolgainswithdrawaldetails.dchfloss.md) | [Decimal](./lib-base.decimal.md) | Amount of DCHF burned from the deposit by liquidations since the last modification. |
+|  [hchfLoss](./lib-base.stabilitypoolgainswithdrawaldetails.hchfloss.md) | [Decimal](./lib-base.decimal.md) | Amount of HCHF burned from the deposit by liquidations since the last modification. |
 |  [hlqtyReward](./lib-base.stabilitypoolgainswithdrawaldetails.hlqtyreward.md) | [Decimal](./lib-base.decimal.md) | Amount of HLQTY rewarded to the depositor in this transaction. |
-|  [newDCHFDeposit](./lib-base.stabilitypoolgainswithdrawaldetails.newdchfdeposit.md) | [Decimal](./lib-base.decimal.md) | Amount of DCHF in the deposit directly after this transaction. |
+|  [newHCHFDeposit](./lib-base.stabilitypoolgainswithdrawaldetails.newhchfdeposit.md) | [Decimal](./lib-base.decimal.md) | Amount of HCHF in the deposit directly after this transaction. |
 

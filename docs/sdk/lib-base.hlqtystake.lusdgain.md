@@ -4,7 +4,7 @@
 
 ## HLQTYStake.lusdGain property
 
-DCHF gain available to withdraw.
+HCHF gain available to withdraw.
 
 <b>Signature:</b>
 

@@ -17,8 +17,8 @@ contract TroveManagerTester is TroveManager {
         return _getCollGasCompensation(_coll);
     }
 
-    function getDCHFGasCompensation() external pure returns (uint) {
-        return DCHF_GAS_COMPENSATION;
+    function getHCHFGasCompensation() external pure returns (uint) {
+        return HCHF_GAS_COMPENSATION;
     }
 
     function getCompositeDebt(uint _debt) external pure returns (uint) {

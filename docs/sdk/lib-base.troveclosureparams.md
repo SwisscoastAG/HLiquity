@@ -9,7 +9,7 @@ Parameters of a [closeTrove()](./lib-base.transactableliquity.closetrove.md) tra
 <b>Signature:</b>
 
 ```typescript
-export declare type TroveClosureParams<T> = _CollateralWithdrawal<T> & _NoCollateralDeposit & Partial<_DCHFRepayment<T>> & _NoDCHFBorrowing;
+export declare type TroveClosureParams<T> = _CollateralWithdrawal<T> & _NoCollateralDeposit & Partial<_HCHFRepayment<T>> & _NoHCHFBorrowing;
 ```
 
 ## Remarks
@@ -24,7 +24,7 @@ The type parameter `T` specifies the allowed value type(s) of the particular `Tr
 
 <tr> <td> withdrawCollateral </td> <td> T </td> <td> The amount of collateral that's withdrawn. </td> </tr>
 
-<tr> <td> repayDCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of DCHF that's repaid. </td> </tr>
+<tr> <td> repayHCHF? </td> <td> T </td> <td> <i>(Optional)</i> The amount of HCHF that's repaid. </td> </tr>
 
 </table>
 

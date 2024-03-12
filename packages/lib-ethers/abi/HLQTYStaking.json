@@ -31,19 +31,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_dchfTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "DCHFTokenAddressSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "_account",
         "type": "address"
       },
@@ -63,11 +50,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_DCHF",
+        "name": "_F_ETH",
         "type": "uint256"
       }
     ],
-    "name": "F_DCHFUpdated",
+    "name": "F_ETHUpdated",
     "type": "event"
   },
   {
@@ -76,11 +63,24 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_ETH",
+        "name": "_F_HCHF",
         "type": "uint256"
       }
     ],
-    "name": "F_ETHUpdated",
+    "name": "F_HCHFUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_hchfTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "HCHFTokenAddressSet",
     "type": "event"
   },
   {
@@ -152,7 +152,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_DCHF",
+        "name": "_F_HCHF",
         "type": "uint256"
       }
     ],
@@ -171,7 +171,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "DCHFGain",
+        "name": "HCHFGain",
         "type": "uint256"
       },
       {
@@ -256,7 +256,7 @@
   },
   {
     "inputs": [],
-    "name": "F_DCHF",
+    "name": "F_ETH",
     "outputs": [
       {
         "internalType": "uint256",
@@ -269,7 +269,7 @@
   },
   {
     "inputs": [],
-    "name": "F_ETH",
+    "name": "F_HCHF",
     "outputs": [
       {
         "internalType": "uint256",
@@ -320,38 +320,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dchfToken",
-    "outputs": [
-      {
-        "internalType": "contract IDCHFToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      }
-    ],
-    "name": "getPendingDCHFGain",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -365,6 +333,38 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "getPendingHCHFGain",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hchfToken",
+    "outputs": [
+      {
+        "internalType": "contract IHCHFToken",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -387,11 +387,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_DCHFFee",
+        "name": "_ETHFee",
         "type": "uint256"
       }
     ],
-    "name": "increaseF_DCHF",
+    "name": "increaseF_ETH",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -400,11 +400,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_ETHFee",
+        "name": "_HCHFFee",
         "type": "uint256"
       }
     ],
-    "name": "increaseF_ETH",
+    "name": "increaseF_HCHF",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -444,7 +444,7 @@
       },
       {
         "internalType": "address",
-        "name": "_dchfTokenAddress",
+        "name": "_hchfTokenAddress",
         "type": "address"
       },
       {
@@ -485,7 +485,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "F_DCHF_Snapshot",
+        "name": "F_HCHF_Snapshot",
         "type": "uint256"
       }
     ],

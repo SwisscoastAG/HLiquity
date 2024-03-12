@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "DCHFTokenCaller",
-  "sourceName": "contracts/TestContracts/DCHFTokenCaller.sol",
+  "contractName": "HCHFTokenCaller",
+  "sourceName": "contracts/TestContracts/HCHFTokenCaller.sol",
   "abi": [
     {
       "inputs": [
@@ -16,7 +16,7 @@
           "type": "uint256"
         }
       ],
-      "name": "dchfBurn",
+      "name": "hchfBurn",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -34,7 +34,7 @@
           "type": "uint256"
         }
       ],
-      "name": "dchfMint",
+      "name": "hchfMint",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -57,7 +57,7 @@
           "type": "uint256"
         }
       ],
-      "name": "dchfReturnFromPool",
+      "name": "hchfReturnFromPool",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -80,7 +80,7 @@
           "type": "uint256"
         }
       ],
-      "name": "dchfSendToPool",
+      "name": "hchfSendToPool",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -88,12 +88,12 @@
     {
       "inputs": [
         {
-          "internalType": "contract IDCHFToken",
-          "name": "_DCHF",
+          "internalType": "contract IHCHFToken",
+          "name": "_HCHF",
           "type": "address"
         }
       ],
-      "name": "setDCHF",
+      "name": "setHCHF",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

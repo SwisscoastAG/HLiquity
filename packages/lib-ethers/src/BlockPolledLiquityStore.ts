@@ -117,7 +117,7 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
       numberOfTroves: this._readable.getNumberOfTroves({ blockTag }),
       totalRedistributed: this._readable.getTotalRedistributed({ blockTag }),
       total: this._readable.getTotal({ blockTag }),
-      dchfInStabilityPool: this._readable.getDCHFInStabilityPool({ blockTag }),
+      hchfInStabilityPool: this._readable.getHCHFInStabilityPool({ blockTag }),
       totalStakedHLQTY: this._readable.getTotalStakedHLQTY({ blockTag }),
       _riskiestTroveBeforeRedistribution: this._getRiskiestTroveBeforeRedistribution({ blockTag }),
       totalStakedUniTokens: this._readable.getTotalStakedUniTokens({ blockTag }),
@@ -132,8 +132,8 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
       ...(userAddress
         ? {
             accountBalance: this._provider.getBalance(userAddress, blockTag).then(decimalify),
-            dchfBalance: this._readable.getDCHFBalance(userAddress, { blockTag }),
-            dchfTokenAddress: this._readable.getDCHFTokenAddress({ blockTag }),
+            hchfBalance: this._readable.getHCHFBalance(userAddress, { blockTag }),
+            hchfTokenAddress: this._readable.getHCHFTokenAddress({ blockTag }),
             hlqtyTokenAddress: this._readable.getHLQTYTokenAddress({ blockTag }),
             hlqtyBalance: this._readable.getHLQTYBalance(userAddress, { blockTag }),
             uniTokenBalance: this._readable.getUniTokenBalance(userAddress, { blockTag }),
@@ -154,9 +154,9 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
           }
         : {
             accountBalance: Decimal.ZERO,
-            dchfBalance: Decimal.ZERO,
+            hchfBalance: Decimal.ZERO,
             hlqtyBalance: Decimal.ZERO,
-            dchfTokenAddress: "0x",
+            hchfTokenAddress: "0x",
             hlqtyTokenAddress: "0x",
             uniTokenBalance: Decimal.ZERO,
             uniTokenAllowance: Decimal.ZERO,

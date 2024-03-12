@@ -6,8 +6,8 @@ import { Decimal, Decimalish } from "./Decimal";
  * @public
  */
 export type StabilityDepositChange<T> =
-  | { depositDCHF: T; withdrawDCHF?: undefined }
-  | { depositDCHF?: undefined; withdrawDCHF: T; withdrawAllDCHF: boolean };
+  | { depositHCHF: T; withdrawHCHF?: undefined }
+  | { depositHCHF?: undefined; withdrawHCHF: T; withdrawAllHCHF: boolean };
 
 /**
  * A Stability Deposit and its accrued gains.
@@ -15,13 +15,13 @@ export type StabilityDepositChange<T> =
  * @public
  */
 export class StabilityDeposit {
-  /** Amount of DCHF in the Stability Deposit at the time of the last direct modification. */
-  readonly initialDCHF: Decimal;
+  /** Amount of HCHF in the Stability Deposit at the time of the last direct modification. */
+  readonly initialHCHF: Decimal;
 
-  /** Amount of DCHF left in the Stability Deposit. */
-  readonly currentDCHF: Decimal;
+  /** Amount of HCHF left in the Stability Deposit. */
+  readonly currentHCHF: Decimal;
 
-  /** Amount of native currency (e.g. Ether) received in exchange for the used-up DCHF. */
+  /** Amount of native currency (e.g. Ether) received in exchange for the used-up HCHF. */
   readonly collateralGain: Decimal;
 
   /** Amount of HLQTY rewarded since the last modification of the Stability Deposit. */
@@ -38,27 +38,27 @@ export class StabilityDeposit {
 
   /** @internal */
   constructor(
-    initialDCHF: Decimal,
-    currentDCHF: Decimal,
+    initialHCHF: Decimal,
+    currentHCHF: Decimal,
     collateralGain: Decimal,
     hlqtyReward: Decimal,
     frontendTag: string
   ) {
-    this.initialDCHF = initialDCHF;
-    this.currentDCHF = currentDCHF;
+    this.initialHCHF = initialHCHF;
+    this.currentHCHF = currentHCHF;
     this.collateralGain = collateralGain;
     this.hlqtyReward = hlqtyReward;
     this.frontendTag = frontendTag;
 
-    if (this.currentDCHF.gt(this.initialDCHF)) {
-      throw new Error("currentDCHF can't be greater than initialDCHF");
+    if (this.currentHCHF.gt(this.initialHCHF)) {
+      throw new Error("currentHCHF can't be greater than initialHCHF");
     }
   }
 
   get isEmpty(): boolean {
     return (
-      this.initialDCHF.isZero &&
-      this.currentDCHF.isZero &&
+      this.initialHCHF.isZero &&
+      this.currentHCHF.isZero &&
       this.collateralGain.isZero &&
       this.hlqtyReward.isZero
     );
@@ -67,8 +67,8 @@ export class StabilityDeposit {
   /** @internal */
   toString(): string {
     return (
-      `{ initialDCHF: ${this.initialDCHF}` +
-      `, currentDCHF: ${this.currentDCHF}` +
+      `{ initialHCHF: ${this.initialHCHF}` +
+      `, currentHCHF: ${this.currentHCHF}` +
       `, collateralGain: ${this.collateralGain}` +
       `, hlqtyReward: ${this.hlqtyReward}` +
       `, frontendTag: "${this.frontendTag}" }`
@@ -80,8 +80,8 @@ export class StabilityDeposit {
    */
   equals(that: StabilityDeposit): boolean {
     return (
-      this.initialDCHF.eq(that.initialDCHF) &&
-      this.currentDCHF.eq(that.currentDCHF) &&
+      this.initialHCHF.eq(that.initialHCHF) &&
+      this.currentHCHF.eq(that.currentHCHF) &&
       this.collateralGain.eq(that.collateralGain) &&
       this.hlqtyReward.eq(that.hlqtyReward) &&
       this.frontendTag === that.frontendTag
@@ -89,38 +89,38 @@ export class StabilityDeposit {
   }
 
   /**
-   * Calculate the difference between the `currentDCHF` in this Stability Deposit and `thatDCHF`.
+   * Calculate the difference between the `currentHCHF` in this Stability Deposit and `thatHCHF`.
    *
    * @returns An object representing the change, or `undefined` if the deposited amounts are equal.
    */
-  whatChanged(thatDCHF: Decimalish): StabilityDepositChange<Decimal> | undefined {
-    thatDCHF = Decimal.from(thatDCHF);
+  whatChanged(thatHCHF: Decimalish): StabilityDepositChange<Decimal> | undefined {
+    thatHCHF = Decimal.from(thatHCHF);
 
-    if (thatDCHF.lt(this.currentDCHF)) {
-      return { withdrawDCHF: this.currentDCHF.sub(thatDCHF), withdrawAllDCHF: thatDCHF.isZero };
+    if (thatHCHF.lt(this.currentHCHF)) {
+      return { withdrawHCHF: this.currentHCHF.sub(thatHCHF), withdrawAllHCHF: thatHCHF.isZero };
     }
 
-    if (thatDCHF.gt(this.currentDCHF)) {
-      return { depositDCHF: thatDCHF.sub(this.currentDCHF) };
+    if (thatHCHF.gt(this.currentHCHF)) {
+      return { depositHCHF: thatHCHF.sub(this.currentHCHF) };
     }
   }
 
   /**
    * Apply a {@link StabilityDepositChange} to this Stability Deposit.
    *
-   * @returns The new deposited DCHF amount.
+   * @returns The new deposited HCHF amount.
    */
   apply(change: StabilityDepositChange<Decimalish> | undefined): Decimal {
     if (!change) {
-      return this.currentDCHF;
+      return this.currentHCHF;
     }
 
-    if (change.withdrawDCHF !== undefined) {
-      return change.withdrawAllDCHF || this.currentDCHF.lte(change.withdrawDCHF)
+    if (change.withdrawHCHF !== undefined) {
+      return change.withdrawAllHCHF || this.currentHCHF.lte(change.withdrawHCHF)
         ? Decimal.ZERO
-        : this.currentDCHF.sub(change.withdrawDCHF);
+        : this.currentHCHF.sub(change.withdrawHCHF);
     } else {
-      return this.currentDCHF.add(change.depositDCHF);
+      return this.currentHCHF.add(change.depositHCHF);
     }
   }
 }

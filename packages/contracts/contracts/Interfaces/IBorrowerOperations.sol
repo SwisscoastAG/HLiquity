@@ -15,12 +15,12 @@ interface IBorrowerOperations {
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address  _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event DCHFTokenAddressChanged(address _dchfTokenAddress);
+    event HCHFTokenAddressChanged(address _hchfTokenAddress);
     event HLQTYStakingAddressChanged(address _hlqtyStakingAddress);
 
     event TroveCreated(address indexed _borrower, uint arrayIndex);
     event TroveUpdated(address indexed _borrower, uint _debt, uint _coll, uint stake, uint8 operation);
-    event DCHFBorrowingFeePaid(address indexed _borrower, uint _DCHFFee);
+    event HCHFBorrowingFeePaid(address indexed _borrower, uint _HCHFFee);
 
     // --- Functions ---
 
@@ -33,11 +33,11 @@ interface IBorrowerOperations {
         address _collSurplusPoolAddress,
         address _priceFeedAddress,
         address _sortedTrovesAddress,
-        address _dchfTokenAddress,
+        address _hchfTokenAddress,
         address _hlqtyStakingAddress
     ) external;
 
-    function openTrove(uint _maxFee, uint _DCHFAmount, address _upperHint, address _lowerHint) external payable;
+    function openTrove(uint _maxFee, uint _HCHFAmount, address _upperHint, address _lowerHint) external payable;
 
     function addColl(address _upperHint, address _lowerHint) external payable;
 
@@ -45,9 +45,9 @@ interface IBorrowerOperations {
 
     function withdrawColl(uint _amount, address _upperHint, address _lowerHint) external;
 
-    function withdrawDCHF(uint _maxFee, uint _amount, address _upperHint, address _lowerHint) external;
+    function withdrawHCHF(uint _maxFee, uint _amount, address _upperHint, address _lowerHint) external;
 
-    function repayDCHF(uint _amount, address _upperHint, address _lowerHint) external;
+    function repayHCHF(uint _amount, address _upperHint, address _lowerHint) external;
 
     function closeTrove() external;
 

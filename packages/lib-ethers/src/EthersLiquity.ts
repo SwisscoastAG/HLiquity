@@ -203,18 +203,18 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     return this._readable.getRemainingStabilityPoolHLQTYReward(overrides);
   }
 
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getDCHFInStabilityPool} */
-  getDCHFInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal> {
-    return this._readable.getDCHFInStabilityPool(overrides);
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getHCHFInStabilityPool} */
+  getHCHFInStabilityPool(overrides?: EthersCallOverrides): Promise<Decimal> {
+    return this._readable.getHCHFInStabilityPool(overrides);
   }
 
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getDCHFBalance} */
-  getDCHFBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
-    return this._readable.getDCHFBalance(address, overrides);
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getHCHFBalance} */
+  getHCHFBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
+    return this._readable.getHCHFBalance(address, overrides);
   }
 
-  getDCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
-    return this._readable.getDCHFTokenAddress(overrides);
+  getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
+    return this._readable.getHCHFTokenAddress(overrides);
   }
 
   getHLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
@@ -373,30 +373,30 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
   }
 
   /**
-   * {@inheritDoc @liquity/lib-base#TransactableLiquity.borrowDCHF}
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.borrowHCHF}
    *
    * @throws
    * Throws {@link EthersTransactionFailedError} in case of transaction failure.
    */
-  borrowDCHF(
+  borrowHCHF(
     amount: Decimalish,
     maxBorrowingRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<TroveAdjustmentDetails> {
-    return this.send.borrowDCHF(amount, maxBorrowingRate, overrides).then(waitForSuccess);
+    return this.send.borrowHCHF(amount, maxBorrowingRate, overrides).then(waitForSuccess);
   }
 
   /**
-   * {@inheritDoc @liquity/lib-base#TransactableLiquity.repayDCHF}
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.repayHCHF}
    *
    * @throws
    * Throws {@link EthersTransactionFailedError} in case of transaction failure.
    */
-  repayDCHF(
+  repayHCHF(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<TroveAdjustmentDetails> {
-    return this.send.repayDCHF(amount, overrides).then(waitForSuccess);
+    return this.send.repayHCHF(amount, overrides).then(waitForSuccess);
   }
 
   /** @internal */
@@ -431,30 +431,30 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
   }
 
   /**
-   * {@inheritDoc @liquity/lib-base#TransactableLiquity.depositDCHFInStabilityPool}
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.depositHCHFInStabilityPool}
    *
    * @throws
    * Throws {@link EthersTransactionFailedError} in case of transaction failure.
    */
-  depositDCHFInStabilityPool(
+  depositHCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string,
     overrides?: EthersTransactionOverrides
   ): Promise<StabilityDepositChangeDetails> {
-    return this.send.depositDCHFInStabilityPool(amount, frontendTag, overrides).then(waitForSuccess);
+    return this.send.depositHCHFInStabilityPool(amount, frontendTag, overrides).then(waitForSuccess);
   }
 
   /**
-   * {@inheritDoc @liquity/lib-base#TransactableLiquity.withdrawDCHFFromStabilityPool}
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.withdrawHCHFFromStabilityPool}
    *
    * @throws
    * Throws {@link EthersTransactionFailedError} in case of transaction failure.
    */
-  withdrawDCHFFromStabilityPool(
+  withdrawHCHFFromStabilityPool(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<StabilityDepositChangeDetails> {
-    return this.send.withdrawDCHFFromStabilityPool(amount, overrides).then(waitForSuccess);
+    return this.send.withdrawHCHFFromStabilityPool(amount, overrides).then(waitForSuccess);
   }
 
   /**
@@ -482,17 +482,17 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
   }
 
   /**
-   * {@inheritDoc @liquity/lib-base#TransactableLiquity.redeemDCHF}
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.redeemHCHF}
    *
    * @throws
    * Throws {@link EthersTransactionFailedError} in case of transaction failure.
    */
-  redeemDCHF(
+  redeemHCHF(
     amount: Decimalish,
     maxRedemptionRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<RedemptionDetails> {
-    return this.send.redeemDCHF(amount, maxRedemptionRate, overrides).then(waitForSuccess);
+    return this.send.redeemHCHF(amount, maxRedemptionRate, overrides).then(waitForSuccess);
   }
 
   /**

@@ -9,9 +9,9 @@ import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
 
 /*
- * The Active Pool holds the ETH collateral and DCHF debt (but not DCHF tokens) for all active troves.
+ * The Active Pool holds the ETH collateral and HCHF debt (but not HCHF tokens) for all active troves.
  *
- * When a trove is liquidated, it's ETH and DCHF debt are transferred from the Active Pool, to either the
+ * When a trove is liquidated, it's ETH and HCHF debt are transferred from the Active Pool, to either the
  * Stability Pool, the Default Pool, or both, depending on the liquidation conditions.
  *
  */
@@ -25,13 +25,13 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     address public stabilityPoolAddress;
     address public defaultPoolAddress;
     uint256 internal ETH;  // deposited ether tracker
-    uint256 internal DCHFDebt;
+    uint256 internal HCHFDebt;
 
     // --- Events ---
 
     event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event ActivePoolDCHFDebtUpdated(uint _DCHFDebt);
+    event ActivePoolHCHFDebtUpdated(uint _HCHFDebt);
     event ActivePoolETHBalanceUpdated(uint _ETH);
 
     // --- Contract setters ---
@@ -74,8 +74,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         return ETH;
     }
 
-    function getDCHFDebt() external view override returns (uint) {
-        return DCHFDebt;
+    function getHCHFDebt() external view override returns (uint) {
+        return HCHFDebt;
     }
 
     // --- Pool functionality ---
@@ -90,16 +90,16 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         require(success, "ActivePool: sending ETH failed");
     }
 
-    function increaseDCHFDebt(uint _amount) external override {
+    function increaseHCHFDebt(uint _amount) external override {
         _requireCallerIsBOorTroveM();
-        DCHFDebt  = DCHFDebt.add(_amount);
-        ActivePoolDCHFDebtUpdated(DCHFDebt);
+        HCHFDebt  = HCHFDebt.add(_amount);
+        ActivePoolHCHFDebtUpdated(HCHFDebt);
     }
 
-    function decreaseDCHFDebt(uint _amount) external override {
+    function decreaseHCHFDebt(uint _amount) external override {
         _requireCallerIsBOorTroveMorSP();
-        DCHFDebt = DCHFDebt.sub(_amount);
-        ActivePoolDCHFDebtUpdated(DCHFDebt);
+        HCHFDebt = HCHFDebt.sub(_amount);
+        ActivePoolHCHFDebtUpdated(HCHFDebt);
     }
 
     // --- 'require' functions ---

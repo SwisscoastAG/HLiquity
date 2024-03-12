@@ -4,7 +4,7 @@
 
 ## StabilityDeposit.collateralGain property
 
-Amount of native currency (e.g. Ether) received in exchange for the used-up DCHF.
+Amount of native currency (e.g. Ether) received in exchange for the used-up HCHF.
 
 <b>Signature:</b>
 

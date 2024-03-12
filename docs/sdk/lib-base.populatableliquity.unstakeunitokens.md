@@ -4,7 +4,7 @@
 
 ## PopulatableLiquity.unstakeUniTokens() method
 
-Withdraw Uniswap ETH/DCHF LP tokens from liquidity mining.
+Withdraw Uniswap ETH/HCHF LP tokens from liquidity mining.
 
 <b>Signature:</b>
 

@@ -4,7 +4,7 @@
 
 ## RedemptionDetails interface
 
-Details of a [redeemDCHF()](./lib-base.transactableliquity.redeemdchf.md) transaction.
+Details of a [redeemHCHF()](./lib-base.transactableliquity.redeemhchf.md) transaction.
 
 <b>Signature:</b>
 
@@ -16,8 +16,8 @@ export interface RedemptionDetails
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [actualDCHFAmount](./lib-base.redemptiondetails.actualdchfamount.md) | [Decimal](./lib-base.decimal.md) | Amount of DCHF that was actually redeemed by the transaction. |
-|  [attemptedDCHFAmount](./lib-base.redemptiondetails.attempteddchfamount.md) | [Decimal](./lib-base.decimal.md) | Amount of DCHF the redeemer tried to redeem. |
+|  [actualHCHFAmount](./lib-base.redemptiondetails.actualhchfamount.md) | [Decimal](./lib-base.decimal.md) | Amount of HCHF that was actually redeemed by the transaction. |
+|  [attemptedHCHFAmount](./lib-base.redemptiondetails.attemptedhchfamount.md) | [Decimal](./lib-base.decimal.md) | Amount of HCHF the redeemer tried to redeem. |
 |  [collateralTaken](./lib-base.redemptiondetails.collateraltaken.md) | [Decimal](./lib-base.decimal.md) | Amount of collateral (e.g. Ether) taken from Troves by the transaction. |
 |  [fee](./lib-base.redemptiondetails.fee.md) | [Decimal](./lib-base.decimal.md) | Amount of native currency (e.g. Ether) deducted as fee from collateral taken. |
 

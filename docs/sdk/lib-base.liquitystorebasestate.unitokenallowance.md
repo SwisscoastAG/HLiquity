@@ -4,7 +4,7 @@
 
 ## LiquityStoreBaseState.uniTokenAllowance property
 
-The liquidity mining contract's allowance of user's Uniswap ETH/DCHF LP tokens.
+The liquidity mining contract's allowance of user's Uniswap ETH/HCHF LP tokens.
 
 <b>Signature:</b>
 

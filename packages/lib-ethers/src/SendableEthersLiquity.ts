@@ -81,21 +81,21 @@ export class SendableEthersLiquity
     return this._populate.withdrawCollateral(amount, overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.borrowDCHF} */
-  borrowDCHF(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.borrowHCHF} */
+  borrowHCHF(
     amount: Decimalish,
     maxBorrowingRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<TroveAdjustmentDetails>> {
-    return this._populate.borrowDCHF(amount, maxBorrowingRate, overrides).then(sendTransaction);
+    return this._populate.borrowHCHF(amount, maxBorrowingRate, overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.repayDCHF} */
-  repayDCHF(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.repayHCHF} */
+  repayHCHF(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<TroveAdjustmentDetails>> {
-    return this._populate.repayDCHF(amount, overrides).then(sendTransaction);
+    return this._populate.repayHCHF(amount, overrides).then(sendTransaction);
   }
 
   /** @internal */
@@ -124,23 +124,23 @@ export class SendableEthersLiquity
       .then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.depositDCHFInStabilityPool} */
-  depositDCHFInStabilityPool(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.depositHCHFInStabilityPool} */
+  depositHCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<StabilityDepositChangeDetails>> {
     return this._populate
-      .depositDCHFInStabilityPool(amount, frontendTag, overrides)
+      .depositHCHFInStabilityPool(amount, frontendTag, overrides)
       .then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawDCHFFromStabilityPool} */
-  withdrawDCHFFromStabilityPool(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawHCHFFromStabilityPool} */
+  withdrawHCHFFromStabilityPool(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<StabilityDepositChangeDetails>> {
-    return this._populate.withdrawDCHFFromStabilityPool(amount, overrides).then(sendTransaction);
+    return this._populate.withdrawHCHFFromStabilityPool(amount, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawGainsFromStabilityPool} */
@@ -157,13 +157,13 @@ export class SendableEthersLiquity
     return this._populate.transferCollateralGainToTrove(overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.redeemDCHF} */
-  redeemDCHF(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.redeemHCHF} */
+  redeemHCHF(
     amount: Decimalish,
     maxRedemptionRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<RedemptionDetails>> {
-    return this._populate.redeemDCHF(amount, maxRedemptionRate, overrides).then(sendTransaction);
+    return this._populate.redeemHCHF(amount, maxRedemptionRate, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.claimCollateralSurplus} */

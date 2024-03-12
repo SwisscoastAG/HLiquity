@@ -50,7 +50,7 @@ contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
 }
 
 /*
- * On deployment a new Uniswap pool will be created for the pair DCHF/HBAR and its token will be set here.
+ * On deployment a new Uniswap pool will be created for the pair HCHF/HBAR and its token will be set here.
 
  * Essentially the way it works is:
 

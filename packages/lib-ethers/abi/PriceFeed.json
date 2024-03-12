@@ -59,7 +59,20 @@
   },
   {
     "inputs": [],
-    "name": "HBAR_USD_ID",
+    "name": "HBAR_USD_PYTH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HBAR_USD_SUPRA",
     "outputs": [
       {
         "internalType": "uint256",
@@ -111,46 +124,33 @@
   },
   {
     "inputs": [],
-    "name": "PYTH_DIGITS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SUPRA_DIGITS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TARGET_DIGITS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "TIMEOUT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "USD_CHF_PYTH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "USD_CHF_SUPRA",
     "outputs": [
       {
         "internalType": "uint256",
@@ -230,12 +230,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_supraCallerAddress",
+        "name": "_pythCallerAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_pythCallerAddress",
+        "name": "_supraCallerAddress",
         "type": "address"
       }
     ],

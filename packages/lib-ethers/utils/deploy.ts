@@ -112,7 +112,7 @@ const deployContracts = async (
             gasLimit: 3000000
         }
     );
-    const lqtyStaking = await deployContract(deployer, getContractFactory, "HLQTYStaking", {
+    const hlqtyStaking = await deployContract(deployer, getContractFactory, "HLQTYStaking", {
         ...overrides,
         gasLimit: 3000000
     });
@@ -130,34 +130,34 @@ const deployContracts = async (
     });
 
 
-    const lusdToken = await deployContract(
+    const hchfToken = await deployContract(
         deployer,
         getContractFactory,
-        "DCHFToken",
+        "HCHFToken",
         troveManager,
         stabilityPool,
         borrowerOperations,
         {...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20")}
     );
 
-    const lqtyToken = await deployContract(
+    const hlqtyToken = await deployContract(
         deployer,
         getContractFactory,
         "HLQTYToken",
         communityIssuance,
-        lqtyStaking,
+        hlqtyStaking,
         lockupContractFactory,
         await deployer.getAddress(), // _multisigAddress (TODO: parameterize this)
         {...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20")}
     )
 
-    const unipool = await deployContract(deployer, getContractFactory, "Unipool", lqtyToken, {...overrides, gasLimit: 3000000})
+    const unipool = await deployContract(deployer, getContractFactory, "Unipool", hlqtyToken, {...overrides, gasLimit: 3000000})
 
     const gasPool = await deployContract(
         deployer,
         getContractFactory,
         "GasPool",
-        lusdToken,
+        hchfToken,
         troveManager,
         borrowerOperations,
         {...overrides, gasLimit: 3000000}
@@ -180,13 +180,13 @@ const deployContracts = async (
         communityIssuance,
         hintHelpers,
         lockupContractFactory,
-        lqtyStaking,
+        hlqtyStaking,
         priceFeed,
         sortedTroves,
         stabilityPool,
         unipool,
-        lusdToken,
-        lqtyToken,
+        hchfToken,
+        hlqtyToken,
         multiTroveGetter,
         gasPool
     };
@@ -242,14 +242,14 @@ const connectContracts = async (
         activePool,
         borrowerOperations,
         troveManager,
-        lusdToken,
+        hchfToken,
         collSurplusPool,
         communityIssuance,
         defaultPool,
-        lqtyToken,
+        hlqtyToken,
         hintHelpers,
         lockupContractFactory,
-        lqtyStaking,
+        hlqtyStaking,
         priceFeed,
         sortedTroves,
         stabilityPool,
@@ -281,10 +281,10 @@ const connectContracts = async (
                 gasPool.address,
                 collSurplusPool.address,
                 priceFeed.address,
-                lusdToken.address,
+                hchfToken.address,
                 sortedTroves.address,
-                lqtyToken.address,
-                lqtyStaking.address,
+                hlqtyToken.address,
+                hlqtyStaking.address,
                 {...overrides, gasLimit: 3000000, nonce}
             ),
 
@@ -298,8 +298,8 @@ const connectContracts = async (
                 collSurplusPool.address,
                 priceFeed.address,
                 sortedTroves.address,
-                lusdToken.address,
-                lqtyStaking.address,
+                hchfToken.address,
+                hlqtyStaking.address,
                 {...overrides, gasLimit: 3000000, nonce}
             ),
 
@@ -308,7 +308,7 @@ const connectContracts = async (
                 borrowerOperations.address,
                 troveManager.address,
                 activePool.address,
-                lusdToken.address,
+                hchfToken.address,
                 sortedTroves.address,
                 priceFeed.address,
                 communityIssuance.address,
@@ -347,9 +347,9 @@ const connectContracts = async (
             }),
 
         nonce =>
-            lqtyStaking.setAddresses(
-                lqtyToken.address,
-                lusdToken.address,
+            hlqtyStaking.setAddresses(
+                hlqtyToken.address,
+                hchfToken.address,
                 troveManager.address,
                 borrowerOperations.address,
                 activePool.address,
@@ -357,14 +357,14 @@ const connectContracts = async (
             ),
 
         nonce =>
-            lockupContractFactory.setLQTYTokenAddress(lqtyToken.address, {
+            lockupContractFactory.setHLQTYTokenAddress(hlqtyToken.address, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce
             }),
 
         nonce =>
-            communityIssuance.setAddresses(lqtyToken.address, stabilityPool.address, {
+            communityIssuance.setAddresses(hlqtyToken.address, stabilityPool.address, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce
@@ -372,7 +372,7 @@ const connectContracts = async (
 
         nonce => {
             return deployer.getAddress().then((address) => {
-                return lqtyToken.initialize(address, unipool.address, {
+                return hlqtyToken.initialize(address, unipool.address, {
                     ...overrides,
                     gasLimit: 3000000,
                     nonce
@@ -399,7 +399,7 @@ const connectContracts = async (
     const accountKey = PrivateKey.fromStringECDSA(process.env.ACCOUNT_PRIVATE_KEY);
     const client = Client.forTestnet().setOperator(accountId, accountKey);
 
-    const tokenId = await lqtyToken.getTokenAddress();
+    const tokenId = await hlqtyToken.getTokenAddress();
     console.log(tokenId);
     const associateTx = await new TokenAssociateTransaction()
         .setAccountId(accountId)
@@ -456,8 +456,8 @@ export const deployAndSetupContracts = async (
         version: "unknown",
         deploymentDate: new Date().getTime(),
         bootstrapPeriod: 0,
-        totalStabilityPoolLQTYReward: "0",
-        liquidityMiningLQTYRewardRate: "0",
+        totalStabilityPoolHLQTYReward: "0",
+        liquidityMiningHLQTYRewardRate: "0",
         _priceFeedIsTestnet,
         _uniTokenIsMock: !wethAddress,
         _isDev,
@@ -471,7 +471,7 @@ export const deployAndSetupContracts = async (
             ...addresses,
 
             uniToken: await (wethAddress
-                ? createUniswapV2Pair(deployer, wethAddress, addresses.lusdToken, overrides)
+                ? createUniswapV2Pair(deployer, wethAddress, addresses.hchfToken, overrides)
                 : deployMockUniToken(deployer, getContractFactory, overrides))
         }))
     };
@@ -481,19 +481,19 @@ export const deployAndSetupContracts = async (
     log("Connecting contracts...");
     await connectContracts(contracts, deployer, overrides);
 
-    const lqtyTokenDeploymentTime = await contracts.lqtyToken.getDeploymentStartTime();
+    const lqtyTokenDeploymentTime = await contracts.hlqtyToken.getDeploymentStartTime();
     const bootstrapPeriod = await contracts.troveManager.BOOTSTRAP_PERIOD();
-    const totalStabilityPoolLQTYReward = await contracts.communityIssuance.LQTYSupplyCap();
+    const totalStabilityPoolLQTYReward = await contracts.communityIssuance.HLQTYSupplyCap();
     const liquidityMiningLQTYRewardRate = await contracts.unipool.rewardRate();
 
     return {
         ...deployment,
         deploymentDate: lqtyTokenDeploymentTime.toNumber() * 1000,
         bootstrapPeriod: bootstrapPeriod.toNumber(),
-        totalStabilityPoolLQTYReward: `${Decimal.fromBigNumberString(
+        totalStabilityPoolHLQTYReward: `${Decimal.fromBigNumberString(
             totalStabilityPoolLQTYReward.toHexString()
         )}`,
-        liquidityMiningLQTYRewardRate: `${Decimal.fromBigNumberString(
+        liquidityMiningHLQTYRewardRate: `${Decimal.fromBigNumberString(
             liquidityMiningLQTYRewardRate.toHexString()
         )}`
     };

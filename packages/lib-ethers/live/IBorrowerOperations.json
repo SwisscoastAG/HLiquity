@@ -80,11 +80,11 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_LUSDFee",
+          "name": "_HCHFFee",
           "type": "uint256"
         }
       ],
-      "name": "LUSDBorrowingFeePaid",
+      "name": "HCHFBorrowingFeePaid",
       "type": "event"
     },
     {
@@ -93,11 +93,11 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_lusdTokenAddress",
+          "name": "_hchfTokenAddress",
           "type": "address"
         }
       ],
-      "name": "LUSDTokenAddressChanged",
+      "name": "HCHFTokenAddressChanged",
       "type": "event"
     },
     {
@@ -329,7 +329,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_LUSDAmount",
+          "name": "_HCHFAmount",
           "type": "uint256"
         },
         {
@@ -366,7 +366,7 @@
           "type": "address"
         }
       ],
-      "name": "repayLUSD",
+      "name": "repayHCHF",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -415,7 +415,7 @@
         },
         {
           "internalType": "address",
-          "name": "_lusdTokenAddress",
+          "name": "_hchfTokenAddress",
           "type": "address"
         },
         {
@@ -475,7 +475,7 @@
           "type": "address"
         }
       ],
-      "name": "withdrawLUSD",
+      "name": "withdrawHCHF",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

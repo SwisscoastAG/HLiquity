@@ -108,22 +108,22 @@ export interface ReadableLiquity {
   getRemainingStabilityPoolHLQTYReward(): Promise<Decimal>;
 
   /**
-   * Get the total amount of DCHF currently deposited in the Stability Pool.
+   * Get the total amount of HCHF currently deposited in the Stability Pool.
    */
-  getDCHFInStabilityPool(): Promise<Decimal>;
+  getHCHFInStabilityPool(): Promise<Decimal>;
 
   /**
-   * Get the amount of DCHF held by an address.
+   * Get the amount of HCHF held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
-  getDCHFBalance(address?: string): Promise<Decimal>;
+  getHCHFBalance(address?: string): Promise<Decimal>;
 
   /**
-   * Get the address of the HST Token of DCHF (DCHF)
+   * Get the address of the HST Token of HCHF (HCHF)
    *
    */
-  getDCHFTokenAddress(): Promise<string>
+  getHCHFTokenAddress(): Promise<string>
 
 
   /**
@@ -141,16 +141,16 @@ export interface ReadableLiquity {
   getHLQTYBalance(address?: string): Promise<Decimal>;
 
   /**
-   * Get the amount of Uniswap ETH/DCHF LP tokens held by an address.
+   * Get the amount of Uniswap ETH/HCHF LP tokens held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
   getUniTokenBalance(address?: string): Promise<Decimal>;
 
   /**
-   * Get the liquidity mining contract's allowance of a holder's Uniswap ETH/DCHF LP tokens.
+   * Get the liquidity mining contract's allowance of a holder's Uniswap ETH/HCHF LP tokens.
    *
-   * @param address - Address holding the Uniswap ETH/DCHF LP tokens.
+   * @param address - Address holding the Uniswap ETH/HCHF LP tokens.
    */
   getUniTokenAllowance(address?: string): Promise<Decimal>;
 
@@ -160,14 +160,14 @@ export interface ReadableLiquity {
   getRemainingLiquidityMiningHLQTYReward(): Promise<Decimal>;
 
   /**
-   * Get the amount of Uniswap ETH/DCHF LP tokens currently staked by an address in liquidity mining.
+   * Get the amount of Uniswap ETH/HCHF LP tokens currently staked by an address in liquidity mining.
    *
    * @param address - Address whose LP stake should be retrieved.
    */
   getLiquidityMiningStake(address?: string): Promise<Decimal>;
 
   /**
-   * Get the total amount of Uniswap ETH/DCHF LP tokens currently staked in liquidity mining.
+   * Get the total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining.
    */
   getTotalStakedUniTokens(): Promise<Decimal>;
 

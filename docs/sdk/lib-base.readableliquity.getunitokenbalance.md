@@ -4,7 +4,7 @@
 
 ## ReadableLiquity.getUniTokenBalance() method
 
-Get the amount of Uniswap ETH/DCHF LP tokens held by an address.
+Get the amount of Uniswap ETH/HCHF LP tokens held by an address.
 
 <b>Signature:</b>
 

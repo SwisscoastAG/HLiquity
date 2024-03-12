@@ -21,8 +21,8 @@
           "type": "address"
         },
         {
-          "internalType": "contract LUSDToken",
-          "name": "_lusdToken",
+          "internalType": "contract HCHFToken",
+          "name": "_hchfToken",
           "type": "address"
         }
       ],
@@ -222,7 +222,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_LUSDAmount",
+          "name": "_HCHFAmount",
           "type": "uint256"
         },
         {
@@ -268,7 +268,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "_LUSDAmount",
+          "name": "_HCHFAmount",
           "type": "uint256"
         },
         {
@@ -325,7 +325,7 @@
           "type": "address"
         }
       ],
-      "name": "repayLUSDPrx",
+      "name": "repayHCHFPrx",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -442,7 +442,7 @@
           "type": "uint256"
         }
       ],
-      "name": "withdrawLUSDPrx",
+      "name": "withdrawHCHFPrx",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

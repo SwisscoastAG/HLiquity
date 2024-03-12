@@ -25,7 +25,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
     ITroveManager immutable troveManager;
     IStabilityPool immutable stabilityPool;
     IPriceFeed immutable priceFeed;
-    IERC20 immutable dchfToken;
+    IERC20 immutable hchfToken;
     IERC20 immutable hlqtyToken;
     IHLQTYStaking immutable hlqtyStaking;
 
@@ -50,9 +50,9 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         checkContract(address(priceFeedCached));
         priceFeed = priceFeedCached;
 
-        address dchfTokenCached = address(troveManagerCached.dchfToken());
-        checkContract(dchfTokenCached);
-        dchfToken = IERC20(dchfTokenCached);
+        address hchfTokenCached = address(troveManagerCached.hchfToken());
+        checkContract(hchfTokenCached);
+        hchfToken = IERC20(hchfTokenCached);
 
         address hlqtyTokenCached = address(troveManagerCached.hlqtyToken());
         checkContract(hlqtyTokenCached);
@@ -63,7 +63,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         hlqtyStaking = hlqtyStakingCached;
     }
 
-    function claimCollateralAndOpenTrove(uint _maxFee, uint _DCHFAmount, address _upperHint, address _lowerHint) external payable {
+    function claimCollateralAndOpenTrove(uint _maxFee, uint _HCHFAmount, address _upperHint, address _lowerHint) external payable {
         uint balanceBefore = address(this).balance;
 
         // Claim collateral
@@ -77,7 +77,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         uint totalCollateral = balanceAfter.sub(balanceBefore).add(msg.value);
 
         // Open trove with obtained collateral, plus collateral sent by user
-        borrowerOperations.openTrove{ value: totalCollateral }(_maxFee, _DCHFAmount, _upperHint, _lowerHint);
+        borrowerOperations.openTrove{ value: totalCollateral }(_maxFee, _HCHFAmount, _upperHint, _lowerHint);
     }
 
     function claimSPRewardsAndRecycle(uint _maxFee, address _upperHint, address _lowerHint) external {
@@ -91,14 +91,14 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         uint hlqtyBalanceAfter = hlqtyToken.balanceOf(address(this));
         uint claimedCollateral = collBalanceAfter.sub(collBalanceBefore);
 
-        // Add claimed ETH to trove, get more DCHF and stake it into the Stability Pool
+        // Add claimed ETH to trove, get more HCHF and stake it into the Stability Pool
         if (claimedCollateral > 0) {
             _requireUserHasTrove(address(this));
-            uint DCHFAmount = _getNetDCHFAmount(claimedCollateral);
-            borrowerOperations.adjustTrove{ value: claimedCollateral }(_maxFee, 0, DCHFAmount, true, _upperHint, _lowerHint);
-            // Provide withdrawn DCHF to Stability Pool
-            if (DCHFAmount > 0) {
-                stabilityPool.provideToSP(DCHFAmount, address(0));
+            uint HCHFAmount = _getNetHCHFAmount(claimedCollateral);
+            borrowerOperations.adjustTrove{ value: claimedCollateral }(_maxFee, 0, HCHFAmount, true, _upperHint, _lowerHint);
+            // Provide withdrawn HCHF to Stability Pool
+            if (HCHFAmount > 0) {
+                stabilityPool.provideToSP(HCHFAmount, address(0));
             }
         }
 
@@ -111,26 +111,26 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
 
     function claimStakingGainsAndRecycle(uint _maxFee, address _upperHint, address _lowerHint) external {
         uint collBalanceBefore = address(this).balance;
-        uint dchfBalanceBefore = dchfToken.balanceOf(address(this));
+        uint hchfBalanceBefore = hchfToken.balanceOf(address(this));
         uint hlqtyBalanceBefore = hlqtyToken.balanceOf(address(this));
 
         // Claim gains
         hlqtyStaking.unstake(0);
 
         uint gainedCollateral = address(this).balance.sub(collBalanceBefore); // stack too deep issues :'(
-        uint gainedDCHF = dchfToken.balanceOf(address(this)).sub(dchfBalanceBefore);
+        uint gainedHCHF = hchfToken.balanceOf(address(this)).sub(hchfBalanceBefore);
 
-        uint netDCHFAmount;
-        // Top up trove and get more DCHF, keeping ICR constant
+        uint netHCHFAmount;
+        // Top up trove and get more HCHF, keeping ICR constant
         if (gainedCollateral > 0) {
             _requireUserHasTrove(address(this));
-            netDCHFAmount = _getNetDCHFAmount(gainedCollateral);
-            borrowerOperations.adjustTrove{ value: gainedCollateral }(_maxFee, 0, netDCHFAmount, true, _upperHint, _lowerHint);
+            netHCHFAmount = _getNetHCHFAmount(gainedCollateral);
+            borrowerOperations.adjustTrove{ value: gainedCollateral }(_maxFee, 0, netHCHFAmount, true, _upperHint, _lowerHint);
         }
 
-        uint totalDCHF = gainedDCHF.add(netDCHFAmount);
-        if (totalDCHF > 0) {
-            stabilityPool.provideToSP(totalDCHF, address(0));
+        uint totalHCHF = gainedHCHF.add(netHCHFAmount);
+        if (totalHCHF > 0) {
+            stabilityPool.provideToSP(totalHCHF, address(0));
 
             // Providing to Stability Pool also triggers HLQTY claim, so stake it if any
             uint hlqtyBalanceAfter = hlqtyToken.balanceOf(address(this));
@@ -142,13 +142,13 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
 
     }
 
-    function _getNetDCHFAmount(uint _collateral) internal returns (uint) {
+    function _getNetHCHFAmount(uint _collateral) internal returns (uint) {
         uint price = priceFeed.fetchPrice();
         uint ICR = troveManager.getCurrentICR(address(this), price);
 
-        uint DCHFAmount = _collateral.mul(price).div(ICR);
+        uint HCHFAmount = _collateral.mul(price).div(ICR);
         uint borrowingRate = troveManager.getBorrowingRateWithDecay();
-        uint netDebt = DCHFAmount.mul(LiquityMath.DECIMAL_PRECISION).div(LiquityMath.DECIMAL_PRECISION.add(borrowingRate));
+        uint netDebt = HCHFAmount.mul(LiquityMath.DECIMAL_PRECISION).div(LiquityMath.DECIMAL_PRECISION.add(borrowingRate));
 
         return netDebt;
     }

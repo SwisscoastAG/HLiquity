@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "./Interfaces/IBorrowerOperations.sol";
 import "./Interfaces/ITroveManager.sol";
-import "./Interfaces/IDCHFToken.sol";
+import "./Interfaces/IHCHFToken.sol";
 import "./Interfaces/ICollSurplusPool.sol";
 import "./Interfaces/ISortedTroves.sol";
 import "./Interfaces/IHLQTYStaking.sol";
@@ -32,7 +32,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     IHLQTYStaking public hlqtyStaking;
     address public hlqtyStakingAddress;
 
-    IDCHFToken public dchfToken;
+    IHCHFToken public hchfToken;
 
     // A doubly linked list of Troves, sorted by their collateral ratios
     ISortedTroves public sortedTroves;
@@ -52,7 +52,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint oldICR;
         uint newICR;
         uint newTCR;
-        uint DCHFFee;
+        uint HCHFFee;
         uint newDebt;
         uint newColl;
         uint stake;
@@ -60,7 +60,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     struct LocalVariables_openTrove {
         uint price;
-        uint DCHFFee;
+        uint HCHFFee;
         uint netDebt;
         uint compositeDebt;
         uint ICR;
@@ -72,7 +72,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     struct ContractsCache {
         ITroveManager troveManager;
         IActivePool activePool;
-        IDCHFToken dchfToken;
+        IHCHFToken hchfToken;
     }
 
     enum BorrowerOperation {
@@ -89,12 +89,12 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address  _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event DCHFTokenAddressChanged(address _dchfTokenAddress);
+    event HCHFTokenAddressChanged(address _hchfTokenAddress);
     event LQTYStakingAddressChanged(address _hlqtyStakingAddress);
 
     event TroveCreated(address indexed _borrower, uint arrayIndex);
     event TroveUpdated(address indexed _borrower, uint _debt, uint _coll, uint stake, BorrowerOperation operation);
-    event DCHFBorrowingFeePaid(address indexed _borrower, uint _DCHFFee);
+    event HCHFBorrowingFeePaid(address indexed _borrower, uint _HCHFFee);
     
     // --- Dependency setters ---
 
@@ -107,14 +107,14 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address _collSurplusPoolAddress,
         address _priceFeedAddress,
         address _sortedTrovesAddress,
-        address _dchfTokenAddress,
+        address _hchfTokenAddress,
         address _hlqtyStakingAddress
     )
         external
         override
         onlyOwner
     {
-        // This makes impossible to open a trove with zero withdrawn DCHF
+        // This makes impossible to open a trove with zero withdrawn HCHF
         assert(MIN_NET_DEBT > 0);
 
         checkContract(_troveManagerAddress);
@@ -125,7 +125,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         checkContract(_collSurplusPoolAddress);
         checkContract(_priceFeedAddress);
         checkContract(_sortedTrovesAddress);
-        checkContract(_dchfTokenAddress);
+        checkContract(_hchfTokenAddress);
         checkContract(_hlqtyStakingAddress);
 
         troveManager = ITroveManager(_troveManagerAddress);
@@ -137,7 +137,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        dchfToken = IDCHFToken(_dchfTokenAddress);
+        hchfToken = IHCHFToken(_hchfTokenAddress);
         hlqtyStakingAddress = _hlqtyStakingAddress;
         hlqtyStaking = IHLQTYStaking(_hlqtyStakingAddress);
 
@@ -149,7 +149,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
         emit PriceFeedAddressChanged(_priceFeedAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit DCHFTokenAddressChanged(_dchfTokenAddress);
+        emit HCHFTokenAddressChanged(_hchfTokenAddress);
         emit LQTYStakingAddressChanged(_hlqtyStakingAddress);
 
         _renounceOwnership();
@@ -157,8 +157,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // --- Borrower Trove Operations ---
 
-    function openTrove(uint _maxFeePercentage, uint _DCHFAmount, address _upperHint, address _lowerHint) external payable override {
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, dchfToken);
+    function openTrove(uint _maxFeePercentage, uint _HCHFAmount, address _upperHint, address _lowerHint) external payable override {
+        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, hchfToken);
         LocalVariables_openTrove memory vars;
 
         vars.price = priceFeed.fetchPrice();
@@ -167,16 +167,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _requireValidMaxFeePercentage(_maxFeePercentage, isRecoveryMode);
         _requireTroveisNotActive(contractsCache.troveManager, msg.sender);
 
-        vars.DCHFFee;
-        vars.netDebt = _DCHFAmount;
+        vars.HCHFFee;
+        vars.netDebt = _HCHFAmount;
 
         if (!isRecoveryMode) {
-            vars.DCHFFee = _triggerBorrowingFee(contractsCache.troveManager, contractsCache.dchfToken, _DCHFAmount, _maxFeePercentage);
-            vars.netDebt = vars.netDebt.add(vars.DCHFFee);
+            vars.HCHFFee = _triggerBorrowingFee(contractsCache.troveManager, contractsCache.hchfToken, _HCHFAmount, _maxFeePercentage);
+            vars.netDebt = vars.netDebt.add(vars.HCHFFee);
         }
         _requireAtLeastMinNetDebt(vars.netDebt);
 
-        // ICR is based on the composite debt, i.e. the requested DCHF amount + DCHF borrowing fee + DCHF gas comp.
+        // ICR is based on the composite debt, i.e. the requested HCHF amount + HCHF borrowing fee + HCHF gas comp.
         vars.compositeDebt = _getCompositeDebt(vars.netDebt);
         assert(vars.compositeDebt > 0);
         
@@ -203,14 +203,14 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         vars.arrayIndex = contractsCache.troveManager.addTroveOwnerToArray(msg.sender);
         emit TroveCreated(msg.sender, vars.arrayIndex);
 
-        // Move the ether to the Active Pool, and mint the DCHFAmount to the borrower
+        // Move the ether to the Active Pool, and mint the HCHFAmount to the borrower
         _activePoolAddColl(contractsCache.activePool, msg.value);
-        _withdrawDCHF(contractsCache.activePool, contractsCache.dchfToken, msg.sender, _DCHFAmount, vars.netDebt);
-        // Move the DCHF gas compensation to the Gas Pool
-        _withdrawDCHF(contractsCache.activePool, contractsCache.dchfToken, gasPoolAddress, DCHF_GAS_COMPENSATION, DCHF_GAS_COMPENSATION);
+        _withdrawHCHF(contractsCache.activePool, contractsCache.hchfToken, msg.sender, _HCHFAmount, vars.netDebt);
+        // Move the HCHF gas compensation to the Gas Pool
+        _withdrawHCHF(contractsCache.activePool, contractsCache.hchfToken, gasPoolAddress, HCHF_GAS_COMPENSATION, HCHF_GAS_COMPENSATION);
 
         emit TroveUpdated(msg.sender, vars.compositeDebt, msg.value, vars.stake, BorrowerOperation.openTrove);
-        emit DCHFBorrowingFeePaid(msg.sender, vars.DCHFFee);
+        emit HCHFBorrowingFeePaid(msg.sender, vars.HCHFFee);
     }
 
     // Send ETH as collateral to a trove
@@ -229,18 +229,18 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _adjustTrove(msg.sender, _collWithdrawal, 0, false, _upperHint, _lowerHint, 0);
     }
 
-    // Withdraw DCHF tokens from a trove: mint new DCHF tokens to the owner, and increase the trove's debt accordingly
-    function withdrawDCHF(uint _maxFeePercentage, uint _DCHFAmount, address _upperHint, address _lowerHint) external override {
-        _adjustTrove(msg.sender, 0, _DCHFAmount, true, _upperHint, _lowerHint, _maxFeePercentage);
+    // Withdraw HCHF tokens from a trove: mint new HCHF tokens to the owner, and increase the trove's debt accordingly
+    function withdrawHCHF(uint _maxFeePercentage, uint _HCHFAmount, address _upperHint, address _lowerHint) external override {
+        _adjustTrove(msg.sender, 0, _HCHFAmount, true, _upperHint, _lowerHint, _maxFeePercentage);
     }
 
-    // Repay DCHF tokens to a Trove: Burn the repaid DCHF tokens, and reduce the trove's debt accordingly
-    function repayDCHF(uint _DCHFAmount, address _upperHint, address _lowerHint) external override {
-        _adjustTrove(msg.sender, 0, _DCHFAmount, false, _upperHint, _lowerHint, 0);
+    // Repay HCHF tokens to a Trove: Burn the repaid HCHF tokens, and reduce the trove's debt accordingly
+    function repayHCHF(uint _HCHFAmount, address _upperHint, address _lowerHint) external override {
+        _adjustTrove(msg.sender, 0, _HCHFAmount, false, _upperHint, _lowerHint, 0);
     }
 
-    function adjustTrove(uint _maxFeePercentage, uint _collWithdrawal, uint _DCHFChange, bool _isDebtIncrease, address _upperHint, address _lowerHint) external payable override {
-        _adjustTrove(msg.sender, _collWithdrawal, _DCHFChange, _isDebtIncrease, _upperHint, _lowerHint, _maxFeePercentage);
+    function adjustTrove(uint _maxFeePercentage, uint _collWithdrawal, uint _HCHFChange, bool _isDebtIncrease, address _upperHint, address _lowerHint) external payable override {
+        _adjustTrove(msg.sender, _collWithdrawal, _HCHFChange, _isDebtIncrease, _upperHint, _lowerHint, _maxFeePercentage);
     }
 
     /*
@@ -250,8 +250,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     *
     * If both are positive, it will revert.
     */
-    function _adjustTrove(address _borrower, uint _collWithdrawal, uint _DCHFChange, bool _isDebtIncrease, address _upperHint, address _lowerHint, uint _maxFeePercentage) internal {
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, dchfToken);
+    function _adjustTrove(address _borrower, uint _collWithdrawal, uint _HCHFChange, bool _isDebtIncrease, address _upperHint, address _lowerHint, uint _maxFeePercentage) internal {
+        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, hchfToken);
         LocalVariables_adjustTrove memory vars;
 
         vars.price = priceFeed.fetchPrice();
@@ -259,26 +259,26 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         if (_isDebtIncrease) {
             _requireValidMaxFeePercentage(_maxFeePercentage, isRecoveryMode);
-            _requireNonZeroDebtChange(_DCHFChange);
+            _requireNonZeroDebtChange(_HCHFChange);
         }
         _requireSingularCollChange(_collWithdrawal);
-        _requireNonZeroAdjustment(_collWithdrawal, _DCHFChange);
+        _requireNonZeroAdjustment(_collWithdrawal, _HCHFChange);
         _requireTroveisActive(contractsCache.troveManager, _borrower);
 
         // Confirm the operation is either a borrower adjusting their own trove, or a pure ETH transfer from the Stability Pool to a trove
-        assert(msg.sender == _borrower || (msg.sender == stabilityPoolAddress && msg.value > 0 && _DCHFChange == 0));
+        assert(msg.sender == _borrower || (msg.sender == stabilityPoolAddress && msg.value > 0 && _HCHFChange == 0));
 
         contractsCache.troveManager.applyPendingRewards(_borrower);
 
         // Get the collChange based on whether or not ETH was sent in the transaction
         (vars.collChange, vars.isCollIncrease) = _getCollChange(msg.value, _collWithdrawal);
 
-        vars.netDebtChange = _DCHFChange;
+        vars.netDebtChange = _HCHFChange;
 
         // If the adjustment incorporates a debt increase and system is in Normal Mode, then trigger a borrowing fee
         if (_isDebtIncrease && !isRecoveryMode) { 
-            vars.DCHFFee = _triggerBorrowingFee(contractsCache.troveManager, contractsCache.dchfToken, _DCHFChange, _maxFeePercentage);
-            vars.netDebtChange = vars.netDebtChange.add(vars.DCHFFee); // The raw debt change includes the fee
+            vars.HCHFFee = _triggerBorrowingFee(contractsCache.troveManager, contractsCache.hchfToken, _HCHFChange, _maxFeePercentage);
+            vars.netDebtChange = vars.netDebtChange.add(vars.HCHFFee); // The raw debt change includes the fee
         }
 
         vars.debt = contractsCache.troveManager.getTroveDebt(_borrower);
@@ -292,11 +292,11 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         // Check the adjustment satisfies all conditions for the current system mode
         _requireValidAdjustmentInCurrentMode(isRecoveryMode, _collWithdrawal, _isDebtIncrease, vars);
             
-        // When the adjustment is a debt repayment, check it's a valid amount and that the caller has enough DCHF
-        if (!_isDebtIncrease && _DCHFChange > 0) {
+        // When the adjustment is a debt repayment, check it's a valid amount and that the caller has enough HCHF
+        if (!_isDebtIncrease && _HCHFChange > 0) {
             _requireAtLeastMinNetDebt(_getNetDebt(vars.debt).sub(vars.netDebtChange));
-            _requireValidDCHFRepayment(vars.debt, vars.netDebtChange);
-            _requireSufficientDCHFBalance(contractsCache.dchfToken, _borrower, vars.netDebtChange);
+            _requireValidHCHFRepayment(vars.debt, vars.netDebtChange);
+            _requireSufficientHCHFBalance(contractsCache.hchfToken, _borrower, vars.netDebtChange);
         }
 
         (vars.newColl, vars.newDebt) = _updateTroveFromAdjustment(contractsCache.troveManager, _borrower, vars.collChange, vars.isCollIncrease, vars.netDebtChange, _isDebtIncrease);
@@ -307,16 +307,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         sortedTroves.reInsert(_borrower, newNICR, _upperHint, _lowerHint);
 
         emit TroveUpdated(_borrower, vars.newDebt, vars.newColl, vars.stake, BorrowerOperation.adjustTrove);
-        emit DCHFBorrowingFeePaid(msg.sender,  vars.DCHFFee);
+        emit HCHFBorrowingFeePaid(msg.sender,  vars.HCHFFee);
 
-        // Use the unmodified _DCHFChange here, as we don't send the fee to the user
+        // Use the unmodified _HCHFChange here, as we don't send the fee to the user
         _moveTokensAndETHfromAdjustment(
             contractsCache.activePool,
-            contractsCache.dchfToken,
+            contractsCache.hchfToken,
             msg.sender,
             vars.collChange,
             vars.isCollIncrease,
-            _DCHFChange,
+            _HCHFChange,
             _isDebtIncrease,
             vars.netDebtChange
         );
@@ -325,7 +325,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     function closeTrove() external override {
         ITroveManager troveManagerCached = troveManager;
         IActivePool activePoolCached = activePool;
-        IDCHFToken dchfTokenCached = dchfToken;
+        IHCHFToken hchfTokenCached = hchfToken;
 
         _requireTroveisActive(troveManagerCached, msg.sender);
         uint price = priceFeed.fetchPrice();
@@ -336,7 +336,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint coll = troveManagerCached.getTroveColl(msg.sender);
         uint debt = troveManagerCached.getTroveDebt(msg.sender);
 
-        _requireSufficientDCHFBalance(dchfTokenCached, msg.sender, debt.sub(DCHF_GAS_COMPENSATION));
+        _requireSufficientHCHFBalance(hchfTokenCached, msg.sender, debt.sub(HCHF_GAS_COMPENSATION));
 
         uint newTCR = _getNewTCRFromTroveChange(coll, false, debt, false, price);
         _requireNewTCRisAboveCCR(newTCR);
@@ -346,9 +346,9 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         emit TroveUpdated(msg.sender, 0, 0, 0, BorrowerOperation.closeTrove);
 
-        // Burn the repaid DCHF from the user's balance and the gas compensation from the Gas Pool
-        _repayDCHF(activePoolCached, dchfTokenCached, msg.sender, debt.sub(DCHF_GAS_COMPENSATION));
-        _repayDCHF(activePoolCached, dchfTokenCached, gasPoolAddress, DCHF_GAS_COMPENSATION);
+        // Burn the repaid HCHF from the user's balance and the gas compensation from the Gas Pool
+        _repayHCHF(activePoolCached, hchfTokenCached, msg.sender, debt.sub(HCHF_GAS_COMPENSATION));
+        _repayHCHF(activePoolCached, hchfTokenCached, gasPoolAddress, HCHF_GAS_COMPENSATION);
 
         // Send the collateral back to the user
         activePoolCached.sendETH(msg.sender, coll);
@@ -364,17 +364,17 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // --- Helper functions ---
 
-    function _triggerBorrowingFee(ITroveManager _troveManager, IDCHFToken _dchfToken, uint _DCHFAmount, uint _maxFeePercentage) internal returns (uint) {
+    function _triggerBorrowingFee(ITroveManager _troveManager, IHCHFToken _hchfToken, uint _HCHFAmount, uint _maxFeePercentage) internal returns (uint) {
         _troveManager.decayBaseRateFromBorrowing(); // decay the baseRate state variable
-        uint DCHFFee = _troveManager.getBorrowingFee(_DCHFAmount);
+        uint HCHFFee = _troveManager.getBorrowingFee(_HCHFAmount);
 
-        _requireUserAcceptsFee(DCHFFee, _DCHFAmount, _maxFeePercentage);
+        _requireUserAcceptsFee(HCHFFee, _HCHFAmount, _maxFeePercentage);
         
         // Send fee to HLQTY staking contract
-        hlqtyStaking.increaseF_DCHF(DCHFFee);
-        _dchfToken.mint(hlqtyStakingAddress, DCHFFee);
+        hlqtyStaking.increaseF_HCHF(HCHFFee);
+        _hchfToken.mint(hlqtyStakingAddress, HCHFFee);
 
-        return DCHFFee;
+        return HCHFFee;
     }
 
     function _getUSDValue(uint _coll, uint _price) internal pure returns (uint) {
@@ -423,20 +423,20 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     function _moveTokensAndETHfromAdjustment
     (
         IActivePool _activePool,
-        IDCHFToken _dchfToken,
+        IHCHFToken _hchfToken,
         address _borrower,
         uint _collChange,
         bool _isCollIncrease,
-        uint _DCHFChange,
+        uint _HCHFChange,
         bool _isDebtIncrease,
         uint _netDebtChange
     )
         internal
     {
         if (_isDebtIncrease) {
-            _withdrawDCHF(_activePool, _dchfToken, _borrower, _DCHFChange, _netDebtChange);
+            _withdrawHCHF(_activePool, _hchfToken, _borrower, _HCHFChange, _netDebtChange);
         } else {
-            _repayDCHF(_activePool, _dchfToken, _borrower, _DCHFChange);
+            _repayHCHF(_activePool, _hchfToken, _borrower, _HCHFChange);
         }
 
         if (_isCollIncrease) {
@@ -452,19 +452,19 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         require(success, "BorrowerOps: Sending ETH to ActivePool failed");
     }
 
-    // Issue the specified amount of DCHF to _account and increases the total active debt (_netDebtIncrease potentially includes a DCHFFee)
-    function _withdrawDCHF(IActivePool _activePool, IDCHFToken _dchfToken, address _account, uint _DCHFAmount, uint _netDebtIncrease) internal {
-        _activePool.increaseDCHFDebt(_netDebtIncrease);
-        _dchfToken.mint(_account, _DCHFAmount);
+    // Issue the specified amount of HCHF to _account and increases the total active debt (_netDebtIncrease potentially includes a HCHFFee)
+    function _withdrawHCHF(IActivePool _activePool, IHCHFToken _hchfToken, address _account, uint _HCHFAmount, uint _netDebtIncrease) internal {
+        _activePool.increaseHCHFDebt(_netDebtIncrease);
+        _hchfToken.mint(_account, _HCHFAmount);
     }
 
-    // Burn the specified amount of DCHF from _account and decreases the total active debt
-    function _repayDCHF(IActivePool _activePool, IDCHFToken _dchfToken, address _account, uint _DCHF) internal {
-        _activePool.decreaseDCHFDebt(_DCHF);
+    // Burn the specified amount of HCHF from _account and decreases the total active debt
+    function _repayHCHF(IActivePool _activePool, IHCHFToken _hchfToken, address _account, uint _HCHF) internal {
+        _activePool.decreaseHCHFDebt(_HCHF);
         if (_account == gasPoolAddress){
-            gasPool.approveToken(dchfToken.getTokenAddress(), address(dchfToken), _DCHF);
+            gasPool.approveToken(hchfToken.getTokenAddress(), address(hchfToken), _HCHF);
         }
-        _dchfToken.burn(_account, _DCHF);
+        _hchfToken.burn(_account, _HCHF);
     }
 
     // --- 'Require' wrapper functions ---
@@ -477,8 +477,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         require(msg.sender == _borrower, "BorrowerOps: Caller must be the borrower for a withdrawal");
     }
 
-    function _requireNonZeroAdjustment(uint _collWithdrawal, uint _DCHFChange) internal view {
-        require(msg.value != 0 || _collWithdrawal != 0 || _DCHFChange != 0, "BorrowerOps: There must be either a collateral change or a debt change");
+    function _requireNonZeroAdjustment(uint _collWithdrawal, uint _HCHFChange) internal view {
+        require(msg.value != 0 || _collWithdrawal != 0 || _HCHFChange != 0, "BorrowerOps: There must be either a collateral change or a debt change");
     }
 
     function _requireTroveisActive(ITroveManager _troveManager, address _borrower) internal view {
@@ -491,8 +491,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         require(status != 1, "BorrowerOps: Trove is active");
     }
 
-    function _requireNonZeroDebtChange(uint _DCHFChange) internal pure {
-        require(_DCHFChange > 0, "BorrowerOps: Debt increase requires non-zero debtChange");
+    function _requireNonZeroDebtChange(uint _HCHFChange) internal pure {
+        require(_HCHFChange > 0, "BorrowerOps: Debt increase requires non-zero debtChange");
     }
    
     function _requireNotInRecoveryMode(uint _price) internal view {
@@ -559,16 +559,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         require (_netDebt >= MIN_NET_DEBT, "BorrowerOps: Trove's net debt must be greater than minimum");
     }
 
-    function _requireValidDCHFRepayment(uint _currentDebt, uint _debtRepayment) internal pure {
-        require(_debtRepayment <= _currentDebt.sub(DCHF_GAS_COMPENSATION), "BorrowerOps: Amount repaid must not be larger than the Trove's debt");
+    function _requireValidHCHFRepayment(uint _currentDebt, uint _debtRepayment) internal pure {
+        require(_debtRepayment <= _currentDebt.sub(HCHF_GAS_COMPENSATION), "BorrowerOps: Amount repaid must not be larger than the Trove's debt");
     }
 
     function _requireCallerIsStabilityPool() internal view {
         require(msg.sender == stabilityPoolAddress, "BorrowerOps: Caller is not Stability Pool");
     }
 
-     function _requireSufficientDCHFBalance(IDCHFToken _dchfToken, address _borrower, uint _debtRepayment) internal view {
-        require(_dchfToken.balanceOf(_borrower) >= _debtRepayment, "BorrowerOps: Caller doesnt have enough DCHF to make repayment");
+     function _requireSufficientHCHFBalance(IHCHFToken _hchfToken, address _borrower, uint _debtRepayment) internal view {
+        require(_hchfToken.balanceOf(_borrower) >= _debtRepayment, "BorrowerOps: Caller doesnt have enough HCHF to make repayment");
     }
 
     function _requireValidMaxFeePercentage(uint _maxFeePercentage, bool _isRecoveryMode) internal pure {

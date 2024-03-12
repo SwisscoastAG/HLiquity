@@ -9,10 +9,10 @@ import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
 
 /*
- * The Default Pool holds the ETH and DCHF debt (but not DCHF tokens) from liquidations that have been redistributed
+ * The Default Pool holds the ETH and HCHF debt (but not HCHF tokens) from liquidations that have been redistributed
  * to active troves but not yet "applied", i.e. not yet recorded on a recipient active trove's struct.
  *
- * When a trove makes an operation that applies its pending ETH and DCHF debt, its pending ETH and DCHF debt is moved
+ * When a trove makes an operation that applies its pending ETH and HCHF debt, its pending ETH and HCHF debt is moved
  * from the Default Pool to the Active Pool.
  */
 contract DefaultPool is Ownable, CheckContract, IDefaultPool {
@@ -23,10 +23,10 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
     address public troveManagerAddress;
     address public activePoolAddress;
     uint256 internal ETH;  // deposited ETH tracker
-    uint256 internal DCHFDebt;  // debt
+    uint256 internal HCHFDebt;  // debt
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event DefaultPoolDCHFDebtUpdated(uint _DCHFDebt);
+    event DefaultPoolHCHFDebtUpdated(uint _HCHFDebt);
     event DefaultPoolETHBalanceUpdated(uint _ETH);
 
     // --- Dependency setters ---
@@ -61,8 +61,8 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
         return ETH;
     }
 
-    function getDCHFDebt() external view override returns (uint) {
-        return DCHFDebt;
+    function getHCHFDebt() external view override returns (uint) {
+        return HCHFDebt;
     }
 
     // --- Pool functionality ---
@@ -78,16 +78,16 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
         require(success, "DefaultPool: sending ETH failed");
     }
 
-    function increaseDCHFDebt(uint _amount) external override {
+    function increaseHCHFDebt(uint _amount) external override {
         _requireCallerIsTroveManager();
-        DCHFDebt = DCHFDebt.add(_amount);
-        emit DefaultPoolDCHFDebtUpdated(DCHFDebt);
+        HCHFDebt = HCHFDebt.add(_amount);
+        emit DefaultPoolHCHFDebtUpdated(HCHFDebt);
     }
 
-    function decreaseDCHFDebt(uint _amount) external override {
+    function decreaseHCHFDebt(uint _amount) external override {
         _requireCallerIsTroveManager();
-        DCHFDebt = DCHFDebt.sub(_amount);
-        emit DefaultPoolDCHFDebtUpdated(DCHFDebt);
+        HCHFDebt = HCHFDebt.sub(_amount);
+        emit DefaultPoolHCHFDebtUpdated(HCHFDebt);
     }
 
     // --- 'require' functions ---

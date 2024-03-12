@@ -1,7 +1,7 @@
 pragma solidity 0.6.11;
 pragma experimental ABIEncoderV2;
 
-import "../Interfaces/IDCHFToken.sol";
+import "../Interfaces/IHCHFToken.sol";
 import "../Interfaces/IHederaTokenService.sol";
 import "./ExpiryHelper.sol";
 import "./KeyHelper.sol";

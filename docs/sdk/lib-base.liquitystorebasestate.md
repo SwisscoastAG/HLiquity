@@ -18,15 +18,15 @@ export interface LiquityStoreBaseState
 |  --- | --- | --- |
 |  [accountBalance](./lib-base.liquitystorebasestate.accountbalance.md) | [Decimal](./lib-base.decimal.md) | User's native currency balance (e.g. Ether). |
 |  [collateralSurplusBalance](./lib-base.liquitystorebasestate.collateralsurplusbalance.md) | [Decimal](./lib-base.decimal.md) | Amount of leftover collateral available for withdrawal to the user. |
-|  [dchfBalance](./lib-base.liquitystorebasestate.dchfbalance.md) | [Decimal](./lib-base.decimal.md) | User's DCHF token balance. |
-|  [dchfInStabilityPool](./lib-base.liquitystorebasestate.dchfinstabilitypool.md) | [Decimal](./lib-base.decimal.md) | Total amount of DCHF currently deposited in the Stability Pool. |
-|  [dchfTokenAddress](./lib-base.liquitystorebasestate.dchftokenaddress.md) | string | DCHF HST Token address |
 |  [frontend](./lib-base.liquitystorebasestate.frontend.md) | [FrontendStatus](./lib-base.frontendstatus.md) | Status of currently used frontend. |
+|  [hchfBalance](./lib-base.liquitystorebasestate.hchfbalance.md) | [Decimal](./lib-base.decimal.md) | User's HCHF token balance. |
+|  [hchfInStabilityPool](./lib-base.liquitystorebasestate.hchfinstabilitypool.md) | [Decimal](./lib-base.decimal.md) | Total amount of HCHF currently deposited in the Stability Pool. |
+|  [hchfTokenAddress](./lib-base.liquitystorebasestate.hchftokenaddress.md) | string | HCHF HST Token address |
 |  [hlqtyBalance](./lib-base.liquitystorebasestate.hlqtybalance.md) | [Decimal](./lib-base.decimal.md) | User's HLQTY token balance. |
 |  [hlqtyStake](./lib-base.liquitystorebasestate.hlqtystake.md) | [HLQTYStake](./lib-base.hlqtystake.md) | User's HLQTY stake. |
 |  [hlqtyTokenAddress](./lib-base.liquitystorebasestate.hlqtytokenaddress.md) | string | HLQTY HST Token address |
 |  [liquidityMiningHLQTYReward](./lib-base.liquitystorebasestate.liquiditymininghlqtyreward.md) | [Decimal](./lib-base.decimal.md) | Amount of HLQTY the user has earned through mining liquidity. |
-|  [liquidityMiningStake](./lib-base.liquitystorebasestate.liquidityminingstake.md) | [Decimal](./lib-base.decimal.md) | Amount of Uniswap ETH/DCHF LP tokens the user has staked in liquidity mining. |
+|  [liquidityMiningStake](./lib-base.liquitystorebasestate.liquidityminingstake.md) | [Decimal](./lib-base.decimal.md) | Amount of Uniswap ETH/HCHF LP tokens the user has staked in liquidity mining. |
 |  [numberOfTroves](./lib-base.liquitystorebasestate.numberoftroves.md) | number | Number of Troves that are currently open. |
 |  [ownFrontend](./lib-base.liquitystorebasestate.ownfrontend.md) | [FrontendStatus](./lib-base.frontendstatus.md) | Status of user's own frontend. |
 |  [price](./lib-base.liquitystorebasestate.price.md) | [Decimal](./lib-base.decimal.md) | Current price of the native currency (e.g. Ether) in USD. |
@@ -36,8 +36,8 @@ export interface LiquityStoreBaseState
 |  [total](./lib-base.liquitystorebasestate.total.md) | [Trove](./lib-base.trove.md) | Total collateral and debt in the Liquity system. |
 |  [totalRedistributed](./lib-base.liquitystorebasestate.totalredistributed.md) | [Trove](./lib-base.trove.md) | Total collateral and debt per stake that has been liquidated through redistribution. |
 |  [totalStakedHLQTY](./lib-base.liquitystorebasestate.totalstakedhlqty.md) | [Decimal](./lib-base.decimal.md) | Total amount of HLQTY currently staked. |
-|  [totalStakedUniTokens](./lib-base.liquitystorebasestate.totalstakedunitokens.md) | [Decimal](./lib-base.decimal.md) | Total amount of Uniswap ETH/DCHF LP tokens currently staked in liquidity mining. |
+|  [totalStakedUniTokens](./lib-base.liquitystorebasestate.totalstakedunitokens.md) | [Decimal](./lib-base.decimal.md) | Total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. |
 |  [troveBeforeRedistribution](./lib-base.liquitystorebasestate.trovebeforeredistribution.md) | [TroveWithPendingRedistribution](./lib-base.trovewithpendingredistribution.md) | User's Trove in its state after the last direct modification. |
-|  [uniTokenAllowance](./lib-base.liquitystorebasestate.unitokenallowance.md) | [Decimal](./lib-base.decimal.md) | The liquidity mining contract's allowance of user's Uniswap ETH/DCHF LP tokens. |
-|  [uniTokenBalance](./lib-base.liquitystorebasestate.unitokenbalance.md) | [Decimal](./lib-base.decimal.md) | User's Uniswap ETH/DCHF LP token balance. |
+|  [uniTokenAllowance](./lib-base.liquitystorebasestate.unitokenallowance.md) | [Decimal](./lib-base.decimal.md) | The liquidity mining contract's allowance of user's Uniswap ETH/HCHF LP tokens. |
+|  [uniTokenBalance](./lib-base.liquitystorebasestate.unitokenbalance.md) | [Decimal](./lib-base.decimal.md) | User's Uniswap ETH/HCHF LP token balance. |
 

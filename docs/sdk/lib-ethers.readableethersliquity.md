@@ -29,16 +29,16 @@ The constructor for this class is marked as internal. Third-party code should no
 |  --- | --- | --- |
 |  [connect(signerOrProvider, optionalParams)](./lib-ethers.readableethersliquity.connect_1.md) | <code>static</code> |  |
 |  [getCollateralSurplusBalance(address, overrides)](./lib-ethers.readableethersliquity.getcollateralsurplusbalance.md) |  | Get the amount of leftover collateral available for withdrawal by an address. |
-|  [getDCHFBalance(address, overrides)](./lib-ethers.readableethersliquity.getdchfbalance.md) |  | Get the amount of DCHF held by an address. |
-|  [getDCHFInStabilityPool(overrides)](./lib-ethers.readableethersliquity.getdchfinstabilitypool.md) |  | Get the total amount of DCHF currently deposited in the Stability Pool. |
-|  [getDCHFTokenAddress(overrides)](./lib-ethers.readableethersliquity.getdchftokenaddress.md) |  |  |
 |  [getFees(overrides)](./lib-ethers.readableethersliquity.getfees.md) |  | Get a calculator for current fees. |
 |  [getFrontendStatus(address, overrides)](./lib-ethers.readableethersliquity.getfrontendstatus.md) |  | Check whether an address is registered as a Liquity frontend, and what its kickback rate is. |
+|  [getHCHFBalance(address, overrides)](./lib-ethers.readableethersliquity.gethchfbalance.md) |  | Get the amount of HCHF held by an address. |
+|  [getHCHFInStabilityPool(overrides)](./lib-ethers.readableethersliquity.gethchfinstabilitypool.md) |  | Get the total amount of HCHF currently deposited in the Stability Pool. |
+|  [getHCHFTokenAddress(overrides)](./lib-ethers.readableethersliquity.gethchftokenaddress.md) |  |  |
 |  [getHLQTYBalance(address, overrides)](./lib-ethers.readableethersliquity.gethlqtybalance.md) |  | Get the amount of HLQTY held by an address. |
 |  [getHLQTYStake(address, overrides)](./lib-ethers.readableethersliquity.gethlqtystake.md) |  | Get the current state of an HLQTY Stake. |
 |  [getHLQTYTokenAddress(overrides)](./lib-ethers.readableethersliquity.gethlqtytokenaddress.md) |  |  |
 |  [getLiquidityMiningHLQTYReward(address, overrides)](./lib-ethers.readableethersliquity.getliquiditymininghlqtyreward.md) |  | Get the amount of HLQTY earned by an address through mining liquidity. |
-|  [getLiquidityMiningStake(address, overrides)](./lib-ethers.readableethersliquity.getliquidityminingstake.md) |  | Get the amount of Uniswap ETH/DCHF LP tokens currently staked by an address in liquidity mining. |
+|  [getLiquidityMiningStake(address, overrides)](./lib-ethers.readableethersliquity.getliquidityminingstake.md) |  | Get the amount of Uniswap ETH/HCHF LP tokens currently staked by an address in liquidity mining. |
 |  [getNumberOfTroves(overrides)](./lib-ethers.readableethersliquity.getnumberoftroves.md) |  | Get number of Troves that are currently open. |
 |  [getPrice(overrides)](./lib-ethers.readableethersliquity.getprice.md) |  | Get the current price of the native currency (e.g. Ether) in USD. |
 |  [getRemainingLiquidityMiningHLQTYReward(overrides)](./lib-ethers.readableethersliquity.getremainingliquiditymininghlqtyreward.md) |  | Get the remaining HLQTY that will be collectively rewarded to liquidity miners. |
@@ -47,12 +47,12 @@ The constructor for this class is marked as internal. Third-party code should no
 |  [getTotal(overrides)](./lib-ethers.readableethersliquity.gettotal.md) |  | Get the total amount of collateral and debt in the Liquity system. |
 |  [getTotalRedistributed(overrides)](./lib-ethers.readableethersliquity.gettotalredistributed.md) |  | Get the total collateral and debt per stake that has been liquidated through redistribution. |
 |  [getTotalStakedHLQTY(overrides)](./lib-ethers.readableethersliquity.gettotalstakedhlqty.md) |  | Get the total amount of HLQTY currently staked. |
-|  [getTotalStakedUniTokens(overrides)](./lib-ethers.readableethersliquity.gettotalstakedunitokens.md) |  | Get the total amount of Uniswap ETH/DCHF LP tokens currently staked in liquidity mining. |
+|  [getTotalStakedUniTokens(overrides)](./lib-ethers.readableethersliquity.gettotalstakedunitokens.md) |  | Get the total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. |
 |  [getTrove(address, overrides)](./lib-ethers.readableethersliquity.gettrove.md) |  | Get the current state of a Trove. |
 |  [getTroveBeforeRedistribution(address, overrides)](./lib-ethers.readableethersliquity.gettrovebeforeredistribution.md) |  | Get a Trove in its state after the last direct modification. |
 |  [getTroves(params, overrides)](./lib-ethers.readableethersliquity.gettroves_1.md) |  | Get a slice from the list of Troves. |
-|  [getUniTokenAllowance(address, overrides)](./lib-ethers.readableethersliquity.getunitokenallowance.md) |  | Get the liquidity mining contract's allowance of a holder's Uniswap ETH/DCHF LP tokens. |
-|  [getUniTokenBalance(address, overrides)](./lib-ethers.readableethersliquity.getunitokenbalance.md) |  | Get the amount of Uniswap ETH/DCHF LP tokens held by an address. |
+|  [getUniTokenAllowance(address, overrides)](./lib-ethers.readableethersliquity.getunitokenallowance.md) |  | Get the liquidity mining contract's allowance of a holder's Uniswap ETH/HCHF LP tokens. |
+|  [getUniTokenBalance(address, overrides)](./lib-ethers.readableethersliquity.getunitokenbalance.md) |  | Get the amount of Uniswap ETH/HCHF LP tokens held by an address. |
 |  [hasStore()](./lib-ethers.readableethersliquity.hasstore.md) |  | Check whether this <code>ReadableEthersLiquity</code> is a [ReadableEthersLiquityWithStore](./lib-ethers.readableethersliquitywithstore.md)<!-- -->. |
 |  [hasStore(store)](./lib-ethers.readableethersliquity.hasstore_1.md) |  | Check whether this <code>ReadableEthersLiquity</code> is a [ReadableEthersLiquityWithStore](./lib-ethers.readableethersliquitywithstore.md)<!-- -->&lt;[BlockPolledLiquityStore](./lib-ethers.blockpolledliquitystore.md)<!-- -->&gt;<!-- -->. |
 

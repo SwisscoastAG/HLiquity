@@ -104,7 +104,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_LUSDLoss",
+          "name": "_HCHFLoss",
           "type": "uint256"
         }
       ],
@@ -300,11 +300,11 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_newLUSDTokenAddress",
+          "name": "_newHCHFTokenAddress",
           "type": "address"
         }
       ],
-      "name": "LUSDTokenAddressChanged",
+      "name": "HCHFTokenAddressChanged",
       "type": "event"
     },
     {
@@ -426,7 +426,7 @@
           "type": "uint256"
         }
       ],
-      "name": "StabilityPoolLUSDBalanceUpdated",
+      "name": "StabilityPoolHCHFBalanceUpdated",
       "type": "event"
     },
     {
@@ -502,7 +502,7 @@
     },
     {
       "inputs": [],
-      "name": "LUSD_GAS_COMPENSATION",
+      "name": "HCHF_GAS_COMPENSATION",
       "outputs": [
         {
           "internalType": "uint256",
@@ -902,7 +902,7 @@
           "type": "address"
         }
       ],
-      "name": "getCompoundedLUSDDeposit",
+      "name": "getCompoundedHCHFDeposit",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1011,7 +1011,7 @@
     },
     {
       "inputs": [],
-      "name": "getTotalLUSDDeposits",
+      "name": "getTotalHCHFDeposits",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1063,7 +1063,7 @@
     },
     {
       "inputs": [],
-      "name": "lastLUSDLossError_Offset",
+      "name": "lastHCHFLossError_Offset",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1076,10 +1076,10 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "hchfToken",
       "outputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract IHCHFToken",
           "name": "",
           "type": "address"
         }
@@ -1181,7 +1181,7 @@
         },
         {
           "internalType": "address",
-          "name": "_lusdTokenAddress",
+          "name": "_hchfTokenAddress",
           "type": "address"
         },
         {

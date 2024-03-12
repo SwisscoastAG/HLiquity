@@ -7,7 +7,7 @@ import './Interfaces/IBorrowerOperations.sol';
 import './Interfaces/IStabilityPool.sol';
 import './Interfaces/IBorrowerOperations.sol';
 import './Interfaces/ITroveManager.sol';
-import './Interfaces/IDCHFToken.sol';
+import './Interfaces/IHCHFToken.sol';
 import './Interfaces/ISortedTroves.sol';
 import "./Interfaces/ICommunityIssuance.sol";
 import "./Dependencies/LiquityBase.sol";
@@ -19,17 +19,17 @@ import "./Dependencies/console.sol";
 import "./Dependencies/BaseHST.sol";
 
 /*
- * The Stability Pool holds DCHF tokens deposited by Stability Pool depositors.
+ * The Stability Pool holds HCHF tokens deposited by Stability Pool depositors.
  *
- * When a trove is liquidated, then depending on system conditions, some of its DCHF debt gets offset with
- * DCHF in the Stability Pool:  that is, the offset debt evaporates, and an equal amount of DCHF tokens in the Stability Pool is burned.
+ * When a trove is liquidated, then depending on system conditions, some of its HCHF debt gets offset with
+ * HCHF in the Stability Pool:  that is, the offset debt evaporates, and an equal amount of HCHF tokens in the Stability Pool is burned.
  *
- * Thus, a liquidation causes each depositor to receive a DCHF loss, in proportion to their deposit as a share of total deposits.
+ * Thus, a liquidation causes each depositor to receive a HCHF loss, in proportion to their deposit as a share of total deposits.
  * They also receive an ETH gain, as the ETH collateral of the liquidated trove is distributed among Stability depositors,
  * in the same proportion.
  *
  * When a liquidation occurs, it depletes every deposit by the same fraction: for example, a liquidation that depletes 40%
- * of the total DCHF in the Stability Pool, depletes 40% of each deposit.
+ * of the total HCHF in the Stability Pool, depletes 40% of each deposit.
  *
  * A deposit that has experienced a series of liquidations is termed a "compounded deposit": each liquidation depletes the deposit,
  * multiplying it by some factor in range ]0,1[
@@ -91,7 +91,7 @@ import "./Dependencies/BaseHST.sol";
  *
  * Otherwise, we then compare the current scale to the deposit's scale snapshot. If they're equal, the compounded deposit is given by d_t * P/P_t.
  * If it spans one scale change, it is given by d_t * P/(P_t * 1e4). If it spans more than one scale change, we define the compounded deposit
- * as 0, since it is now less than 1e-4'th of its initial value (e.g. a deposit of 1 billion DCHF has depleted to < 1 DCHF).
+ * as 0, since it is now less than 1e-4'th of its initial value (e.g. a deposit of 1 billion HCHF has depleted to < 1 HCHF).
  *
  *
  *  --- TRACKING DEPOSITOR'S ETH GAIN OVER SCALE CHANGES AND EPOCHS ---
@@ -155,7 +155,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
     ITroveManager public troveManager;
 
-    IDCHFToken public dchfToken;
+    IHCHFToken public hchfToken;
 
     // Needed to check if there are pending liquidations
     ISortedTroves public sortedTroves;
@@ -164,8 +164,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
     uint256 internal ETH;  // deposited ether tracker
 
-    // Tracker for DCHF held in the pool. Changes when users deposit/withdraw, and when Trove debt is offset.
-    uint256 internal totalDCHFDeposits;
+    // Tracker for HCHF held in the pool. Changes when users deposit/withdraw, and when Trove debt is offset.
+    uint256 internal totalHCHFDeposits;
 
    // --- Data structures ---
 
@@ -195,7 +195,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     mapping (address => Snapshots) public frontEndSnapshots; // front end address -> snapshots struct
 
     /*  Product 'P': Running product by which to multiply an initial deposit, in order to find the current compounded deposit,
-    * after a series of liquidations have occurred, each of which cancel some DCHF debt with the deposit.
+    * after a series of liquidations have occurred, each of which cancel some HCHF debt with the deposit.
     *
     * During its lifetime, a deposit's value evolves from d_t to d_t * P / P_t , where P_t
     * is the snapshot of P taken at the instant the deposit was made. 18-digit decimal.
@@ -233,18 +233,18 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     uint public lastHLQTYError;
     // Error trackers for the error correction in the offset calculation
     uint public lastETHError_Offset;
-    uint public lastDCHFLossError_Offset;
+    uint public lastHCHFLossError_Offset;
 
     // --- Events ---
 
     event StabilityPoolETHBalanceUpdated(uint _newBalance);
-    event StabilityPoolDCHFBalanceUpdated(uint _newBalance);
+    event StabilityPoolHCHFBalanceUpdated(uint _newBalance);
 
     event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
-    event DCHFTokenAddressChanged(address _newDCHFTokenAddress);
+    event HCHFTokenAddressChanged(address _newHCHFTokenAddress);
     event SortedTrovesAddressChanged(address _newSortedTrovesAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
     event CommunityIssuanceAddressChanged(address _newCommunityIssuanceAddress);
@@ -263,7 +263,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     event UserDepositChanged(address indexed _depositor, uint _newDeposit);
     event FrontEndStakeChanged(address indexed _frontEnd, uint _newFrontEndStake, address _depositor);
 
-    event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _DCHFLoss);
+    event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _HCHFLoss);
     event HLQTYPaidToDepositor(address indexed _depositor, uint _HLQTY);
     event HLQTYPaidToFrontEnd(address indexed _frontEnd, uint _HLQTY);
     event EtherSent(address _to, uint _amount);
@@ -274,7 +274,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         address _borrowerOperationsAddress,
         address _troveManagerAddress,
         address _activePoolAddress,
-        address _dchfTokenAddress,
+        address _hchfTokenAddress,
         address _sortedTrovesAddress,
         address _priceFeedAddress,
         address _communityIssuanceAddress
@@ -286,7 +286,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         checkContract(_borrowerOperationsAddress);
         checkContract(_troveManagerAddress);
         checkContract(_activePoolAddress);
-        checkContract(_dchfTokenAddress);
+        checkContract(_hchfTokenAddress);
         checkContract(_sortedTrovesAddress);
         checkContract(_priceFeedAddress);
         checkContract(_communityIssuanceAddress);
@@ -294,18 +294,18 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         borrowerOperations = IBorrowerOperations(_borrowerOperationsAddress);
         troveManager = ITroveManager(_troveManagerAddress);
         activePool = IActivePool(_activePoolAddress);
-        dchfToken = IDCHFToken(_dchfTokenAddress);
+        hchfToken = IHCHFToken(_hchfTokenAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         communityIssuance = ICommunityIssuance(_communityIssuanceAddress);
 
-        // associate contract account with DCHF
-        _associateToken(address(this), dchfToken.getTokenAddress());
+        // associate contract account with HCHF
+        _associateToken(address(this), hchfToken.getTokenAddress());
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
-        emit DCHFTokenAddressChanged(_dchfTokenAddress);
+        emit HCHFTokenAddressChanged(_hchfTokenAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit PriceFeedAddressChanged(_priceFeedAddress);
         emit CommunityIssuanceAddressChanged(_communityIssuanceAddress);
@@ -319,8 +319,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         return ETH;
     }
 
-    function getTotalDCHFDeposits() external view override returns (uint) {
-        return totalDCHFDeposits;
+    function getTotalHCHFDeposits() external view override returns (uint) {
+        return totalHCHFDeposits;
     }
 
     // --- External Depositor Functions ---
@@ -346,8 +346,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         if (initialDeposit == 0) {_setFrontEndTag(msg.sender, _frontEndTag);}
         uint depositorETHGain = getDepositorETHGain(msg.sender);
-        uint compoundedDCHFDeposit = getCompoundedDCHFDeposit(msg.sender);
-        uint DCHFLoss = initialDeposit.sub(compoundedDCHFDeposit); // Needed only for event log
+        uint compoundedHCHFDeposit = getCompoundedHCHFDeposit(msg.sender);
+        uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
         // First pay out any HLQTY gains
         address frontEnd = deposits[msg.sender].frontEndTag;
@@ -359,13 +359,13 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         _updateFrontEndStakeAndSnapshots(frontEnd, newFrontEndStake);
         emit FrontEndStakeChanged(frontEnd, newFrontEndStake, msg.sender);
 
-        _sendDCHFtoStabilityPool(msg.sender, _amount);
+        _sendHCHFtoStabilityPool(msg.sender, _amount);
 
-        uint newDeposit = compoundedDCHFDeposit.add(_amount);
+        uint newDeposit = compoundedHCHFDeposit.add(_amount);
         _updateDepositAndSnapshots(msg.sender, newDeposit);
         emit UserDepositChanged(msg.sender, newDeposit);
 
-        emit ETHGainWithdrawn(msg.sender, depositorETHGain, DCHFLoss); // DCHF Loss required for event log
+        emit ETHGainWithdrawn(msg.sender, depositorETHGain, HCHFLoss); // HCHF Loss required for event log
 
         _sendETHGainToDepositor(depositorETHGain);
      }
@@ -391,9 +391,9 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         uint depositorETHGain = getDepositorETHGain(msg.sender);
 
-        uint compoundedDCHFDeposit = getCompoundedDCHFDeposit(msg.sender);
-        uint DCHFtoWithdraw = LiquityMath._min(_amount, compoundedDCHFDeposit);
-        uint DCHFLoss = initialDeposit.sub(compoundedDCHFDeposit); // Needed only for event log
+        uint compoundedHCHFDeposit = getCompoundedHCHFDeposit(msg.sender);
+        uint HCHFtoWithdraw = LiquityMath._min(_amount, compoundedHCHFDeposit);
+        uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
         // First pay out any HLQTY gains
         address frontEnd = deposits[msg.sender].frontEndTag;
@@ -401,18 +401,18 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         
         // Update front end stake
         uint compoundedFrontEndStake = getCompoundedFrontEndStake(frontEnd);
-        uint newFrontEndStake = compoundedFrontEndStake.sub(DCHFtoWithdraw);
+        uint newFrontEndStake = compoundedFrontEndStake.sub(HCHFtoWithdraw);
         _updateFrontEndStakeAndSnapshots(frontEnd, newFrontEndStake);
         emit FrontEndStakeChanged(frontEnd, newFrontEndStake, msg.sender);
 
-        _sendDCHFToDepositor(msg.sender, DCHFtoWithdraw);
+        _sendHCHFToDepositor(msg.sender, HCHFtoWithdraw);
 
         // Update deposit
-        uint newDeposit = compoundedDCHFDeposit.sub(DCHFtoWithdraw);
+        uint newDeposit = compoundedHCHFDeposit.sub(HCHFtoWithdraw);
         _updateDepositAndSnapshots(msg.sender, newDeposit);
         emit UserDepositChanged(msg.sender, newDeposit);
 
-        emit ETHGainWithdrawn(msg.sender, depositorETHGain, DCHFLoss);  // DCHF Loss required for event log
+        emit ETHGainWithdrawn(msg.sender, depositorETHGain, HCHFLoss);  // HCHF Loss required for event log
 
         _sendETHGainToDepositor(depositorETHGain);
     }
@@ -436,8 +436,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         uint depositorETHGain = getDepositorETHGain(msg.sender);
 
-        uint compoundedDCHFDeposit = getCompoundedDCHFDeposit(msg.sender);
-        uint DCHFLoss = initialDeposit.sub(compoundedDCHFDeposit); // Needed only for event log
+        uint compoundedHCHFDeposit = getCompoundedHCHFDeposit(msg.sender);
+        uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
         // First pay out any HLQTY gains
         address frontEnd = deposits[msg.sender].frontEndTag;
@@ -449,13 +449,13 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         _updateFrontEndStakeAndSnapshots(frontEnd, newFrontEndStake);
         emit FrontEndStakeChanged(frontEnd, newFrontEndStake, msg.sender);
 
-        _updateDepositAndSnapshots(msg.sender, compoundedDCHFDeposit);
+        _updateDepositAndSnapshots(msg.sender, compoundedHCHFDeposit);
 
         /* Emit events before transferring ETH gain to Trove.
          This lets the event log make more sense (i.e. so it appears that first the ETH gain is withdrawn
         and then it is deposited into the Trove, not the other way around). */
-        emit ETHGainWithdrawn(msg.sender, depositorETHGain, DCHFLoss);
-        emit UserDepositChanged(msg.sender, compoundedDCHFDeposit);
+        emit ETHGainWithdrawn(msg.sender, depositorETHGain, HCHFLoss);
+        emit UserDepositChanged(msg.sender, compoundedHCHFDeposit);
 
         ETH = ETH.sub(depositorETHGain);
         emit StabilityPoolETHBalanceUpdated(ETH);
@@ -472,16 +472,16 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     }
 
     function _updateG(uint _HLQTYIssuance) internal {
-        uint totalDCHF = totalDCHFDeposits; // cached to save an SLOAD
+        uint totalHCHF = totalHCHFDeposits; // cached to save an SLOAD
         /*
         * When total deposits is 0, G is not updated. In this case, the HLQTY issued can not be obtained by later
         * depositors - it is missed out on, and remains in the balanceof the CommunityIssuance contract.
         *
         */
-        if (totalDCHF == 0 || _HLQTYIssuance == 0) {return;}
+        if (totalHCHF == 0 || _HLQTYIssuance == 0) {return;}
 
         uint HLQTYPerUnitStaked;
-        HLQTYPerUnitStaked =_computeHLQTYPerUnitStaked(_HLQTYIssuance, totalDCHF);
+        HLQTYPerUnitStaked =_computeHLQTYPerUnitStaked(_HLQTYIssuance, totalHCHF);
 
         uint marginalHLQTYGain = HLQTYPerUnitStaked.mul(P);
         epochToScaleToG[currentEpoch][currentScale] = epochToScaleToG[currentEpoch][currentScale].add(marginalHLQTYGain);
@@ -489,7 +489,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         emit G_Updated(epochToScaleToG[currentEpoch][currentScale], currentEpoch, currentScale);
     }
 
-    function _computeHLQTYPerUnitStaked(uint _HLQTYIssuance, uint _totalDCHFDeposits) internal returns (uint) {
+    function _computeHLQTYPerUnitStaked(uint _HLQTYIssuance, uint _totalHCHFDeposits) internal returns (uint) {
         /*  
         * Calculate the HLQTY-per-unit staked.  Division uses a "feedback" error correction, to keep the
         * cumulative error low in the running total G:
@@ -503,8 +503,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         */
         uint HLQTYNumerator = _HLQTYIssuance.mul(DECIMAL_PRECISION).add(lastHLQTYError);
 
-        uint HLQTYPerUnitStaked = HLQTYNumerator.div(_totalDCHFDeposits);
-        lastHLQTYError = HLQTYNumerator.sub(HLQTYPerUnitStaked.mul(_totalDCHFDeposits));
+        uint HLQTYPerUnitStaked = HLQTYNumerator.div(_totalHCHFDeposits);
+        lastHLQTYError = HLQTYNumerator.sub(HLQTYPerUnitStaked.mul(_totalHCHFDeposits));
 
         return HLQTYPerUnitStaked;
     }
@@ -512,21 +512,21 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     // --- Liquidation functions ---
 
     /*
-    * Cancels out the specified debt against the DCHF contained in the Stability Pool (as far as possible)
+    * Cancels out the specified debt against the HCHF contained in the Stability Pool (as far as possible)
     * and transfers the Trove's ETH collateral from ActivePool to StabilityPool.
     * Only called by liquidation functions in the TroveManager.
     */
     function offset(uint _debtToOffset, uint _collToAdd) external override {
         _requireCallerIsTroveManager();
-        uint totalDCHF = totalDCHFDeposits; // cached to save an SLOAD
-        if (totalDCHF == 0 || _debtToOffset == 0) { return; }
+        uint totalHCHF = totalHCHFDeposits; // cached to save an SLOAD
+        if (totalHCHF == 0 || _debtToOffset == 0) { return; }
 
         _triggerHLQTYIssuance(communityIssuance);
 
         (uint ETHGainPerUnitStaked,
-            uint DCHFLossPerUnitStaked) = _computeRewardsPerUnitStaked(_collToAdd, _debtToOffset, totalDCHF);
+            uint HCHFLossPerUnitStaked) = _computeRewardsPerUnitStaked(_collToAdd, _debtToOffset, totalHCHF);
 
-        _updateRewardSumAndProduct(ETHGainPerUnitStaked, DCHFLossPerUnitStaked);  // updates S and P
+        _updateRewardSumAndProduct(ETHGainPerUnitStaked, HCHFLossPerUnitStaked);  // updates S and P
 
         _moveOffsetCollAndDebt(_collToAdd, _debtToOffset);
     }
@@ -536,13 +536,13 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     function _computeRewardsPerUnitStaked(
         uint _collToAdd,
         uint _debtToOffset,
-        uint _totalDCHFDeposits
+        uint _totalHCHFDeposits
     )
         internal
-        returns (uint ETHGainPerUnitStaked, uint DCHFLossPerUnitStaked)
+        returns (uint ETHGainPerUnitStaked, uint HCHFLossPerUnitStaked)
     {
         /*
-        * Compute the DCHF and ETH rewards. Uses a "feedback" error correction, to keep
+        * Compute the HCHF and ETH rewards. Uses a "feedback" error correction, to keep
         * the cumulative error in the P and S state variables low:
         *
         * 1) Form numerators which compensate for the floor division errors that occurred the last time this 
@@ -554,37 +554,37 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         */
         uint ETHNumerator = _collToAdd.mul(DECIMAL_PRECISION).add(lastETHError_Offset);
 
-        assert(_debtToOffset <= _totalDCHFDeposits);
-        if (_debtToOffset == _totalDCHFDeposits) {
-            DCHFLossPerUnitStaked = DECIMAL_PRECISION;  // When the Pool depletes to 0, so does each deposit
-            lastDCHFLossError_Offset = 0;
+        assert(_debtToOffset <= _totalHCHFDeposits);
+        if (_debtToOffset == _totalHCHFDeposits) {
+            HCHFLossPerUnitStaked = DECIMAL_PRECISION;  // When the Pool depletes to 0, so does each deposit
+            lastHCHFLossError_Offset = 0;
         } else {
-            uint DCHFLossNumerator = _debtToOffset.mul(DECIMAL_PRECISION).sub(lastDCHFLossError_Offset);
+            uint HCHFLossNumerator = _debtToOffset.mul(DECIMAL_PRECISION).sub(lastHCHFLossError_Offset);
             /*
-            * Add 1 to make error in quotient positive. We want "slightly too much" DCHF loss,
-            * which ensures the error in any given compoundedDCHFDeposit favors the Stability Pool.
+            * Add 1 to make error in quotient positive. We want "slightly too much" HCHF loss,
+            * which ensures the error in any given compoundedHCHFDeposit favors the Stability Pool.
             */
-            DCHFLossPerUnitStaked = (DCHFLossNumerator.div(_totalDCHFDeposits)).add(1);
-            lastDCHFLossError_Offset = (DCHFLossPerUnitStaked.mul(_totalDCHFDeposits)).sub(DCHFLossNumerator);
+            HCHFLossPerUnitStaked = (HCHFLossNumerator.div(_totalHCHFDeposits)).add(1);
+            lastHCHFLossError_Offset = (HCHFLossPerUnitStaked.mul(_totalHCHFDeposits)).sub(HCHFLossNumerator);
         }
 
-        ETHGainPerUnitStaked = ETHNumerator.div(_totalDCHFDeposits);
-        lastETHError_Offset = ETHNumerator.sub(ETHGainPerUnitStaked.mul(_totalDCHFDeposits));
+        ETHGainPerUnitStaked = ETHNumerator.div(_totalHCHFDeposits);
+        lastETHError_Offset = ETHNumerator.sub(ETHGainPerUnitStaked.mul(_totalHCHFDeposits));
 
-        return (ETHGainPerUnitStaked, DCHFLossPerUnitStaked);
+        return (ETHGainPerUnitStaked, HCHFLossPerUnitStaked);
     }
 
     // Update the Stability Pool reward sum S and product P
-    function _updateRewardSumAndProduct(uint _ETHGainPerUnitStaked, uint _DCHFLossPerUnitStaked) internal {
+    function _updateRewardSumAndProduct(uint _ETHGainPerUnitStaked, uint _HCHFLossPerUnitStaked) internal {
         uint currentP = P;
         uint newP;
 
-        assert(_DCHFLossPerUnitStaked <= DECIMAL_PRECISION);
+        assert(_HCHFLossPerUnitStaked <= DECIMAL_PRECISION);
         /*
-        * The newProductFactor is the factor by which to change all deposits, due to the depletion of Stability Pool DCHF in the liquidation.
-        * We make the product factor 0 if there was a pool-emptying. Otherwise, it is (1 - DCHFLossPerUnitStaked)
+        * The newProductFactor is the factor by which to change all deposits, due to the depletion of Stability Pool HCHF in the liquidation.
+        * We make the product factor 0 if there was a pool-emptying. Otherwise, it is (1 - HCHFLossPerUnitStaked)
         */
-        uint newProductFactor = uint(DECIMAL_PRECISION).sub(_DCHFLossPerUnitStaked);
+        uint newProductFactor = uint(DECIMAL_PRECISION).sub(_HCHFLossPerUnitStaked);
 
         uint128 currentScaleCached = currentScale;
         uint128 currentEpochCached = currentEpoch;
@@ -628,21 +628,21 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     function _moveOffsetCollAndDebt(uint _collToAdd, uint _debtToOffset) internal {
         IActivePool activePoolCached = activePool;
 
-        // Cancel the liquidated DCHF debt with the DCHF in the stability pool
-        activePoolCached.decreaseDCHFDebt(_debtToOffset);
-        _decreaseDCHF(_debtToOffset);
+        // Cancel the liquidated HCHF debt with the HCHF in the stability pool
+        activePoolCached.decreaseHCHFDebt(_debtToOffset);
+        _decreaseHCHF(_debtToOffset);
 
         // Burn the debt that was successfully offset
-        _approve(dchfToken.getTokenAddress(), address(dchfToken), _debtToOffset);
-        dchfToken.burn(address(this), _debtToOffset);
+        _approve(hchfToken.getTokenAddress(), address(hchfToken), _debtToOffset);
+        hchfToken.burn(address(this), _debtToOffset);
 
         activePoolCached.sendETH(address(this), _collToAdd);
     }
 
-    function _decreaseDCHF(uint _amount) internal {
-        uint newTotalDCHFDeposits = totalDCHFDeposits.sub(_amount);
-        totalDCHFDeposits = newTotalDCHFDeposits;
-        emit StabilityPoolDCHFBalanceUpdated(newTotalDCHFDeposits);
+    function _decreaseHCHF(uint _amount) internal {
+        uint newTotalHCHFDeposits = totalHCHFDeposits.sub(_amount);
+        totalHCHFDeposits = newTotalHCHFDeposits;
+        emit StabilityPoolHCHFBalanceUpdated(newTotalHCHFDeposits);
     }
 
     // --- Reward calculator functions for depositor and front end ---
@@ -752,7 +752,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     * Return the user's compounded deposit. Given by the formula:  d = d0 * P/P(0)
     * where P(0) is the depositor's snapshot of the product P, taken when they last updated their deposit.
     */
-    function getCompoundedDCHFDeposit(address _depositor) public view override returns (uint) {
+    function getCompoundedHCHFDeposit(address _depositor) public view override returns (uint) {
         uint initialDeposit = deposits[_depositor].initialValue;
         if (initialDeposit == 0) { return 0; }
 
@@ -824,14 +824,14 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         return compoundedStake;
     }
 
-    // --- Sender functions for DCHF deposit, ETH gains and HLQTY gains ---
+    // --- Sender functions for HCHF deposit, ETH gains and HLQTY gains ---
 
-    // Transfer the DCHF tokens from the user to the Stability Pool's address, and update its recorded DCHF
-    function _sendDCHFtoStabilityPool(address _address, uint _amount) internal {
-        dchfToken.sendToPool(_address, address(this), _amount);
-        uint newTotalDCHFDeposits = totalDCHFDeposits.add(_amount);
-        totalDCHFDeposits = newTotalDCHFDeposits;
-        emit StabilityPoolDCHFBalanceUpdated(newTotalDCHFDeposits);
+    // Transfer the HCHF tokens from the user to the Stability Pool's address, and update its recorded HCHF
+    function _sendHCHFtoStabilityPool(address _address, uint _amount) internal {
+        hchfToken.sendToPool(_address, address(this), _amount);
+        uint newTotalHCHFDeposits = totalHCHFDeposits.add(_amount);
+        totalHCHFDeposits = newTotalHCHFDeposits;
+        emit StabilityPoolHCHFBalanceUpdated(newTotalHCHFDeposits);
     }
 
     function _sendETHGainToDepositor(uint _amount) internal {
@@ -845,14 +845,14 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         require(success, "StabilityPool: sending ETH failed");
     }
 
-    // Send DCHF to user and decrease DCHF in Pool
-    function _sendDCHFToDepositor(address _depositor, uint DCHFWithdrawal) internal {
-        if (DCHFWithdrawal == 0) {return;}
+    // Send HCHF to user and decrease HCHF in Pool
+    function _sendHCHFToDepositor(address _depositor, uint HCHFWithdrawal) internal {
+        if (HCHFWithdrawal == 0) {return;}
 
 
-        _approve(dchfToken.getTokenAddress(), address(dchfToken), DCHFWithdrawal);
-        dchfToken.returnFromPool(address(this), _depositor, DCHFWithdrawal);
-        _decreaseDCHF(DCHFWithdrawal);
+        _approve(hchfToken.getTokenAddress(), address(hchfToken), HCHFWithdrawal);
+        hchfToken.returnFromPool(address(this), _depositor, HCHFWithdrawal);
+        _decreaseHCHF(HCHFWithdrawal);
     }
 
     // --- External Front End functions ---

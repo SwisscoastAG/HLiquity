@@ -8,7 +8,7 @@ interface IPool {
     // --- Events ---
     
     event ETHBalanceUpdated(uint _newBalance);
-    event DCHFBalanceUpdated(uint _newBalance);
+    event HCHFBalanceUpdated(uint _newBalance);
     event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
     event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
@@ -18,9 +18,9 @@ interface IPool {
     
     function getETH() external view returns (uint);
 
-    function getDCHFDebt() external view returns (uint);
+    function getHCHFDebt() external view returns (uint);
 
-    function increaseDCHFDebt(uint _amount) external;
+    function increaseHCHFDebt(uint _amount) external;
 
-    function decreaseDCHFDebt(uint _amount) external;
+    function decreaseHCHFDebt(uint _amount) external;
 }

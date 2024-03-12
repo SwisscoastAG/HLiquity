@@ -14,7 +14,7 @@ export declare class Decimal
 
 ## Remarks
 
-Used by Liquity libraries to precisely represent native currency (e.g. Ether), DCHF and HLQTY amounts, as well as derived metrics like collateral ratios.
+Used by Liquity libraries to precisely represent native currency (e.g. Ether), HCHF and HLQTY amounts, as well as derived metrics like collateral ratios.
 
 ## Properties
 

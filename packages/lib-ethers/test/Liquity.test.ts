@@ -16,10 +16,10 @@ import {
     SentLiquityTransaction,
     TroveCreationParams,
     Fees,
-    LUSD_LIQUIDATION_RESERVE,
+    HCHF_LIQUIDATION_RESERVE,
     MINIMUM_BORROWING_RATE,
-    LUSD_MINIMUM_DEBT,
-    LUSD_MINIMUM_NET_DEBT
+    HCHF_MINIMUM_DEBT,
+    HCHF_MINIMUM_NET_DEBT
 } from "@liquity/lib-base";
 
 import {HintHelpers} from "../types";
@@ -209,7 +209,7 @@ describe("EthersLiquity", () => {
 
             const nominalCollateralRatio = Decimal.from(0.05);
 
-            const params = Trove.recreate(new Trove(Decimal.from(1), LUSD_MINIMUM_DEBT));
+            const params = Trove.recreate(new Trove(Decimal.from(1), HCHF_MINIMUM_DEBT));
             const trove = Trove.create(params);
             expect(`${trove._nominalCollateralRatio}`).to.equal(`${nominalCollateralRatio}`);
 
@@ -239,20 +239,20 @@ describe("EthersLiquity", () => {
 
         it("should fail to create an undercollateralized Trove", async () => {
             const price = await liquity.getPrice();
-            const undercollateralized = new Trove(LUSD_MINIMUM_DEBT.div(price), LUSD_MINIMUM_DEBT);
+            const undercollateralized = new Trove(HCHF_MINIMUM_DEBT.div(price), HCHF_MINIMUM_DEBT);
 
             await expect(liquity.openTrove(Trove.recreate(undercollateralized), undefined, {gasLimit: 300000})).to.eventually.be.rejected;
         });
 
         it("should fail to create a Trove with too little debt", async () => {
-            const withTooLittleDebt = new Trove(Decimal.from(50), LUSD_MINIMUM_DEBT.sub(1));
+            const withTooLittleDebt = new Trove(Decimal.from(50), HCHF_MINIMUM_DEBT.sub(1));
             await expect(liquity.openTrove(Trove.recreate(withTooLittleDebt))).to.eventually.be.rejected;
         });
 
-        const withSomeBorrowing = {depositCollateral: 50, borrowLUSD: LUSD_MINIMUM_NET_DEBT.add(100)};
+        const withSomeBorrowing = {depositCollateral: 50, borrowHCHF: HCHF_MINIMUM_NET_DEBT.add(100)};
 
         it("should create a Trove with some borrowing", async () => {
-            const tokenId = await liquity.getLUSDTokenAddress();
+            const tokenId = await liquity.getHCHFTokenAddress();
             const associateTx = await new TokenAssociateTransaction()
                 .setAccountId(accountId)
                 .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
@@ -266,7 +266,7 @@ describe("EthersLiquity", () => {
 
             const {newTrove, fee} = await liquity.openTrove(withSomeBorrowing, undefined, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(Trove.create(withSomeBorrowing));
-            expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(withSomeBorrowing.borrowLUSD)}`);
+            expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(withSomeBorrowing.borrowHCHF)}`);
         });
 
         it("should fail to withdraw all the collateral while the Trove has debt", async () => {
@@ -275,13 +275,13 @@ describe("EthersLiquity", () => {
             await expect(liquity.withdrawCollateral(trove.collateral)).to.eventually.be.rejected;
         });
 
-        const repaySomeDebt = {repayLUSD: 10};
+        const repaySomeDebt = {repayHCHF: 10};
 
         it("should repay some debt", async () => {
-            const tokenId = await liquity.getLUSDTokenAddress();
-            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const tokenId = await liquity.getHCHFTokenAddress();
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.hchfToken}`);
             const accountIdSpender = response.data.account;
-            const amount = Hbar.from(repaySomeDebt.repayLUSD, HbarUnit.Hbar).toTinybars();
+            const amount = Hbar.from(repaySomeDebt.repayHCHF, HbarUnit.Hbar).toTinybars();
 
             const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountId, accountIdSpender, amount);
             const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
@@ -290,19 +290,19 @@ describe("EthersLiquity", () => {
             console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
 
-            const {newTrove, fee} = await liquity.repayLUSD(repaySomeDebt.repayLUSD, {gasLimit: 300000});
+            const {newTrove, fee} = await liquity.repayHCHF(repaySomeDebt.repayHCHF, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(Trove.create(withSomeBorrowing).adjust(repaySomeDebt));
             expect(`${fee}`).to.equal("0");
         });
 
-        const borrowSomeMore = {borrowLUSD: 20};
+        const borrowSomeMore = {borrowHCHF: 20};
 
         it("should borrow some more", async () => {
-            const {newTrove, fee} = await liquity.borrowLUSD(borrowSomeMore.borrowLUSD, undefined, {gasLimit: 300000});
+            const {newTrove, fee} = await liquity.borrowHCHF(borrowSomeMore.borrowHCHF, undefined, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(
                 Trove.create(withSomeBorrowing).adjust(repaySomeDebt).adjust(borrowSomeMore)
             );
-            expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(borrowSomeMore.borrowLUSD)}`);
+            expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(borrowSomeMore.borrowHCHF)}`);
         });
 
         const depositMoreCollateral = {depositCollateral: 1};
@@ -317,7 +317,7 @@ describe("EthersLiquity", () => {
             );
         });
 
-        it("should close the Trove with some LUSD from another user", async () => {
+        it("should close the Trove with some HCHF from another user", async () => {
             try {
                 const price = await liquity.getPrice();
                 console.log("Price fetched:", price.toString());
@@ -325,20 +325,20 @@ describe("EthersLiquity", () => {
                 const initialTrove = await liquity.getTrove();
                 console.log("Initial Trove:", initialTrove);
 
-                const lusdBalance = await liquity.getLUSDBalance();
-                console.log("LUSD Balance:", lusdBalance.toString());
+                const hchfBalance = await liquity.getHCHFBalance();
+                console.log("HCHF Balance:", hchfBalance.toString());
 
-                const lusdShortage = initialTrove.netDebt.sub(lusdBalance);
-                console.log("LUSD Shortage:", lusdShortage.toString());
+                const hchfShortage = initialTrove.netDebt.sub(hchfBalance);
+                console.log("HCHF Shortage:", hchfShortage.toString());
 
-                let funderTrove = Trove.create({depositCollateral: 1, borrowLUSD: lusdShortage});
-                funderTrove = funderTrove.setDebt(Decimal.max(funderTrove.debt, LUSD_MINIMUM_DEBT));
+                let funderTrove = Trove.create({depositCollateral: 1, borrowHCHF: hchfShortage});
+                funderTrove = funderTrove.setDebt(Decimal.max(funderTrove.debt, HCHF_MINIMUM_DEBT));
                 funderTrove = funderTrove.setCollateral(funderTrove.debt.mulDiv(1.51, price));
 
                 const funderLiquity = await connectToDeployment(deployment, funder);
                 console.log("Funder Liquity connected");
 
-                const tokenId = await liquity.getLUSDTokenAddress();
+                const tokenId = await liquity.getHCHFTokenAddress();
                 const associateTx = await new TokenAssociateTransaction()
                     .setAccountId(accountIdFunder)
                     .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
@@ -353,17 +353,17 @@ describe("EthersLiquity", () => {
                 const openTroveTx = await funderLiquity.openTrove(Trove.recreate(funderTrove), undefined, {gasLimit: 30000000});
                 console.log("Trove opened, transaction:", openTroveTx);
 
-                console.log(lusdShortage);
-                console.log(Number(lusdShortage.toString()));
+                console.log(hchfShortage);
+                console.log(Number(hchfShortage.toString()));
                 const transaction = await new TransferTransaction()
-                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountIdFunder, -Number(lusdShortage.toString()) * 10 ** 8)
-                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountId, Number(lusdShortage.toString()) * 10 ** 8)
+                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountIdFunder, -Number(hchfShortage.toString()) * 10 ** 8)
+                    .addTokenTransfer(TokenId.fromSolidityAddress(tokenId), accountId, Number(hchfShortage.toString()) * 10 ** 8)
                     .freezeWith(funderClient).sign(accountKeyFunder);
                 const txResponse = await transaction.execute(funderClient);
                 const receipt = await txResponse.getReceipt(funderClient);
                 console.log(`Manual Transfer: ${receipt.status.toString()} \n`);
 
-                const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+                const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.hchfToken}`);
                 const accountIdSpender = response.data.account;
                 const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountId, accountIdSpender, Hbar.from(2000, HbarUnit.Hbar).toTinybars());
                 const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
@@ -379,7 +379,7 @@ describe("EthersLiquity", () => {
 
                 expect(params).to.deep.equal({
                     withdrawCollateral: initialTrove.collateral,
-                    repayLUSD: initialTrove.netDebt
+                    repayHCHF: initialTrove.netDebt
                 });
                 expect(finalTrove.isEmpty).to.be.true;
 
@@ -394,7 +394,7 @@ describe("EthersLiquity", () => {
         it("should parse failed transactions without throwing", async () => {
             await expect(liquity.send.openTrove({
                 depositCollateral: 0.01,
-                borrowLUSD: 0.01
+                borrowHCHF: 0.01
             }, undefined, {gasLimit: 3000000})).to.eventually.be.fulfilled;
         });
     });
@@ -419,7 +419,7 @@ describe("EthersLiquity", () => {
 
         it("other user's deposit should be tagged with the frontend's address", async () => {
             const frontendTag = await user.getAddress();
-            const tokenIdLqty = await liquity.getLQTYTokenAddress();
+            const tokenIdLqty = await liquity.getHLQTYTokenAddress();
             const associateLqtyTx = await new TokenAssociateTransaction()
                 .setAccountId(accountId)
                 .setTokenIds([TokenId.fromSolidityAddress(tokenIdLqty)])
@@ -428,7 +428,7 @@ describe("EthersLiquity", () => {
             const associateLqtyTxSubmit = await associateLqtyTx.execute(userClient);
             const associateLqtyRx = await associateLqtyTxSubmit.getReceipt(userClient);
             console.log(
-                `Manual Association LQTY: ${associateLqtyRx.status.toString()} \n`,
+                `Manual Association HLQTY: ${associateLqtyRx.status.toString()} \n`,
             );
 
             const associateLqtyUserTx = await new TokenAssociateTransaction()
@@ -439,11 +439,11 @@ describe("EthersLiquity", () => {
             const associateLqtyUserTxSubmit = await associateLqtyUserTx.execute(otherUserClient);
             const associateLqtyUserRx = await associateLqtyUserTxSubmit.getReceipt(otherUserClient);
             console.log(
-                `Manual Association LQTY: ${associateLqtyUserRx.status.toString()} \n`,
+                `Manual Association HLQTY: ${associateLqtyUserRx.status.toString()} \n`,
             );
 
 
-            const tokenId = await liquity.getLUSDTokenAddress();
+            const tokenId = await liquity.getHCHFTokenAddress();
             const associateTx = await new TokenAssociateTransaction()
                 .setAccountId(accountIdOtherUser)
                 .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
@@ -452,25 +452,25 @@ describe("EthersLiquity", () => {
             const associateTxSubmit = await associateTx.execute(otherUserClient);
             const associateRx = await associateTxSubmit.getReceipt(otherUserClient);
             console.log(
-                `Manual Association LUSD: ${associateRx.status.toString()} \n`,
+                `Manual Association HCHF: ${associateRx.status.toString()} \n`,
             );
 
             const otherLiquity = await connectToDeployment(deployment, otherUsers[0], frontendTag);
             await otherLiquity.openTrove({
                 depositCollateral: 20,
-                borrowLUSD: LUSD_MINIMUM_DEBT
+                borrowHCHF: HCHF_MINIMUM_DEBT
             }, undefined, {gasLimit: 300000});
 
 
-            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.hchfToken}`);
             const accountIdSpender = response.data.account;
-            const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountIdOtherUser, accountIdSpender, Number(LUSD_MINIMUM_DEBT.toString()) * 10**8);
+            const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountIdOtherUser, accountIdSpender, Number(HCHF_MINIMUM_DEBT.toString()) * 10**8);
             const signedApproveTX = await approveTx.freezeWith(otherUserClient).sign(accountKeyOtherUser);
             const approveTxSubmit = await signedApproveTX.execute(otherUserClient);
             const approveRx = await approveTxSubmit.getReceipt(otherUserClient);
             console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
-            await otherLiquity.depositLUSDInStabilityPool(LUSD_MINIMUM_DEBT, undefined, {gasLimit: 300000});
+            await otherLiquity.depositHCHFInStabilityPool(HCHF_MINIMUM_DEBT, undefined, {gasLimit: 300000});
 
             const deposit = await otherLiquity.getStabilityDeposit();
             expect(deposit.frontendTag).to.equal(frontendTag);
@@ -491,13 +491,13 @@ describe("EthersLiquity", () => {
 
         const initialTroveOfDepositor = Trove.create({
             depositCollateral: 20,
-            borrowLUSD: LUSD_MINIMUM_NET_DEBT
+            borrowHCHF: HCHF_MINIMUM_NET_DEBT
         });
 
         const smallStabilityDeposit = Decimal.from(10);
 
         it("should make a small stability deposit", async () => {
-            const tokenId = await liquity.getLUSDTokenAddress();
+            const tokenId = await liquity.getHCHFTokenAddress();
             const associateTx = await new TokenAssociateTransaction()
                 .setAccountId(accountId)
                 .setTokenIds([TokenId.fromSolidityAddress(tokenId)])
@@ -506,14 +506,14 @@ describe("EthersLiquity", () => {
             const associateTxSubmit = await associateTx.execute(userClient);
             const associateRx = await associateTxSubmit.getReceipt(userClient);
             console.log(
-                `Manual Association LUSD: ${associateRx.status.toString()} \n`,
+                `Manual Association HCHF: ${associateRx.status.toString()} \n`,
             );
 
             const {newTrove} = await liquity.openTrove(Trove.recreate(initialTroveOfDepositor), undefined, {gasLimit: 300000});
             expect(newTrove).to.deep.equal(initialTroveOfDepositor);
 
 
-            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.lusdToken}`);
+            const response = await axios.get(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${deployment.addresses.hchfToken}`);
             const accountIdSpender = response.data.account;
             const approveTx = await new AccountAllowanceApproveTransaction().approveTokenAllowance(TokenId.fromSolidityAddress(tokenId), accountIdOtherUser, accountIdSpender, Number(smallStabilityDeposit.toString()));
             const signedApproveTX = await approveTx.freezeWith(userClient).sign(accountKey);
@@ -521,23 +521,23 @@ describe("EthersLiquity", () => {
             const approveRx = await approveTxSubmit.getReceipt(userClient);
             console.log(`Manual Approval: ${approveRx.status.toString()} \n`);
 
-            const details = await liquity.depositLUSDInStabilityPool(smallStabilityDeposit);
+            const details = await liquity.depositHCHFInStabilityPool(smallStabilityDeposit);
 
             expect(details).to.deep.equal({
-                lusdLoss: Decimal.from(0),
-                newLUSDDeposit: smallStabilityDeposit,
+                hchfLoss: Decimal.from(0),
+                newHCHFDeposit: smallStabilityDeposit,
                 collateralGain: Decimal.from(0),
-                lqtyReward: Decimal.from(0),
+                hlqtyReward: Decimal.from(0),
 
                 change: {
-                    depositLUSD: smallStabilityDeposit
+                    depositHCHF: smallStabilityDeposit
                 }
             });
         });
 
         const troveWithVeryLowICR = Trove.create({
-            depositCollateral: LUSD_MINIMUM_DEBT.div(180),
-            borrowLUSD: LUSD_MINIMUM_NET_DEBT
+            depositCollateral: HCHF_MINIMUM_DEBT.div(180),
+            borrowHCHF: HCHF_MINIMUM_NET_DEBT
         });
 
         it("other user should make a Trove with very low ICR", async () => {
@@ -565,7 +565,7 @@ describe("EthersLiquity", () => {
                 liquidatedAddresses: [await otherUsers[0].getAddress()],
 
                 collateralGasCompensation: troveWithVeryLowICR.collateral.mul(0.005), // 0.5%
-                lusdGasCompensation: LUSD_LIQUIDATION_RESERVE,
+                hchfGasCompensation: HCHF_LIQUIDATION_RESERVE,
 
                 totalLiquidated: new Trove(
                     troveWithVeryLowICR.collateral
@@ -627,9 +627,9 @@ describe("EthersLiquity", () => {
             const details = await liquity.transferCollateralGainToTrove({gasLimit: 300000});
 
             expect(details).to.deep.equal({
-                lusdLoss: smallStabilityDeposit,
-                newLUSDDeposit: Decimal.ZERO,
-                lqtyReward: Decimal.ZERO,
+                hchfLoss: smallStabilityDeposit,
+                newHCHFDeposit: Decimal.ZERO,
+                hlqtyReward: Decimal.ZERO,
 
                 collateralGain: troveWithVeryLowICR.collateral
                     .mul(0.995) // -0.5% gas compensation
@@ -667,27 +667,27 @@ describe("EthersLiquity", () => {
                 let price = Decimal.from(200);
                 await deployerLiquity.setPrice(price);
 
-                // Use this account to print LUSD
-                await liquity.openTrove({depositCollateral: 50, borrowLUSD: 5000}, undefined, {gasLimit: 300000});
+                // Use this account to print HCHF
+                await liquity.openTrove({depositCollateral: 50, borrowHCHF: 5000}, undefined, {gasLimit: 300000});
 
                 // TODO refactor to Hedera SDK
                 // otherLiquities[0-2] will be independent stability depositors
-                //await liquity.sendLUSD(await otherUsers[0].getAddress(), 3000);
-                //await liquity.sendLUSD(await otherUsers[1].getAddress(), 1000);
-                //await liquity.sendLUSD(await otherUsers[2].getAddress(), 1000);
+                //await liquity.sendHCHF(await otherUsers[0].getAddress(), 3000);
+                //await liquity.sendHCHF(await otherUsers[1].getAddress(), 1000);
+                //await liquity.sendHCHF(await otherUsers[2].getAddress(), 1000);
 
                 // otherLiquities[3-4] will be Trove owners whose Troves get liquidated
                 await otherLiquities[3].openTrove({
                     depositCollateral: 21,
-                    borrowLUSD: 2900
+                    borrowHCHF: 2900
                 }, undefined, {gasLimit: 300000});
                 await otherLiquities[4].openTrove({
                     depositCollateral: 21,
-                    borrowLUSD: 2900
+                    borrowHCHF: 2900
                 }, undefined, {gasLimit: 300000});
 
-                await otherLiquities[0].depositLUSDInStabilityPool(3000, undefined, {gasLimit: 300000});
-                await otherLiquities[1].depositLUSDInStabilityPool(1000, undefined, {gasLimit: 300000});
+                await otherLiquities[0].depositHCHFInStabilityPool(3000, undefined, {gasLimit: 300000});
+                await otherLiquities[1].depositHCHFInStabilityPool(1000, undefined, {gasLimit: 300000});
                 // otherLiquities[2] doesn't deposit yet
 
                 // Tank the price so we can liquidate
@@ -699,20 +699,20 @@ describe("EthersLiquity", () => {
                 expect((await otherLiquities[3].getTrove()).isEmpty).to.be.true;
 
                 // Now otherLiquities[2] makes their deposit too
-                await otherLiquities[2].depositLUSDInStabilityPool(1000, undefined, {gasLimit: 300000});
+                await otherLiquities[2].depositHCHFInStabilityPool(1000, undefined, {gasLimit: 300000});
 
                 // Liquidate second victim
                 await liquity.liquidate(await otherUsers[4].getAddress());
                 expect((await otherLiquities[4].getTrove()).isEmpty).to.be.true;
 
                 // Stability Pool is now empty
-                expect(`${await liquity.getLUSDInStabilityPool()}`).to.equal("0");
+                expect(`${await liquity.getHCHFInStabilityPool()}`).to.equal("0");
             });
 
             it("should still be able to withdraw remaining deposit", async () => {
                 for (const l of [otherLiquities[0], otherLiquities[1], otherLiquities[2]]) {
                     const stabilityDeposit = await l.getStabilityDeposit();
-                    await l.withdrawLUSDFromStabilityPool(stabilityDeposit.currentLUSD);
+                    await l.withdrawHCHFFromStabilityPool(stabilityDeposit.currentHCHF);
                 }
             });
         });
@@ -755,7 +755,7 @@ describe("EthersLiquity", () => {
             expect(`${stake}`).to.equal(`${someUniTokens}`);
         });
 
-        it("should have an LQTY reward after some time has passed", async function () {
+        it("should have an HLQTY reward after some time has passed", async function () {
             this.timeout("20s");
 
             // Liquidity mining rewards are seconds-based, so we don't need to wait long.
@@ -766,12 +766,12 @@ describe("EthersLiquity", () => {
             // Trigger a new block with a dummy TX.
             await liquity._mintUniToken(0);
 
-            const lqtyReward = Number(await liquity.getLiquidityMiningLQTYReward());
-            expect(lqtyReward).to.be.at.least(1); // ~0.2572 per second [(4e6/3) / (60*24*60*60)]
+            const hlqtyReward = Number(await liquity.getLiquidityMiningHLQTYReward());
+            expect(hlqtyReward).to.be.at.least(1); // ~0.2572 per second [(4e6/3) / (60*24*60*60)]
 
-            await liquity.withdrawLQTYRewardFromLiquidityMining();
-            const lqtyBalance = Number(await liquity.getLQTYBalance());
-            expect(lqtyBalance).to.be.at.least(lqtyReward); // may have increased since checking
+            await liquity.withdrawHLQTYRewardFromLiquidityMining();
+            const hlqtyBalance = Number(await liquity.getHLQTYBalance());
+            expect(hlqtyBalance).to.be.at.least(hlqtyReward); // may have increased since checking
         });
 
         it("should partially unstake", async () => {
@@ -784,7 +784,7 @@ describe("EthersLiquity", () => {
             expect(`${uniTokenBalance}`).to.equal(`${someUniTokens / 2}`);
         });
 
-        it("should unstake remaining tokens and withdraw remaining LQTY reward", async () => {
+        it("should unstake remaining tokens and withdraw remaining HLQTY reward", async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             await liquity._mintUniToken(0); // dummy block
             await liquity.exitLiquidityMining({gasLimit: 300000});
@@ -792,8 +792,8 @@ describe("EthersLiquity", () => {
             const uniTokenStake = await liquity.getLiquidityMiningStake();
             expect(`${uniTokenStake}`).to.equal("0");
 
-            const lqtyReward = await liquity.getLiquidityMiningLQTYReward();
-            expect(`${lqtyReward}`).to.equal("0");
+            const hlqtyReward = await liquity.getLiquidityMiningHLQTYReward();
+            expect(`${hlqtyReward}`).to.equal("0");
 
             const uniTokenBalance = await liquity.getUniTokenBalance();
             expect(`${uniTokenBalance}`).to.equal(`${someUniTokens}`);

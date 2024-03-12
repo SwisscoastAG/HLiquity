@@ -108,24 +108,24 @@ export class _CachedReadableLiquity<T extends unknown[]>
         );
     }
 
-    async getDCHFInStabilityPool(...extraParams: T): Promise<Decimal> {
+    async getHCHFInStabilityPool(...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getDCHFInStabilityPool(...extraParams) ??
-            this._readable.getDCHFInStabilityPool(...extraParams)
+            this._cache.getHCHFInStabilityPool(...extraParams) ??
+            this._readable.getHCHFInStabilityPool(...extraParams)
         );
     }
 
-    async getDCHFBalance(address?: string, ...extraParams: T): Promise<Decimal> {
+    async getHCHFBalance(address?: string, ...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getDCHFBalance(address, ...extraParams) ??
-            this._readable.getDCHFBalance(address, ...extraParams)
+            this._cache.getHCHFBalance(address, ...extraParams) ??
+            this._readable.getHCHFBalance(address, ...extraParams)
         );
     }
 
-    async getDCHFTokenAddress(...extraParams: T): Promise<string> {
+    async getHCHFTokenAddress(...extraParams: T): Promise<string> {
         return (
-            this._cache.getDCHFTokenAddress(...extraParams) ??
-            this._readable.getDCHFTokenAddress(...extraParams)
+            this._cache.getHCHFTokenAddress(...extraParams) ??
+            this._readable.getHCHFTokenAddress(...extraParams)
         );
     }
 

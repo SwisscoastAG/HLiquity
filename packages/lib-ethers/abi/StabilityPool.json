@@ -44,19 +44,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_newDCHFTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "DCHFTokenAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "_newDefaultPoolAddress",
         "type": "address"
       }
@@ -113,7 +100,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_DCHFLoss",
+        "name": "_HCHFLoss",
         "type": "uint256"
       }
     ],
@@ -269,6 +256,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newHCHFTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "HCHFTokenAddressChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "_depositor",
@@ -409,7 +409,7 @@
         "type": "uint256"
       }
     ],
-    "name": "StabilityPoolDCHFBalanceUpdated",
+    "name": "StabilityPoolETHBalanceUpdated",
     "type": "event"
   },
   {
@@ -422,7 +422,7 @@
         "type": "uint256"
       }
     ],
-    "name": "StabilityPoolETHBalanceUpdated",
+    "name": "StabilityPoolHCHFBalanceUpdated",
     "type": "event"
   },
   {
@@ -516,7 +516,7 @@
   },
   {
     "inputs": [],
-    "name": "DCHF_GAS_COMPENSATION",
+    "name": "DECIMAL_PRECISION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -529,7 +529,7 @@
   },
   {
     "inputs": [],
-    "name": "DECIMAL_PRECISION",
+    "name": "HCHF_GAS_COMPENSATION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -691,19 +691,6 @@
         "internalType": "uint128",
         "name": "",
         "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "dchfToken",
-    "outputs": [
-      {
-        "internalType": "contract IDCHFToken",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -919,11 +906,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_depositor",
+        "name": "_frontEnd",
         "type": "address"
       }
     ],
-    "name": "getCompoundedDCHFDeposit",
+    "name": "getCompoundedFrontEndStake",
     "outputs": [
       {
         "internalType": "uint256",
@@ -938,11 +925,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_frontEnd",
+        "name": "_depositor",
         "type": "address"
       }
     ],
-    "name": "getCompoundedFrontEndStake",
+    "name": "getCompoundedHCHFDeposit",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1051,12 +1038,25 @@
   },
   {
     "inputs": [],
-    "name": "getTotalDCHFDeposits",
+    "name": "getTotalHCHFDeposits",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hchfToken",
+    "outputs": [
+      {
+        "internalType": "contract IHCHFToken",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1077,7 +1077,7 @@
   },
   {
     "inputs": [],
-    "name": "lastDCHFLossError_Offset",
+    "name": "lastETHError_Offset",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1090,7 +1090,7 @@
   },
   {
     "inputs": [],
-    "name": "lastETHError_Offset",
+    "name": "lastHCHFLossError_Offset",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1208,7 +1208,7 @@
       },
       {
         "internalType": "address",
-        "name": "_dchfTokenAddress",
+        "name": "_hchfTokenAddress",
         "type": "address"
       },
       {

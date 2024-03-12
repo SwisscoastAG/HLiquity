@@ -169,14 +169,14 @@ export interface SendableLiquity<R = unknown, S = unknown>
     amount: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
 
-  /** {@inheritDoc TransactableLiquity.borrowDCHF} */
-  borrowDCHF(
+  /** {@inheritDoc TransactableLiquity.borrowHCHF} */
+  borrowHCHF(
     amount: Decimalish,
     maxBorrowingRate?: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
 
-  /** {@inheritDoc TransactableLiquity.repayDCHF} */
-  repayDCHF(
+  /** {@inheritDoc TransactableLiquity.repayHCHF} */
+  repayHCHF(
     amount: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
 
@@ -193,14 +193,14 @@ export interface SendableLiquity<R = unknown, S = unknown>
     maximumNumberOfTrovesToLiquidate: number
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, LiquidationDetails>>>;
 
-  /** {@inheritDoc TransactableLiquity.depositDCHFInStabilityPool} */
-  depositDCHFInStabilityPool(
+  /** {@inheritDoc TransactableLiquity.depositHCHFInStabilityPool} */
+  depositHCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, StabilityDepositChangeDetails>>>;
 
-  /** {@inheritDoc TransactableLiquity.withdrawDCHFFromStabilityPool} */
-  withdrawDCHFFromStabilityPool(
+  /** {@inheritDoc TransactableLiquity.withdrawHCHFFromStabilityPool} */
+  withdrawHCHFFromStabilityPool(
     amount: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, StabilityDepositChangeDetails>>>;
 
@@ -214,8 +214,8 @@ export interface SendableLiquity<R = unknown, S = unknown>
     SentLiquityTransaction<S, LiquityReceipt<R, CollateralGainTransferDetails>>
   >;
 
-  /** {@inheritDoc TransactableLiquity.redeemDCHF} */
-  redeemDCHF(
+  /** {@inheritDoc TransactableLiquity.redeemHCHF} */
+  redeemHCHF(
     amount: Decimalish,
     maxRedemptionRate?: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, RedemptionDetails>>>;

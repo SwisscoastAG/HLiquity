@@ -4,7 +4,7 @@
 
 ## Trove.netDebt property
 
-Amount of DCHF that must be repaid to close this Trove.
+Amount of HCHF that must be repaid to close this Trove.
 
 <b>Signature:</b>
 

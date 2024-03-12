@@ -5,19 +5,19 @@ import { Decimal, Decimalish } from "./Decimal";
 import {
   MINIMUM_COLLATERAL_RATIO,
   CRITICAL_COLLATERAL_RATIO,
-  DCHF_LIQUIDATION_RESERVE,
+  HCHF_LIQUIDATION_RESERVE,
   MINIMUM_BORROWING_RATE
 } from "./constants";
 
 /** @internal */ export type _CollateralDeposit<T> = { depositCollateral: T };
 /** @internal */ export type _CollateralWithdrawal<T> = { withdrawCollateral: T };
-/** @internal */ export type _DCHFBorrowing<T> = { borrowDCHF: T };
-/** @internal */ export type _DCHFRepayment<T> = { repayDCHF: T };
+/** @internal */ export type _HCHFBorrowing<T> = { borrowHCHF: T };
+/** @internal */ export type _HCHFRepayment<T> = { repayHCHF: T };
 
 /** @internal */ export type _NoCollateralDeposit = Partial<_CollateralDeposit<undefined>>;
 /** @internal */ export type _NoCollateralWithdrawal = Partial<_CollateralWithdrawal<undefined>>;
-/** @internal */ export type _NoDCHFBorrowing = Partial<_DCHFBorrowing<undefined>>;
-/** @internal */ export type _NoDCHFRepayment = Partial<_DCHFRepayment<undefined>>;
+/** @internal */ export type _NoHCHFBorrowing = Partial<_HCHFBorrowing<undefined>>;
+/** @internal */ export type _NoHCHFRepayment = Partial<_HCHFRepayment<undefined>>;
 
 /** @internal */
 export type _CollateralChange<T> =
@@ -29,11 +29,11 @@ export type _NoCollateralChange = _NoCollateralDeposit & _NoCollateralWithdrawal
 
 /** @internal */
 export type _DebtChange<T> =
-  | (_DCHFBorrowing<T> & _NoDCHFRepayment)
-  | (_DCHFRepayment<T> & _NoDCHFBorrowing);
+  | (_HCHFBorrowing<T> & _NoHCHFRepayment)
+  | (_HCHFRepayment<T> & _NoHCHFBorrowing);
 
 /** @internal */
-export type _NoDebtChange = _NoDCHFBorrowing & _NoDCHFRepayment;
+export type _NoDebtChange = _NoHCHFBorrowing & _NoHCHFRepayment;
 
 /**
  * Parameters of an {@link TransactableLiquity.openTrove | openTrove()} transaction.
@@ -59,9 +59,9 @@ export type _NoDebtChange = _NoDCHFBorrowing & _NoDCHFRepayment;
  *   </tr>
  *
  *   <tr>
- *     <td> borrowDCHF </td>
+ *     <td> borrowHCHF </td>
  *     <td> T </td>
- *     <td> The amount of DCHF that's borrowed. </td>
+ *     <td> The amount of HCHF that's borrowed. </td>
  *   </tr>
  *
  * </table>
@@ -70,8 +70,8 @@ export type _NoDebtChange = _NoDCHFBorrowing & _NoDCHFRepayment;
  */
 export type TroveCreationParams<T = unknown> = _CollateralDeposit<T> &
   _NoCollateralWithdrawal &
-  _DCHFBorrowing<T> &
-  _NoDCHFRepayment;
+  _HCHFBorrowing<T> &
+  _NoHCHFRepayment;
 
 /**
  * Parameters of a {@link TransactableLiquity.closeTrove | closeTrove()} transaction.
@@ -97,9 +97,9 @@ export type TroveCreationParams<T = unknown> = _CollateralDeposit<T> &
  *   </tr>
  *
  *   <tr>
- *     <td> repayDCHF? </td>
+ *     <td> repayHCHF? </td>
  *     <td> T </td>
- *     <td> <i>(Optional)</i> The amount of DCHF that's repaid. </td>
+ *     <td> <i>(Optional)</i> The amount of HCHF that's repaid. </td>
  *   </tr>
  *
  * </table>
@@ -108,8 +108,8 @@ export type TroveCreationParams<T = unknown> = _CollateralDeposit<T> &
  */
 export type TroveClosureParams<T> = _CollateralWithdrawal<T> &
   _NoCollateralDeposit &
-  Partial<_DCHFRepayment<T>> &
-  _NoDCHFBorrowing;
+  Partial<_HCHFRepayment<T>> &
+  _NoHCHFBorrowing;
 
 /**
  * Parameters of an {@link TransactableLiquity.adjustTrove | adjustTrove()} transaction.
@@ -121,7 +121,7 @@ export type TroveClosureParams<T> = _CollateralWithdrawal<T> &
  * Even though all properties are optional, a valid `TroveAdjustmentParams` object must define at
  * least one.
  *
- * Defining both `depositCollateral` and `withdrawCollateral`, or both `borrowDCHF` and `repayDCHF`
+ * Defining both `depositCollateral` and `withdrawCollateral`, or both `borrowHCHF` and `repayHCHF`
  * at the same time is disallowed, and will result in a type-checking error.
  *
  * <h2>Properties</h2>
@@ -147,15 +147,15 @@ export type TroveClosureParams<T> = _CollateralWithdrawal<T> &
  *   </tr>
  *
  *   <tr>
- *     <td> borrowDCHF? </td>
+ *     <td> borrowHCHF? </td>
  *     <td> T </td>
- *     <td> <i>(Optional)</i> The amount of DCHF that's borrowed. </td>
+ *     <td> <i>(Optional)</i> The amount of HCHF that's borrowed. </td>
  *   </tr>
  *
  *   <tr>
- *     <td> repayDCHF? </td>
+ *     <td> repayHCHF? </td>
  *     <td> T </td>
- *     <td> <i>(Optional)</i> The amount of DCHF that's repaid. </td>
+ *     <td> <i>(Optional)</i> The amount of HCHF that's repaid. </td>
  *   </tr>
  *
  * </table>
@@ -257,7 +257,7 @@ type AllowedKey<T> = Exclude<
 
 const allowedTroveCreationKeys: AllowedKey<TroveCreationParams>[] = [
   "depositCollateral",
-  "borrowDCHF"
+  "borrowHCHF"
 ];
 
 function checkAllowedTroveCreationKeys<T>(
@@ -302,8 +302,8 @@ export const _normalizeTroveCreation = (
 const allowedTroveAdjustmentKeys: AllowedKey<TroveAdjustmentParams>[] = [
   "depositCollateral",
   "withdrawCollateral",
-  "borrowDCHF",
-  "repayDCHF"
+  "borrowHCHF",
+  "repayHCHF"
 ];
 
 function checkAllowedTroveAdjustmentKeys<T>(
@@ -339,21 +339,21 @@ const collateralChangeFrom = <T>({
 };
 
 const debtChangeFrom = <T>({
-  borrowDCHF,
-  repayDCHF
+  borrowHCHF,
+  repayHCHF
 }: Partial<Record<AllowedKey<TroveAdjustmentParams>, T>>): _DebtChange<T> | undefined => {
-  if (borrowDCHF !== undefined && repayDCHF !== undefined) {
+  if (borrowHCHF !== undefined && repayHCHF !== undefined) {
     throw new Error(
-      "TroveAdjustmentParams: 'borrowDCHF' and 'repayDCHF' can't be present at the same time"
+      "TroveAdjustmentParams: 'borrowHCHF' and 'repayHCHF' can't be present at the same time"
     );
   }
 
-  if (borrowDCHF !== undefined) {
-    return { borrowDCHF };
+  if (borrowHCHF !== undefined) {
+    return { borrowHCHF };
   }
 
-  if (repayDCHF !== undefined) {
-    return { repayDCHF };
+  if (repayHCHF !== undefined) {
+    return { repayHCHF };
   }
 };
 
@@ -410,7 +410,7 @@ export class Trove {
   /** Amount of native currency (e.g. Ether) collateralized. */
   readonly collateral: Decimal;
 
-  /** Amount of DCHF owed. */
+  /** Amount of HCHF owed. */
   readonly debt: Decimal;
 
   /** @internal */
@@ -424,17 +424,17 @@ export class Trove {
   }
 
   /**
-   * Amount of DCHF that must be repaid to close this Trove.
+   * Amount of HCHF that must be repaid to close this Trove.
    *
    * @remarks
    * This doesn't include the liquidation reserve, which is refunded in case of normal closure.
    */
   get netDebt(): Decimal {
-    if (this.debt.lt(DCHF_LIQUIDATION_RESERVE)) {
-      throw new Error(`netDebt should not be used when debt < ${DCHF_LIQUIDATION_RESERVE}`);
+    if (this.debt.lt(HCHF_LIQUIDATION_RESERVE)) {
+      throw new Error(`netDebt should not be used when debt < ${HCHF_LIQUIDATION_RESERVE}`);
     }
 
-    return this.debt.sub(DCHF_LIQUIDATION_RESERVE);
+    return this.debt.sub(HCHF_LIQUIDATION_RESERVE);
   }
 
   /** @internal */
@@ -539,8 +539,8 @@ export class Trove {
 
   private _debtChange({ debt }: Trove, borrowingRate: Decimalish): _DebtChange<Decimal> {
     return debt.gt(this.debt)
-      ? { borrowDCHF: unapplyFee(borrowingRate, debt.sub(this.debt)) }
-      : { repayDCHF: this.debt.sub(debt) };
+      ? { borrowHCHF: unapplyFee(borrowingRate, debt.sub(this.debt)) }
+      : { repayHCHF: this.debt.sub(debt) };
   }
 
   private _collateralChange({ collateral }: Trove): _CollateralChange<Decimal> {
@@ -567,20 +567,20 @@ export class Trove {
     }
 
     if (this.isEmpty) {
-      if (that.debt.lt(DCHF_LIQUIDATION_RESERVE)) {
+      if (that.debt.lt(HCHF_LIQUIDATION_RESERVE)) {
         return invalidTroveCreation(that, "missingLiquidationReserve");
       }
 
       return troveCreation({
         depositCollateral: that.collateral,
-        borrowDCHF: unapplyFee(borrowingRate, that.netDebt)
+        borrowHCHF: unapplyFee(borrowingRate, that.netDebt)
       });
     }
 
     if (that.isEmpty) {
       return troveClosure(
         this.netDebt.nonZero
-          ? { withdrawCollateral: this.collateral, repayDCHF: this.netDebt }
+          ? { withdrawCollateral: this.collateral, repayHCHF: this.netDebt }
           : { withdrawCollateral: this.collateral }
       );
     }
@@ -625,11 +625,11 @@ export class Trove {
           throw new Error("Can't create onto existing Trove");
         }
 
-        const { depositCollateral, borrowDCHF } = change.params;
+        const { depositCollateral, borrowHCHF } = change.params;
 
         return new Trove(
           depositCollateral,
-          DCHF_LIQUIDATION_RESERVE.add(applyFee(borrowingRate, borrowDCHF))
+          HCHF_LIQUIDATION_RESERVE.add(applyFee(borrowingRate, borrowHCHF))
         );
       }
 
@@ -643,13 +643,13 @@ export class Trove {
       case "adjustment": {
         const {
           setToZero,
-          params: { depositCollateral, withdrawCollateral, borrowDCHF, repayDCHF }
+          params: { depositCollateral, withdrawCollateral, borrowHCHF, repayHCHF }
         } = change;
 
         const collateralDecrease = withdrawCollateral ?? Decimal.ZERO;
         const collateralIncrease = depositCollateral ?? Decimal.ZERO;
-        const debtDecrease = repayDCHF ?? Decimal.ZERO;
-        const debtIncrease = borrowDCHF ? applyFee(borrowingRate, borrowDCHF) : Decimal.ZERO;
+        const debtDecrease = repayHCHF ?? Decimal.ZERO;
+        const debtIncrease = borrowHCHF ? applyFee(borrowingRate, borrowHCHF) : Decimal.ZERO;
 
         return setToZero === "collateral"
           ? this.setCollateral(Decimal.ZERO).addDebt(debtIncrease).subtractDebt(debtDecrease)

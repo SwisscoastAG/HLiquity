@@ -4,7 +4,7 @@
 
 ## Trove.debt property
 
-Amount of DCHF owed.
+Amount of HCHF owed.
 
 <b>Signature:</b>
 

@@ -109,7 +109,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_LUSDAmount",
+          "name": "_HCHFAmount",
           "type": "uint256"
         },
         {
@@ -190,7 +190,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_LUSDAmount",
+          "name": "_HCHFAmount",
           "type": "uint256"
         },
         {
@@ -227,7 +227,7 @@
           "type": "address"
         }
       ],
-      "name": "repayLUSD",
+      "name": "repayHCHF",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -315,7 +315,7 @@
           "type": "address"
         }
       ],
-      "name": "withdrawLUSD",
+      "name": "withdrawHCHF",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

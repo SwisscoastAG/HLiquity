@@ -57,19 +57,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_newDCHFTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "DCHFTokenAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "_defaultPoolAddress",
         "type": "address"
       }
@@ -88,6 +75,19 @@
       }
     ],
     "name": "GasPoolAddressChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newHCHFTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "HCHFTokenAddressChanged",
     "type": "event"
   },
   {
@@ -128,7 +128,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_L_DCHFDebt",
+        "name": "_L_HCHFDebt",
         "type": "uint256"
       }
     ],
@@ -172,7 +172,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_DCHFGasCompensation",
+        "name": "_HCHFGasCompensation",
         "type": "uint256"
       }
     ],
@@ -217,13 +217,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_attemptedDCHFAmount",
+        "name": "_attemptedHCHFAmount",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_actualDCHFAmount",
+        "name": "_actualHCHFAmount",
         "type": "uint256"
       },
       {
@@ -362,7 +362,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_L_DCHFDebt",
+        "name": "_L_HCHFDebt",
         "type": "uint256"
       }
     ],
@@ -460,19 +460,6 @@
   },
   {
     "inputs": [],
-    "name": "DCHF_GAS_COMPENSATION",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "DECIMAL_PRECISION",
     "outputs": [
       {
@@ -486,7 +473,7 @@
   },
   {
     "inputs": [],
-    "name": "L_DCHFDebt",
+    "name": "HCHF_GAS_COMPENSATION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -500,6 +487,19 @@
   {
     "inputs": [],
     "name": "L_ETH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "L_HCHFDebt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -803,19 +803,6 @@
   },
   {
     "inputs": [],
-    "name": "dchfToken",
-    "outputs": [
-      {
-        "internalType": "contract IDCHFToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "decayBaseRateFromBorrowing",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -886,7 +873,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_DCHFDebt",
+        "name": "_HCHFDebt",
         "type": "uint256"
       }
     ],
@@ -905,7 +892,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_DCHFDebt",
+        "name": "_HCHFDebt",
         "type": "uint256"
       }
     ],
@@ -992,7 +979,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "pendingDCHFDebtReward",
+        "name": "pendingHCHFDebtReward",
         "type": "uint256"
       },
       {
@@ -1057,7 +1044,7 @@
         "type": "address"
       }
     ],
-    "name": "getPendingDCHFDebtReward",
+    "name": "getPendingETHReward",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1076,7 +1063,7 @@
         "type": "address"
       }
     ],
-    "name": "getPendingETHReward",
+    "name": "getPendingHCHFDebtReward",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1280,6 +1267,19 @@
   },
   {
     "inputs": [],
+    "name": "hchfToken",
+    "outputs": [
+      {
+        "internalType": "contract IHCHFToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "hlqtyStaking",
     "outputs": [
       {
@@ -1367,19 +1367,6 @@
   },
   {
     "inputs": [],
-    "name": "lastDCHFDebtError_Redistribution",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "lastETHError_Redistribution",
     "outputs": [
       {
@@ -1394,6 +1381,19 @@
   {
     "inputs": [],
     "name": "lastFeeOperationTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastHCHFDebtError_Redistribution",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1460,7 +1460,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_DCHFamount",
+        "name": "_HCHFamount",
         "type": "uint256"
       },
       {
@@ -1529,7 +1529,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "DCHFDebt",
+        "name": "HCHFDebt",
         "type": "uint256"
       }
     ],
@@ -1575,7 +1575,7 @@
       },
       {
         "internalType": "address",
-        "name": "_dchfTokenAddress",
+        "name": "_hchfTokenAddress",
         "type": "address"
       },
       {

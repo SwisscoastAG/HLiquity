@@ -26,7 +26,7 @@ borrowingRate(when?: Date): Decimal;
 
 By default, the fee is calculated at the time of the latest block. This can be overridden using the `when` parameter.
 
-To calculate the borrowing fee in DCHF, multiply the borrowed DCHF amount by the borrowing rate.
+To calculate the borrowing fee in HCHF, multiply the borrowed HCHF amount by the borrowing rate.
 
 ## Example
 
@@ -34,9 +34,9 @@ To calculate the borrowing fee in DCHF, multiply the borrowed DCHF amount by the
 ```typescript
 const fees = await liquity.getFees();
 
-const borrowedDCHFAmount = 100;
+const borrowedHCHFAmount = 100;
 const borrowingRate = fees.borrowingRate();
-const borrowingFeeDCHF = borrowingRate.mul(borrowedDCHFAmount);
+const borrowingFeeHCHF = borrowingRate.mul(borrowedHCHFAmount);
 
 ```
 

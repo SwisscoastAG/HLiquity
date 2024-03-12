@@ -101,15 +101,15 @@ export class Fees {
    * By default, the fee is calculated at the time of the latest block. This can be overridden using
    * the `when` parameter.
    *
-   * To calculate the borrowing fee in DCHF, multiply the borrowed DCHF amount by the borrowing rate.
+   * To calculate the borrowing fee in HCHF, multiply the borrowed HCHF amount by the borrowing rate.
    *
    * @example
    * ```typescript
    * const fees = await liquity.getFees();
    *
-   * const borrowedDCHFAmount = 100;
+   * const borrowedHCHFAmount = 100;
    * const borrowingRate = fees.borrowingRate();
-   * const borrowingFeeDCHF = borrowingRate.mul(borrowedDCHFAmount);
+   * const borrowingFeeHCHF = borrowingRate.mul(borrowedHCHFAmount);
    * ```
    */
   borrowingRate(when?: Date): Decimal {
@@ -121,7 +121,7 @@ export class Fees {
   /**
    * Calculate the current redemption rate.
    *
-   * @param redeemedFractionOfSupply - The amount of DCHF being redeemed divided by the total supply.
+   * @param redeemedFractionOfSupply - The amount of HCHF being redeemed divided by the total supply.
    * @param when - Optional timestamp that can be used to calculate what the redemption rate would
    *               decay to at a point of time in the future.
    *
@@ -130,10 +130,10 @@ export class Fees {
    * the `when` parameter.
 
    * Unlike the borrowing rate, the redemption rate depends on the amount being redeemed. To be more
-   * precise, it depends on the fraction of the redeemed amount compared to the total DCHF supply,
+   * precise, it depends on the fraction of the redeemed amount compared to the total HCHF supply,
    * which must be passed as a parameter.
    *
-   * To calculate the redemption fee in DCHF, multiply the redeemed DCHF amount with the redemption
+   * To calculate the redemption fee in HCHF, multiply the redeemed HCHF amount with the redemption
    * rate.
    *
    * @example
@@ -141,10 +141,10 @@ export class Fees {
    * const fees = await liquity.getFees();
    * const total = await liquity.getTotal();
    *
-   * const redeemedDCHFAmount = Decimal.from(100);
-   * const redeemedFractionOfSupply = redeemedDCHFAmount.div(total.debt);
+   * const redeemedHCHFAmount = Decimal.from(100);
+   * const redeemedFractionOfSupply = redeemedHCHFAmount.div(total.debt);
    * const redemptionRate = fees.redemptionRate(redeemedFractionOfSupply);
-   * const redemptionFeeDCHF = redemptionRate.mul(redeemedDCHFAmount);
+   * const redemptionFeeHCHF = redemptionRate.mul(redeemedHCHFAmount);
    * ```
    */
   redemptionRate(redeemedFractionOfSupply: Decimalish = Decimal.ZERO, when?: Date): Decimal {

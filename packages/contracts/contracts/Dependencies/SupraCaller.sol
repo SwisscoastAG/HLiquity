@@ -39,14 +39,14 @@ contract SupraCaller is ISupraCaller {
     )
     {
         (uint256 roundHBARUSD, uint256 decimalsHBARUSD, uint256 _timeHBARUSD, uint256 _priceHBARUSD) = supra.getSvalue(_priceIndexHBARUSD);
-        (uint256 roundUSDCHF, uint256 decimalsUSDCHF, uint256 _timeUSDCHF, uint256 _priceUSDCHF) = supra.getSvalue(_priceIndexUSDCH);
+        (uint256 roundUSHCHF, uint256 decimalsUSHCHF, uint256 _timeUSHCHF, uint256 _priceUSHCHF) = supra.getSvalue(_priceIndexUSDCH);
 
         uint256 basePriceHBARUSD = _scalePriceByDigits(_priceHBARUSD, decimalsHBARUSD);
-        uint256 basePriceUSDCHF = _scalePriceByDigits(_priceUSDCHF, decimalsUSDCHF);
+        uint256 basePriceUSHCHF = _scalePriceByDigits(_priceUSHCHF, decimalsUSHCHF);
 
-        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSDCHF;
+        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSHCHF;
 
-        uint256 publishTime = _timeHBARUSD < _timeUSDCHF ? _timeHBARUSD : _timeUSDCHF;
+        uint256 publishTime = _timeHBARUSD < _timeUSHCHF ? _timeHBARUSD : _timeUSHCHF;
 
         if (hbarChfPrice > 0) {
             uint256 positiveValue = hbarChfPrice;

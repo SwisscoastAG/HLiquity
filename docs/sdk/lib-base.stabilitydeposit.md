@@ -20,11 +20,11 @@ The constructor for this class is marked as internal. Third-party code should no
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [collateralGain](./lib-base.stabilitydeposit.collateralgain.md) |  | [Decimal](./lib-base.decimal.md) | Amount of native currency (e.g. Ether) received in exchange for the used-up DCHF. |
-|  [currentDCHF](./lib-base.stabilitydeposit.currentdchf.md) |  | [Decimal](./lib-base.decimal.md) | Amount of DCHF left in the Stability Deposit. |
+|  [collateralGain](./lib-base.stabilitydeposit.collateralgain.md) |  | [Decimal](./lib-base.decimal.md) | Amount of native currency (e.g. Ether) received in exchange for the used-up HCHF. |
+|  [currentHCHF](./lib-base.stabilitydeposit.currenthchf.md) |  | [Decimal](./lib-base.decimal.md) | Amount of HCHF left in the Stability Deposit. |
 |  [frontendTag](./lib-base.stabilitydeposit.frontendtag.md) |  | string | Address of frontend through which this Stability Deposit was made. |
 |  [hlqtyReward](./lib-base.stabilitydeposit.hlqtyreward.md) |  | [Decimal](./lib-base.decimal.md) | Amount of HLQTY rewarded since the last modification of the Stability Deposit. |
-|  [initialDCHF](./lib-base.stabilitydeposit.initialdchf.md) |  | [Decimal](./lib-base.decimal.md) | Amount of DCHF in the Stability Deposit at the time of the last direct modification. |
+|  [initialHCHF](./lib-base.stabilitydeposit.initialhchf.md) |  | [Decimal](./lib-base.decimal.md) | Amount of HCHF in the Stability Deposit at the time of the last direct modification. |
 |  [isEmpty](./lib-base.stabilitydeposit.isempty.md) |  | boolean |  |
 
 ## Methods
@@ -33,5 +33,5 @@ The constructor for this class is marked as internal. Third-party code should no
 |  --- | --- | --- |
 |  [apply(change)](./lib-base.stabilitydeposit.apply.md) |  | Apply a [StabilityDepositChange](./lib-base.stabilitydepositchange.md) to this Stability Deposit. |
 |  [equals(that)](./lib-base.stabilitydeposit.equals.md) |  | Compare to another instance of <code>StabilityDeposit</code>. |
-|  [whatChanged(thatDCHF)](./lib-base.stabilitydeposit.whatchanged.md) |  | Calculate the difference between the <code>currentDCHF</code> in this Stability Deposit and <code>thatDCHF</code>. |
+|  [whatChanged(thatHCHF)](./lib-base.stabilitydeposit.whatchanged.md) |  | Calculate the difference between the <code>currentHCHF</code> in this Stability Deposit and <code>thatHCHF</code>. |
 

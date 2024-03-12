@@ -42,16 +42,16 @@ export interface PopulatedLiquityTransaction<
  * @remarks
  * The Liquity protocol fulfills redemptions by repaying the debt of Troves in ascending order of
  * their collateralization ratio, and taking a portion of their collateral in exchange. Due to the
- * {@link @liquity/lib-base#DCHF_MINIMUM_DEBT | minimum debt} requirement that Troves must fulfill,
- * some DCHF amounts are not possible to redeem exactly.
+ * {@link @liquity/lib-base#HCHF_MINIMUM_DEBT | minimum debt} requirement that Troves must fulfill,
+ * some HCHF amounts are not possible to redeem exactly.
  *
- * When {@link @liquity/lib-base#PopulatableLiquity.redeemDCHF | redeemDCHF()} is called with an
- * amount that can't be fully redeemed, the amount will be truncated (see the `redeemableDCHFAmount`
+ * When {@link @liquity/lib-base#PopulatableLiquity.redeemHCHF | redeemHCHF()} is called with an
+ * amount that can't be fully redeemed, the amount will be truncated (see the `redeemableHCHFAmount`
  * property). When this happens, the redeemer can either redeem the truncated amount by sending the
  * transaction unchanged, or prepare a new transaction by
  * {@link @liquity/lib-base#PopulatedRedemption.increaseAmountByMinimumNetDebt | increasing the amount}
  * to the next lowest possible value, which is the sum of the truncated amount and
- * {@link @liquity/lib-base#DCHF_MINIMUM_NET_DEBT}.
+ * {@link @liquity/lib-base#HCHF_MINIMUM_NET_DEBT}.
  *
  * @public
  */
@@ -60,13 +60,13 @@ export interface PopulatedRedemption<P = unknown, S = unknown, R = unknown>
     P,
     SentLiquityTransaction<S, LiquityReceipt<R, RedemptionDetails>>
   > {
-  /** Amount of DCHF the redeemer is trying to redeem. */
-  readonly attemptedDCHFAmount: Decimal;
+  /** Amount of HCHF the redeemer is trying to redeem. */
+  readonly attemptedHCHFAmount: Decimal;
 
-  /** Maximum amount of DCHF that is currently redeemable from `attemptedDCHFAmount`. */
-  readonly redeemableDCHFAmount: Decimal;
+  /** Maximum amount of HCHF that is currently redeemable from `attemptedHCHFAmount`. */
+  readonly redeemableHCHFAmount: Decimal;
 
-  /** Whether `redeemableDCHFAmount` is less than `attemptedDCHFAmount`. */
+  /** Whether `redeemableHCHFAmount` is less than `attemptedHCHFAmount`. */
   readonly isTruncated: boolean;
 
   /**
@@ -158,8 +158,8 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
     >
   >;
 
-  /** {@inheritDoc TransactableLiquity.borrowDCHF} */
-  borrowDCHF(
+  /** {@inheritDoc TransactableLiquity.borrowHCHF} */
+  borrowHCHF(
     amount: Decimalish,
     maxBorrowingRate?: Decimalish
   ): Promise<
@@ -169,8 +169,8 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
     >
   >;
 
-  /** {@inheritDoc TransactableLiquity.repayDCHF} */
-  repayDCHF(
+  /** {@inheritDoc TransactableLiquity.repayHCHF} */
+  repayHCHF(
     amount: Decimalish
   ): Promise<
     PopulatedLiquityTransaction<
@@ -198,8 +198,8 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
     PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, LiquidationDetails>>>
   >;
 
-  /** {@inheritDoc TransactableLiquity.depositDCHFInStabilityPool} */
-  depositDCHFInStabilityPool(
+  /** {@inheritDoc TransactableLiquity.depositHCHFInStabilityPool} */
+  depositHCHFInStabilityPool(
     amount: Decimalish,
     frontendTag?: string
   ): Promise<
@@ -209,8 +209,8 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
     >
   >;
 
-  /** {@inheritDoc TransactableLiquity.withdrawDCHFFromStabilityPool} */
-  withdrawDCHFFromStabilityPool(
+  /** {@inheritDoc TransactableLiquity.withdrawHCHFFromStabilityPool} */
+  withdrawHCHFFromStabilityPool(
     amount: Decimalish
   ): Promise<
     PopulatedLiquityTransaction<
@@ -235,8 +235,8 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
     >
   >;
 
-  /** {@inheritDoc TransactableLiquity.redeemDCHF} */
-  redeemDCHF(
+  /** {@inheritDoc TransactableLiquity.redeemHCHF} */
+  redeemHCHF(
     amount: Decimalish,
     maxRedemptionRate?: Decimalish
   ): Promise<PopulatedRedemption<P, S, R>>;

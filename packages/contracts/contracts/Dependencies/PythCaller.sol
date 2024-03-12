@@ -32,7 +32,7 @@ contract PythCaller is IPythCaller {
     * @return value the value retrieved
     * @return _timestampRetrieved the value's timestamp
     */
-    function getPythCurrentValue(bytes32 HBARUSD, bytes32 USDCHF)
+    function getPythCurrentValue(bytes32 HBARUSD, bytes32 USHCHF)
     external
     view
     override
@@ -43,15 +43,15 @@ contract PythCaller is IPythCaller {
     )
     {
         (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPriceUnsafe(HBARUSD);
-        (int64 priceUSDCHF, , int32 expoUSDCHF, uint publishTimeUSDCHF ) = pyth.getPriceUnsafe(USDCHF);
+        (int64 priceUSHCHF, , int32 expoUSHCHF, uint publishTimeUSHCHF ) = pyth.getPriceUnsafe(USHCHF);
 
         uint256 basePriceHBARUSD = convertToUint(priceHBARUSD, expoHBARUSD, 8);
-        uint256 basePriceUSDCHF = convertToUint(priceUSDCHF, expoUSDCHF, 8);
+        uint256 basePriceUSHCHF = convertToUint(priceUSHCHF, expoUSHCHF, 8);
 
-        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSDCHF;
+        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSHCHF;
 
         // Using the smaller of the two timestamps as reference
-        uint256 publishTime = publishTimeHBARUSD < publishTimeUSDCHF ? publishTimeHBARUSD : publishTimeUSDCHF;
+        uint256 publishTime = publishTimeHBARUSD < publishTimeUSHCHF ? publishTimeHBARUSD : publishTimeUSHCHF;
 
         if (hbarChfPrice > 0) return (true, hbarChfPrice, publishTime);
         return (false, 0, publishTime);

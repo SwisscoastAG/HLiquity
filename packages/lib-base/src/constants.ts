@@ -15,22 +15,22 @@ export const CRITICAL_COLLATERAL_RATIO = Decimal.from(1.5);
 export const MINIMUM_COLLATERAL_RATIO = Decimal.from(1.1);
 
 /**
- * Amount of DCHF that's reserved for compensating the liquidator of a Trove.
+ * Amount of HCHF that's reserved for compensating the liquidator of a Trove.
  *
  * @public
  */
-export const DCHF_LIQUIDATION_RESERVE = Decimal.from(200);
+export const HCHF_LIQUIDATION_RESERVE = Decimal.from(200);
 
 /**
  * A Trove must always have at least this much debt on top of the
- * {@link DCHF_LIQUIDATION_RESERVE | liquidation reserve}.
+ * {@link HCHF_LIQUIDATION_RESERVE | liquidation reserve}.
  *
  * @remarks
  * Any transaction that would result in a Trove with less net debt than this will be reverted.
  *
  * @public
  */
-export const DCHF_MINIMUM_NET_DEBT = Decimal.from(1800);
+export const HCHF_MINIMUM_NET_DEBT = Decimal.from(1800);
 
 /**
  * A Trove must always have at least this much debt.
@@ -40,7 +40,7 @@ export const DCHF_MINIMUM_NET_DEBT = Decimal.from(1800);
  *
  * @public
  */
-export const DCHF_MINIMUM_DEBT = DCHF_LIQUIDATION_RESERVE.add(DCHF_MINIMUM_NET_DEBT);
+export const HCHF_MINIMUM_DEBT = HCHF_LIQUIDATION_RESERVE.add(HCHF_MINIMUM_NET_DEBT);
 
 /**
  * Value that the {@link Fees.borrowingRate | borrowing rate} will never decay below.

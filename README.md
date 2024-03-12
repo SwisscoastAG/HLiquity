@@ -5,9 +5,9 @@
 
 HLiquity is a decentralized protocol that allows HBAR holders to obtain maximum liquidity against
 their collateral without paying interest. After locking up HBAR as collateral in a smart contract and
-creating an individual position called a "trove", the user can get instant liquidity by minting DCHF,
+creating an individual position called a "trove", the user can get instant liquidity by minting HCHF,
 a CHF-pegged stablecoin. Each trove is required to be collateralized at a minimum of 110%. Any
-owner of DCHF can redeem their stablecoins for the underlying collateral at any time. The redemption
+owner of HCHF can redeem their stablecoins for the underlying collateral at any time. The redemption
 mechanism along with algorithmically adjusted fees guarantee a minimum stablecoin value of CHF 1.
 
 An unprecedented liquidation mechanism based on incentivized stability deposits and a redistribution
@@ -29,7 +29,7 @@ multiple front ends, enhancing decentralization.
     - [Liquidations in Normal Mode: TCR >= 150%](#liquidations-in-normal-mode-tcr--150)
     - [Liquidations in Recovery Mode: TCR < 150%](#liquidations-in-recovery-mode-tcr--150)
 - [Gains From Liquidations](#gains-from-liquidations)
-- [DCHF Token Redemption](#dchf-token-redemption)
+- [HCHF Token Redemption](#hchf-token-redemption)
   - [Partial redemption](#partial-redemption)
   - [Full redemption](#full-redemption)
   - [Redemptions create a price floor](#redemptions-create-a-price-floor)
@@ -57,7 +57,7 @@ multiple front ends, enhancing decentralization.
   - [PriceFeed limitations and known issues](#pricefeed-limitations-and-known-issues)
   - [Keeping a sorted list of Troves ordered by ICR](#keeping-a-sorted-list-of-troves-ordered-by-icr)
   - [Flow of HBAR in HLiquity](#flow-of-ether-in-liquity)
-  - [Flow of DCHF tokens in HLiquity](#flow-of-lusd-tokens-in-liquity)
+  - [Flow of HCHF tokens in HLiquity](#flow-of-lusd-tokens-in-liquity)
   - [Flow of HLQTY Tokens in HLiquity](#flow-of-lqty-tokens-in-liquity)
 - [Expected User Behaviors](#expected-user-behaviors)
 - [Contract Ownership and Function Permissions](#contract-ownership-and-function-permissions)
@@ -77,7 +77,7 @@ multiple front ends, enhancing decentralization.
   - [HLQTY Staking Functions  `HLQTYStaking.sol`](#lqty-staking-functions--lqtystakingsol)
   - [Lockup Contract Factory `LockupContractFactory.sol`](#lockup-contract-factory-lockupcontractfactorysol)
   - [Lockup contract - `LockupContract.sol`](#lockup-contract---lockupcontractsol)
-  - [DCHF token `DCHFToken.sol` and HLQTY token `HLQTYToken.sol`](#lusd-token-lusdtokensol-and-lqty-token-lqtytokensol)
+  - [HCHF token `HCHFToken.sol` and HLQTY token `HLQTYToken.sol`](#lusd-token-lusdtokensol-and-lqty-token-lqtytokensol)
 - [Supplying Hints to Trove operations](#supplying-hints-to-trove-operations)
   - [Hints for `redeemCollateral`](#hints-for-redeemcollateral)
     - [First redemption hint](#first-redemption-hint)
@@ -140,19 +140,19 @@ multiple front ends, enhancing decentralization.
 
 ## HLiquity Overview
 
-HLiquity is a collateralized debt platform. Users can lock up HBAR, and issue stablecoin tokens (DCHF) to their own Hedera address, and subsequently transfer those tokens to any other Hedera address. The individual collateralized debt positions are called Troves.
+HLiquity is a collateralized debt platform. Users can lock up HBAR, and issue stablecoin tokens (HCHF) to their own Hedera address, and subsequently transfer those tokens to any other Hedera address. The individual collateralized debt positions are called Troves.
 
-The stablecoin tokens are economically geared towards maintaining value of 1 DCHF = \$1 CHF, due to the following properties:
+The stablecoin tokens are economically geared towards maintaining value of 1 HCHF = \$1 CHF, due to the following properties:
 
 1. The system is designed to always be over-collateralized - the dollar value of the locked HBAR exceeds the dollar value of the issued stablecoins
 
-2. The stablecoins are fully redeemable - users can always swap $x worth of DCHF for $x worth of HBAR (minus fees), directly with the system.
+2. The stablecoins are fully redeemable - users can always swap $x worth of HCHF for $x worth of HBAR (minus fees), directly with the system.
 
-3. The system algorithmically controls the generation of DCHF through a variable issuance fee.
+3. The system algorithmically controls the generation of HCHF through a variable issuance fee.
 
-After opening a Trove with some HBAR, users may issue ("borrow") tokens such that the collateralization ratio of their Trove remains above 110%. A user with $1000 worth of HBAR in a Trove can issue up to 909.09 DCHF.
+After opening a Trove with some HBAR, users may issue ("borrow") tokens such that the collateralization ratio of their Trove remains above 110%. A user with $1000 worth of HBAR in a Trove can issue up to 909.09 HCHF.
 
-The tokens are freely exchangeable - anyone with an Hedera address can send or receive DCHF tokens, whether they have an open Trove or not. The tokens are burned upon repayment of a Trove's debt.
+The tokens are freely exchangeable - anyone with an Hedera address can send or receive HCHF tokens, whether they have an open Trove or not. The tokens are burned upon repayment of a Trove's debt.
 
 The HLiquity system regularly updates the HBAR:CHF price via a decentralized data feed. When a Trove falls below a minimum collateralization ratio (MCR) of 110%, it is considered under-collateralized, and is vulnerable to liquidation.
 
@@ -160,17 +160,17 @@ The HLiquity system regularly updates the HBAR:CHF price via a decentralized dat
 
 HLiquity utilizes a two-step liquidation mechanism in the following order of priority: 
 
-1. Offset under-collateralized Troves against the Stability Pool containing DCHF tokens
+1. Offset under-collateralized Troves against the Stability Pool containing HCHF tokens
 
 2. Redistribute under-collateralized Troves to other borrowers if the Stability Pool is emptied
 
-HLiquity primarily uses the DCHF tokens in its Stability Pool to absorb the under-collateralized debt, i.e. to repay the liquidated borrower's liability.
+HLiquity primarily uses the HCHF tokens in its Stability Pool to absorb the under-collateralized debt, i.e. to repay the liquidated borrower's liability.
 
-Any user may deposit DCHF tokens to the Stability Pool. This allows them to earn the collateral from the liquidated Trove. When a liquidation occurs, the liquidated debt is cancelled with the same amount of DCHF in the Pool (which is burned as a result), and the liquidated HBAR is proportionally distributed to depositors.
+Any user may deposit HCHF tokens to the Stability Pool. This allows them to earn the collateral from the liquidated Trove. When a liquidation occurs, the liquidated debt is cancelled with the same amount of HCHF in the Pool (which is burned as a result), and the liquidated HBAR is proportionally distributed to depositors.
 
 Stability Pool depositors can expect to earn net gains from liquidations, as in most cases, the value of the liquidated HBAR will be greater than the value of the cancelled debt (since a liquidated Trove will likely have an ICR just slightly below 110%).
 
-If the liquidated debt is higher than the amount of DCHF in the Stability Pool, the system tries to cancel as much debt as possible with the tokens in the Stability Pool, and then redistributes the remaining liquidated collateral and debt across all active Troves.
+If the liquidated debt is higher than the amount of HCHF in the Stability Pool, the system tries to cancel as much debt as possible with the tokens in the Stability Pool, and then redistributes the remaining liquidated collateral and debt across all active Troves.
 
 Anyone may call the public `liquidateTroves()` function, which will check for under-collateralized Troves, and liquidate them. Alternatively they can call `batchLiquidateTroves()` with a custom list of trove addresses to attempt to liquidate.
 
@@ -182,44 +182,44 @@ Currently, mass liquidations performed via the above functions cost 60-65k gas p
 
 The precise behavior of liquidations depends on the ICR of the Trove being liquidated and global system conditions:  the total collateralization ratio (TCR) of the system, the size of the Stability Pool, etc.  
 
-Here is the liquidation logic for a single Trove in Normal Mode and Recovery Mode.  `SP.DCHF` represents the DCHF in the Stability Pool.
+Here is the liquidation logic for a single Trove in Normal Mode and Recovery Mode.  `SP.HCHF` represents the HCHF in the Stability Pool.
 
 #### Liquidations in Normal Mode: TCR >= 150%
 
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Condition                      | Liquidation behavior                                                                                                                                                                                                                                                                                                |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ICR < MCR & SP.DCHF >= trove.debt | DCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral is shared between depositors.                                                                                                                                                                       |
-| ICR < MCR & SP.DCHF < trove.debt | The total StabilityPool DCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active Troves |
-| ICR < MCR & SP.DCHF = 0          | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                 |
+| ICR < MCR & SP.HCHF >= trove.debt | HCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral is shared between depositors.                                                                                                                                                                       |
+| ICR < MCR & SP.HCHF < trove.debt | The total StabilityPool HCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active Troves |
+| ICR < MCR & SP.HCHF = 0          | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                 |
 | ICR  >= MCR                      | Do nothing.                                                                                                                                                                                                                                                                                                         |
 #### Liquidations in Recovery Mode: TCR < 150%
 
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Condition                                | Liquidation behavior                                                                                                                                                                                                                                                                                                                                                                                         |
 |------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ICR <=100%                               | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                                                                                                          |
-| 100% < ICR < MCR & SP.DCHF > trove.debt  | DCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral (minus HBAR gas compensation) is shared between depsitors.                                                                                                                                                                                                                                    |
-| 100% < ICR < MCR & SP.DCHF < trove.debt  | The total StabilityPool DCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active troves                                                                                          |
-| MCR <= ICR < TCR & SP.DCHF >= trove.debt  |  The Pool DCHF is offset with an equal amount of debt from the Trove. A fraction of HBAR collateral with dollar value equal to `1.1 * debt` is shared between depositors. Nothing is redistributed to other active Troves. Since it's ICR was > 1.1, the Trove has a collateral remainder, which is sent to the `CollSurplusPool` and is claimable by the borrower. The Trove is closed. |
-| MCR <= ICR < TCR & SP.DCHF  < trove.debt | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 100% < ICR < MCR & SP.HCHF > trove.debt  | HCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral (minus HBAR gas compensation) is shared between depsitors.                                                                                                                                                                                                                                    |
+| 100% < ICR < MCR & SP.HCHF < trove.debt  | The total StabilityPool HCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active troves                                                                                          |
+| MCR <= ICR < TCR & SP.HCHF >= trove.debt  |  The Pool HCHF is offset with an equal amount of debt from the Trove. A fraction of HBAR collateral with dollar value equal to `1.1 * debt` is shared between depositors. Nothing is redistributed to other active Troves. Since it's ICR was > 1.1, the Trove has a collateral remainder, which is sent to the `CollSurplusPool` and is claimable by the borrower. The Trove is closed. |
+| MCR <= ICR < TCR & SP.HCHF  < trove.debt | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ICR >= TCR                               | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ## Gains From Liquidations
 
 Stability Pool depositors gain HBAR over time, as liquidated debt is cancelled with their deposit. When they withdraw all or part of their deposited tokens, or top up their deposit, the system sends them their accumulated HBAR gains.
 
-Similarly, a Trove's accumulated gains from liquidations are automatically applied to the Trove when the owner performs any operation - e.g. adding/withdrawing collateral, or issuing/repaying DCHF.
+Similarly, a Trove's accumulated gains from liquidations are automatically applied to the Trove when the owner performs any operation - e.g. adding/withdrawing collateral, or issuing/repaying HCHF.
 
-## DCHF Token Redemption
+## HCHF Token Redemption
 
-Any DCHF holder (whether or not they have an active Trove) may redeem their DCHF directly with the system. Their DCHF is exchanged for HBAR, at face value: redeeming x DCHF tokens returns \$x worth of HBAR (minus a [redemption fee](#redemption-fee)).
+Any HCHF holder (whether or not they have an active Trove) may redeem their HCHF directly with the system. Their HCHF is exchanged for HBAR, at face value: redeeming x HCHF tokens returns \$x worth of HBAR (minus a [redemption fee](#redemption-fee)).
 
-When DCHF is redeemed for HBAR, the system cancels the DCHF with debt from Troves, and the HBAR is drawn from their collateral.
+When HCHF is redeemed for HBAR, the system cancels the HCHF with debt from Troves, and the HBAR is drawn from their collateral.
 
 In order to fulfill the redemption request, Troves are redeemed from in ascending order of their collateralization ratio.
 
 A redemption sequence of `n` steps will **fully** redeem from up to `n-1` Troves, and, and **partially** redeems from up to 1 Trove, which is always the last Trove in the redemption sequence.
 
-Redemptions are blocked when TCR < 110% (there is no need to restrict ICR < TCR). At that TCR redemptions would likely be unprofitable, as DCHF is probably trading above $1 if the system has crashed that badly, but it could be a way for an attacker with a lot of DCHF to lower the TCR even further.
+Redemptions are blocked when TCR < 110% (there is no need to restrict ICR < TCR). At that TCR redemptions would likely be unprofitable, as HCHF is probably trading above $1 if the system has crashed that badly, but it could be a way for an attacker with a lot of HCHF to lower the TCR even further.
 
 Note that redemptions are disabled during the first 14 days of operation since deployment of the HLiquity protocol to protect the monetary system in its infancy.
 
@@ -231,7 +231,7 @@ The partially redeemed Trove is re-inserted into the sorted list of Troves, and 
 
 ### Full redemption
 
-A Trove is defined as “fully redeemed from” when the redemption has caused (debt-200) of its debt to absorb (debt-200) DCHF. Then, its 200 DCHF Liquidation Reserve is cancelled with its remaining 200 debt: the Liquidation Reserve is burned from the gas address, and the 200 debt is zero’d.
+A Trove is defined as “fully redeemed from” when the redemption has caused (debt-200) of its debt to absorb (debt-200) HCHF. Then, its 200 HCHF Liquidation Reserve is cancelled with its remaining 200 debt: the Liquidation Reserve is burned from the gas address, and the 200 debt is zero’d.
 
 Before closing, we must handle the Trove’s **collateral surplus**: that is, the excess HBAR collateral remaining after redemption, due to its initial over-collateralization.
 
@@ -239,15 +239,15 @@ This collateral surplus is sent to the `CollSurplusPool`, and the borrower can r
 
 ### Redemptions create a price floor
 
-Economically, the redemption mechanism creates a hard price floor for DCHF, ensuring that the market price stays at or near to $1 CHF. 
+Economically, the redemption mechanism creates a hard price floor for HCHF, ensuring that the market price stays at or near to $1 CHF. 
 
 ## Recovery Mode
 
 Recovery Mode kicks in when the total collateralization ratio (TCR) of the system falls below 150%.
 
-During Recovery Mode, liquidation conditions are relaxed, and the system blocks borrower transactions that would further decrease the TCR. New DCHF may only be issued by adjusting existing Troves in a way that improves their ICR, or by opening a new Trove with an ICR of >=150%. In general, if an existing Trove's adjustment reduces its ICR, the transaction is only executed if the resulting TCR is above 150%
+During Recovery Mode, liquidation conditions are relaxed, and the system blocks borrower transactions that would further decrease the TCR. New HCHF may only be issued by adjusting existing Troves in a way that improves their ICR, or by opening a new Trove with an ICR of >=150%. In general, if an existing Trove's adjustment reduces its ICR, the transaction is only executed if the resulting TCR is above 150%
 
-Recovery Mode is structured to incentivize borrowers to behave in ways that promptly raise the TCR back above 150%, and to incentivize DCHF holders to replenish the Stability Pool.
+Recovery Mode is structured to incentivize borrowers to behave in ways that promptly raise the TCR back above 150%, and to incentivize HCHF holders to replenish the Stability Pool.
 
 Economically, Recovery Mode is designed to encourage collateral top-ups and debt repayments, and also itself acts as a self-negating deterrent: the possibility of it occurring actually guides the system away from ever reaching it.
 
@@ -288,7 +288,7 @@ HLiquity also issues HLQTY to Stability Providers, in a continous time-based man
 
 The HLQTY contracts consist of:
 
-`HLQTYStaking.sol` - the staking contract, containing stake and unstake functionality for HLQTY holders. This contract receives HBAR fees from redemptions, and DCHF fees from new debt issuance.
+`HLQTYStaking.sol` - the staking contract, containing stake and unstake functionality for HLQTY holders. This contract receives HBAR fees from redemptions, and HCHF fees from new debt issuance.
 
 `CommunityIssuance.sol` - This contract handles the issuance of HLQTY tokens to Stability Providers as a function of time. It is controlled by the `StabilityPool`. Upon system launch, the `CommunityIssuance` automatically receives 32 million HLQTY - the “community issuance” supply. The contract steadily issues these HLQTY tokens to the Stability Providers over time.
 
@@ -316,7 +316,7 @@ A `LockupContractFactory` is used to deploy `LockupContracts` in the first year.
 1. HLiquity admin deploys `LockupContractFactory`
 2. HLiquity admin deploys `CommunityIssuance`
 3. HLiquity admin deploys `HLQTYStaking` 
-4. HLiquity admin creates a Pool in Uniswap for DCHF/HBAR and deploys `Unipool` (LP rewards contract), which knows the address of the Pool
+4. HLiquity admin creates a Pool in Uniswap for HCHF/HBAR and deploys `Unipool` (LP rewards contract), which knows the address of the Pool
 5. HLiquity admin deploys `HLQTYToken`, which upon deployment:
 - Stores the `CommunityIssuance` and `LockupContractFactory` addresses
 - Mints HLQTY tokens to `CommunityIssuance`, the HLiquity admin address, the `Unipool` LP rewards address, and the bug bounty address
@@ -359,7 +359,7 @@ All application logic and data is contained in these contracts - there is no nee
 
 The system has no admin key or human governance. Once deployed, it is fully automated, decentralized and no user holds any special privileges in or control over the system.
 
-The three main contracts - `BorrowerOperations.sol`, `TroveManager.sol` and `StabilityPool.sol` - hold the user-facing public functions, and contain most of the internal system logic. Together they control Trove state updates and movements of HBAR and DCHF tokens around the system.
+The three main contracts - `BorrowerOperations.sol`, `TroveManager.sol` and `StabilityPool.sol` - hold the user-facing public functions, and contain most of the internal system logic. Together they control Trove state updates and movements of HBAR and HCHF tokens around the system.
 
 ### Core Smart Contracts
 
@@ -369,9 +369,9 @@ The three main contracts - `BorrowerOperations.sol`, `TroveManager.sol` and `Sta
 
 `LiquityBase.sol` - Both TroveManager and BorrowerOperations inherit from the parent contract LiquityBase, which contains global constants and some common functions.
 
-`StabilityPool.sol` - contains functionality for Stability Pool operations: making deposits, and withdrawing compounded deposits and accumulated HBAR and HLQTY gains. Holds the DCHF Stability Pool deposits, and the HBAR gains for depositors, from liquidations.
+`StabilityPool.sol` - contains functionality for Stability Pool operations: making deposits, and withdrawing compounded deposits and accumulated HBAR and HLQTY gains. Holds the HCHF Stability Pool deposits, and the HBAR gains for depositors, from liquidations.
 
-`DCHFToken.sol` - the stablecoin token contract, which implements the ERC20 fungible token standard in conjunction with EIP-2612 and a mechanism that blocks (accidental) transfers to addresses like the StabilityPool and address(0) that are not supposed to receive funds through direct transfers. The contract mints, burns and transfers DCHF tokens.
+`HCHFToken.sol` - the stablecoin token contract, which implements the ERC20 fungible token standard in conjunction with EIP-2612 and a mechanism that blocks (accidental) transfers to addresses like the StabilityPool and address(0) that are not supposed to receive funds through direct transfers. The contract mints, burns and transfers HCHF tokens.
 
 `SortedTroves.sol` - a doubly linked list that stores addresses of Trove owners, sorted by their individual collateralization ratio (ICR). It inserts and re-inserts Troves at the correct position, based on their ICR.
 
@@ -389,7 +389,7 @@ Along with `StabilityPool.sol`, these contracts hold HBAR and/or tokens for thei
 
 `CollSurplusPool.sol` - holds the HBAR surplus from Troves that have been fully redeemed from as well as from Troves with an ICR > MCR that were liquidated in Recovery Mode. Sends the surplus back to the owning borrower, when told to do so by `BorrowerOperations.sol`.
 
-`GasPool.sol` - holds the total DCHF liquidation reserves. DCHF is moved into the `GasPool` when a Trove is opened, and moved out when a Trove is liquidated or closed.
+`GasPool.sol` - holds the total HCHF liquidation reserves. HCHF is moved into the `GasPool` when a Trove is opened, and moved out when a Trove is liquidated or closed.
 
 ### Contract Interfaces
 
@@ -458,7 +458,7 @@ To summarize the Chainlink decimals issue:
 
 ### Keeping a sorted list of Troves ordered by ICR
 
-HLiquity relies on a particular data structure: a sorted doubly-linked list of Troves that remains ordered by individual collateralization ratio (ICR), i.e. the amount of collateral (in CHF) divided by the amount of debt (in DCHF).
+HLiquity relies on a particular data structure: a sorted doubly-linked list of Troves that remains ordered by individual collateralization ratio (ICR), i.e. the amount of collateral (in CHF) divided by the amount of debt (in HCHF).
 
 This ordered list is critical for gas-efficient redemption sequences and for the `liquidateTroves` sequence, both of which target Troves in ascending order of ICR.
 
@@ -538,60 +538,60 @@ HLQTYStaking receives HBAR coming from redemption fees.
 | stake       | staker's accumulated HBAR gain from system fees | LQTYStaking ->msg.sender |
 | unstake     | staker's accumulated HBAR gain from system fees | LQTYStaking ->msg.sender |
 
-### Flow of DCHF tokens in HLiquity
+### Flow of HCHF tokens in HLiquity
 
-![Flow of DCHF](images/DCHF_flows.svg)
+![Flow of HCHF](images/HCHF_flows.svg)
 
-When a user issues debt from their Trove, DCHF tokens are minted to their own address, and a debt is recorded on the Trove. Conversely, when they repay their Trove’s DCHF debt, DCHF is burned from their address, and the debt on their Trove is reduced.
+When a user issues debt from their Trove, HCHF tokens are minted to their own address, and a debt is recorded on the Trove. Conversely, when they repay their Trove’s HCHF debt, HCHF is burned from their address, and the debt on their Trove is reduced.
 
-Redemptions burn DCHF from the redeemer’s balance, and reduce the debt of the Trove redeemed against.
+Redemptions burn HCHF from the redeemer’s balance, and reduce the debt of the Trove redeemed against.
 
-Liquidations that involve a Stability Pool offset burn tokens from the Stability Pool’s balance, and reduce the DCHF debt of the liquidated Trove.
+Liquidations that involve a Stability Pool offset burn tokens from the Stability Pool’s balance, and reduce the HCHF debt of the liquidated Trove.
 
-The only time DCHF is transferred to/from a HLiquity contract, is when a user deposits DCHF to, or withdraws DCHF from, the StabilityPool.
+The only time HCHF is transferred to/from a HLiquity contract, is when a user deposits HCHF to, or withdraws HCHF from, the StabilityPool.
 
 **Borrower Operations**
 
-| Function                      | DCHF Quantity | ERC20 Operation                      |
+| Function                      | HCHF Quantity | ERC20 Operation                      |
 |-------------------------------|---------------|--------------------------------------|
-| openTrove                     | Drawn DCHF    | DCHF._mint(msg.sender, _DCHFAmount)  |
-|                               | Issuance fee  | DCHF._mint(LQTYStaking,  DCHFFee)    |
-| withdrawDCHF                  | Drawn DCHF    | DCHF._mint(msg.sender, _DCHFAmount)  |
-|                               | Issuance fee  | DCHF._mint(LQTYStaking,  DCHFFee)    |
-| repayDCHF                     | Repaid DCHF   | DCHF._burn(msg.sender, _DCHFAmount)  |
-| adjustTrove: withdrawing DCHF | Drawn DCHF    | DCHF._mint(msg.sender, _DCHFAmount)  |
-|                               | Issuance fee  | DCHF._mint(LQTYStaking,  DCHFFee)    |
-| adjustTrove: repaying DCHF    | Repaid DCHF   | DCHF._burn(msg.sender, _DCHFAmount)  |
-| closeTrove                    | Repaid DCHF   | DCHF._burn(msg.sender, _DCHFAmount) |
+| openTrove                     | Drawn HCHF    | HCHF._mint(msg.sender, _HCHFAmount)  |
+|                               | Issuance fee  | HCHF._mint(LQTYStaking,  HCHFFee)    |
+| withdrawHCHF                  | Drawn HCHF    | HCHF._mint(msg.sender, _HCHFAmount)  |
+|                               | Issuance fee  | HCHF._mint(LQTYStaking,  HCHFFee)    |
+| repayHCHF                     | Repaid HCHF   | HCHF._burn(msg.sender, _HCHFAmount)  |
+| adjustTrove: withdrawing HCHF | Drawn HCHF    | HCHF._mint(msg.sender, _HCHFAmount)  |
+|                               | Issuance fee  | HCHF._mint(LQTYStaking,  HCHFFee)    |
+| adjustTrove: repaying HCHF    | Repaid HCHF   | HCHF._burn(msg.sender, _HCHFAmount)  |
+| closeTrove                    | Repaid HCHF   | HCHF._burn(msg.sender, _HCHFAmount) |
 
 **Trove Manager**
 
-| Function                 | DCHF Quantity            | ERC20 Operation                                  |
+| Function                 | HCHF Quantity            | ERC20 Operation                                  |
 |--------------------------|--------------------------|--------------------------------------------------|
-| liquidate (offset)       | DCHF to offset with debt | DCHF._burn(stabilityPoolAddress, _debtToOffset); |
-| liquidateTroves (offset)   | DCHF to offset with debt | DCHF._burn(stabilityPoolAddress, _debtToOffset); |
-| batchLiquidateTroves (offset) | DCHF to offset with debt | DCHF._burn(stabilityPoolAddress, _debtToOffset); |
-| redeemCollateral         | DCHF to redeem           | DCHF._burn(msg.sender, _DCHF)                    |
+| liquidate (offset)       | HCHF to offset with debt | HCHF._burn(stabilityPoolAddress, _debtToOffset); |
+| liquidateTroves (offset)   | HCHF to offset with debt | HCHF._burn(stabilityPoolAddress, _debtToOffset); |
+| batchLiquidateTroves (offset) | HCHF to offset with debt | HCHF._burn(stabilityPoolAddress, _debtToOffset); |
+| redeemCollateral         | HCHF to redeem           | HCHF._burn(msg.sender, _HCHF)                    |
 
 **Stability Pool**
 
-| Function       | DCHF Quantity    | ERC20 Operation                                             |
+| Function       | HCHF Quantity    | ERC20 Operation                                             |
 |----------------|------------------|-------------------------------------------------------------|
-| provideToSP    | deposit / top-up | DCHF._transfer(msg.sender, stabilityPoolAddress, _amount);  |
-| withdrawFromSP | withdrawal       | DCHF._transfer(stabilityPoolAddress, msg.sender, _amount);  |
+| provideToSP    | deposit / top-up | HCHF._transfer(msg.sender, stabilityPoolAddress, _amount);  |
+| withdrawFromSP | withdrawal       | HCHF._transfer(stabilityPoolAddress, msg.sender, _amount);  |
 
 **HLQTY Staking**
 
-| Function | DCHF Quantity                                   | ERC20 Operation                                           |
+| Function | HCHF Quantity                                   | ERC20 Operation                                           |
 |----------|-------------------------------------------------|-----------------------------------------------------------|
-| stake    | staker's accumulated DCHF gain from system fees | DCHF._transfer(LQTYStakingAddress, msg.sender, DCHFGain); |
-| unstake  | staker's accumulated DCHF gain from system fees | DCHF._transfer(LQTYStakingAddress, msg.sender, DCHFGain); |
+| stake    | staker's accumulated HCHF gain from system fees | HCHF._transfer(LQTYStakingAddress, msg.sender, HCHFGain); |
+| unstake  | staker's accumulated HCHF gain from system fees | HCHF._transfer(LQTYStakingAddress, msg.sender, HCHFGain); |
 
 ### Flow of HLQTY Tokens in HLiquity
 
 ![Flow of HLQTY](images/HLQTY_flows.svg)
 
-Stability Providers and Frontend Operators receive HLQTY gains according to their share of the total DCHF deposits, and the HLQTY community issuance schedule.  Once obtained, HLQTY can be staked and unstaked with the `HLQTYStaking` contract.
+Stability Providers and Frontend Operators receive HLQTY gains according to their share of the total HCHF deposits, and the HLQTY community issuance schedule.  Once obtained, HLQTY can be staked and unstaked with the `HLQTYStaking` contract.
 
 **Stability Pool**
 
@@ -618,9 +618,9 @@ Generally, borrowers call functions that trigger Trove operations on their own T
 
 Anyone may call the public liquidation functions, and attempt to liquidate one or several Troves.
 
-DCHF token holders may also redeem their tokens, and swap an amount of tokens 1-for-1 in value (minus fees) with HBAR.
+HCHF token holders may also redeem their tokens, and swap an amount of tokens 1-for-1 in value (minus fees) with HBAR.
 
-HLQTY token holders may stake their HLQTY, to earn a share of the system fee revenue, in HBAR and DCHF.
+HLQTY token holders may stake their HLQTY, to earn a share of the system fee revenue, in HBAR and HCHF.
 
 ## Contract Ownership and Function Permissions
 
@@ -737,19 +737,19 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 ### Borrower (Trove) Operations - `BorrowerOperations.sol`
 
-`openTrove(uint _maxFeePercentage, uint _DCHFAmount, address _upperHint, address _lowerHint)`: payable function that creates a Trove for the caller with the requested debt, and the HBAR received as collateral. Successful execution is conditional mainly on the resulting collateralization ratio which must exceed the minimum (110% in Normal Mode, 150% in Recovery Mode). In addition to the requested debt, extra debt is issued to pay the issuance fee, and cover the gas compensation. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee. 
+`openTrove(uint _maxFeePercentage, uint _HCHFAmount, address _upperHint, address _lowerHint)`: payable function that creates a Trove for the caller with the requested debt, and the HBAR received as collateral. Successful execution is conditional mainly on the resulting collateralization ratio which must exceed the minimum (110% in Normal Mode, 150% in Recovery Mode). In addition to the requested debt, extra debt is issued to pay the issuance fee, and cover the gas compensation. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee. 
 
 `addColl(address _upperHint, address _lowerHint))`: payable function that adds the received HBAR to the caller's active Trove.
 
 `withdrawColl(uint _amount, address _upperHint, address _lowerHint)`: withdraws `_amount` of collateral from the caller’s Trove. Executes only if the user has an active Trove, the withdrawal would not pull the user’s Trove below the minimum collateralization ratio, and the resulting total collateralization ratio of the system is above 150%. 
 
-`function withdrawDCHF(uint _maxFeePercentage, uint _DCHFAmount, address _upperHint, address _lowerHint)`: issues `_amount` of DCHF from the caller’s Trove to the caller. Executes only if the Trove's collateralization ratio would remain above the minimum, and the resulting total collateralization ratio is above 150%. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee.
+`function withdrawHCHF(uint _maxFeePercentage, uint _HCHFAmount, address _upperHint, address _lowerHint)`: issues `_amount` of HCHF from the caller’s Trove to the caller. Executes only if the Trove's collateralization ratio would remain above the minimum, and the resulting total collateralization ratio is above 150%. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee.
 
-`repayDCHF(uint _amount, address _upperHint, address _lowerHint)`: repay `_amount` of DCHF to the caller’s Trove, subject to leaving 50 debt in the Trove (which corresponds to the 50 DCHF gas compensation).
+`repayHCHF(uint _amount, address _upperHint, address _lowerHint)`: repay `_amount` of HCHF to the caller’s Trove, subject to leaving 50 debt in the Trove (which corresponds to the 50 HCHF gas compensation).
 
 `_adjustTrove(address _borrower, uint _collWithdrawal, uint _debtChange, bool _isDebtIncrease, address _upperHint, address _lowerHint, uint _maxFeePercentage)`: enables a borrower to simultaneously change both their collateral and debt, subject to all the restrictions that apply to individual increases/decreases of each quantity with the following particularity: if the adjustment reduces the collateralization ratio of the Trove, the function only executes if the resulting total collateralization ratio is above 150%. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee. The parameter is ignored if the debt is not increased with the transaction.
 
-`closeTrove()`: allows a borrower to repay all debt, withdraw all their collateral, and close their Trove. Requires the borrower have a DCHF balance sufficient to repay their trove's debt, excluding gas compensation - i.e. `(debt - 50)` DCHF.
+`closeTrove()`: allows a borrower to repay all debt, withdraw all their collateral, and close their Trove. Requires the borrower have a HCHF balance sufficient to repay their trove's debt, excluding gas compensation - i.e. `(debt - 50)` HCHF.
 
 `claimCollateral(address _user)`: when a borrower’s Trove has been fully redeemed from and closed, or liquidated in Recovery Mode with a collateralization ratio above 110%, this function allows the borrower to claim their HBAR collateral surplus that remains in the system (collateral - debt upon redemption; collateral - 110% of the debt upon liquidation).
 
@@ -761,21 +761,21 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 `batchLiquidateTroves(address[] calldata _troveArray)`: callable by anyone, accepts a custom list of Troves addresses as an argument. Steps through the provided list and attempts to liquidate every Trove, until it reaches the end or it runs out of gas. A Trove is liquidated only if it meets the conditions for liquidation. For a batch of 10 Troves, the gas costs per liquidated Trove are roughly between 75K-83K, for a batch of 50 Troves between 54K-69K.
 
-`redeemCollateral(uint _DCHFAmount, address _firstRedemptionHint, address _upperPartialRedemptionHint, address _lowerPartialRedemptionHint, uint _partialRedemptionHintNICR, uint _maxIterations, uint _maxFeePercentage)`: redeems `_DCHFamount` of stablecoins for ether from the system. Decreases the caller’s DCHF balance, and sends them the corresponding amount of HBAR. Executes successfully if the caller has sufficient DCHF to redeem. The number of Troves redeemed from is capped by `_maxIterations`. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when another redemption transaction is processed first, driving up the redemption fee.
+`redeemCollateral(uint _HCHFAmount, address _firstRedemptionHint, address _upperPartialRedemptionHint, address _lowerPartialRedemptionHint, uint _partialRedemptionHintNICR, uint _maxIterations, uint _maxFeePercentage)`: redeems `_HCHFamount` of stablecoins for ether from the system. Decreases the caller’s HCHF balance, and sends them the corresponding amount of HBAR. Executes successfully if the caller has sufficient HCHF to redeem. The number of Troves redeemed from is capped by `_maxIterations`. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when another redemption transaction is processed first, driving up the redemption fee.
 
-`getCurrentICR(address _user, uint _price)`: computes the user’s individual collateralization ratio (ICR) based on their total collateral and total DCHF debt. Returns 2^256 -1 if they have 0 debt.
+`getCurrentICR(address _user, uint _price)`: computes the user’s individual collateralization ratio (ICR) based on their total collateral and total HCHF debt. Returns 2^256 -1 if they have 0 debt.
 
 `getTroveOwnersCount()`: get the number of active Troves in the system.
 
 `getPendingHBARReward(address _borrower)`: get the pending HBAR reward from liquidation redistribution events, for the given Trove.
 
-`getPendingDCHFDebtReward(address _borrower)`: get the pending Trove debt "reward" (i.e. the amount of extra debt assigned to the Trove) from liquidation redistribution events.
+`getPendingHCHFDebtReward(address _borrower)`: get the pending Trove debt "reward" (i.e. the amount of extra debt assigned to the Trove) from liquidation redistribution events.
 
 `getEntireDebtAndColl(address _borrower)`: returns a Trove’s entire debt and collateral, which respectively include any pending debt rewards and HBAR rewards from prior redistributions.
 
 `getEntireSystemColl()`:  Returns the systemic entire collateral allocated to Troves, i.e. the sum of the HBAR in the Active Pool and the Default Pool.
 
-`getEntireSystemDebt()` Returns the systemic entire debt assigned to Troves, i.e. the sum of the DCHFDebt in the Active Pool and the Default Pool.
+`getEntireSystemDebt()` Returns the systemic entire debt assigned to Troves, i.e. the sum of the HCHFDebt in the Active Pool and the Default Pool.
 
 `getTCR()`: returns the total collateralization ratio (TCR) of the system.  The TCR is based on the entire system debt and collateral (including pending rewards).
 
@@ -785,19 +785,19 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 `function getApproxHint(uint _CR, uint _numTrials, uint _inputRandomSeed)`: helper function, returns a positional hint for the sorted list. Used for transactions that must efficiently re-insert a Trove to the sorted list.
 
-`getRedemptionHints(uint _DCHFamount, uint _price, uint _maxIterations)`: helper function specifically for redemptions. Returns three hints:
+`getRedemptionHints(uint _HCHFamount, uint _price, uint _maxIterations)`: helper function specifically for redemptions. Returns three hints:
 
 - `firstRedemptionHint` is a positional hint for the first redeemable Trove (i.e. Trove with the lowest ICR >= MCR).
 - `partialRedemptionHintNICR` is the final nominal ICR of the last Trove after being hit by partial redemption, or zero in case of no partial redemption (see [Hints for `redeemCollateral`](#hints-for-redeemcollateral)).
-- `truncatedDCHFamount` is the maximum amount that can be redeemed out of the provided `_DCHFamount`. This can be lower than `_DCHFamount` when redeeming the full amount would leave the last Trove of the redemption sequence with less debt than the minimum allowed value.
+- `truncatedHCHFamount` is the maximum amount that can be redeemed out of the provided `_HCHFamount`. This can be lower than `_HCHFamount` when redeeming the full amount would leave the last Trove of the redemption sequence with less debt than the minimum allowed value.
 
 The number of Troves to consider for redemption can be capped by passing a non-zero value as `_maxIterations`, while passing zero will leave it uncapped.
 
 ### Stability Pool Functions - `StabilityPool.sol`
 
-`provideToSP(uint _amount, address _frontEndTag)`: allows stablecoin holders to deposit `_amount` of DCHF to the Stability Pool. It sends `_amount` of DCHF from their address to the Pool, and tops up their DCHF deposit by `_amount` and their tagged front end’s stake by `_amount`. If the depositor already has a non-zero deposit, it sends their accumulated HBAR and HLQTY gains to their address, and pays out their front end’s HLQTY gain to their front end.
+`provideToSP(uint _amount, address _frontEndTag)`: allows stablecoin holders to deposit `_amount` of HCHF to the Stability Pool. It sends `_amount` of HCHF from their address to the Pool, and tops up their HCHF deposit by `_amount` and their tagged front end’s stake by `_amount`. If the depositor already has a non-zero deposit, it sends their accumulated HBAR and HLQTY gains to their address, and pays out their front end’s HLQTY gain to their front end.
 
-`withdrawFromSP(uint _amount)`: allows a stablecoin holder to withdraw `_amount` of DCHF from the Stability Pool, up to the value of their remaining Stability deposit. It decreases their DCHF balance by `_amount` and decreases their front end’s stake by `_amount`. It sends the depositor’s accumulated HBAR and HLQTY gains to their address, and pays out their front end’s HLQTY gain to their front end. If the user makes a partial withdrawal, their deposit remainder will earn further gains. To prevent potential loss evasion by depositors, withdrawals from the Stability Pool are suspended when there are liquidable Troves with ICR < 110% in the system.
+`withdrawFromSP(uint _amount)`: allows a stablecoin holder to withdraw `_amount` of HCHF from the Stability Pool, up to the value of their remaining Stability deposit. It decreases their HCHF balance by `_amount` and decreases their front end’s stake by `_amount`. It sends the depositor’s accumulated HBAR and HLQTY gains to their address, and pays out their front end’s HLQTY gain to their front end. If the user makes a partial withdrawal, their deposit remainder will earn further gains. To prevent potential loss evasion by depositors, withdrawals from the Stability Pool are suspended when there are liquidable Troves with ICR < 110% in the system.
 
 `withdrawHBARGainToTrove(address _hint)`: sends the user's entire accumulated HBAR gain to the user's active Trove, and updates their Stability deposit with its accumulated loss from debt absorptions. Sends the depositor's HLQTY gain to the depositor, and sends the tagged front end's HLQTY gain to the front end.
 
@@ -809,15 +809,15 @@ The number of Troves to consider for redemption can be capped by passing a non-z
 
 `getFrontEndHLQTYGain(address _frontEnd)`: returns the accumulated HLQTY gain for a given front end
 
-`getCompoundedDCHFDeposit(address _depositor)`: returns the remaining deposit amount for a given Stability Pool depositor
+`getCompoundedHCHFDeposit(address _depositor)`: returns the remaining deposit amount for a given Stability Pool depositor
 
 `getCompoundedFrontEndStake(address _frontEnd)`: returns the remaining front end stake for a given front end
 
 ### HLQTY Staking Functions  `HLQTYStaking.sol`
 
- `stake(uint _HLQTYamount)`: sends `_HLQTYAmount` from the caller to the staking contract, and increases their stake. If the caller already has a non-zero stake, it pays out their accumulated HBAR and DCHF gains from staking.
+ `stake(uint _HLQTYamount)`: sends `_HLQTYAmount` from the caller to the staking contract, and increases their stake. If the caller already has a non-zero stake, it pays out their accumulated HBAR and HCHF gains from staking.
 
- `unstake(uint _HLQTYamount)`: reduces the caller’s stake by `_HLQTYamount`, up to a maximum of their entire stake. It pays out their accumulated HBAR and DCHF gains from staking.
+ `unstake(uint _HLQTYamount)`: reduces the caller’s stake by `_HLQTYamount`, up to a maximum of their entire stake. It pays out their accumulated HBAR and HCHF gains from staking.
 
 ### Lockup Contract Factory `LockupContractFactory.sol`
 
@@ -827,7 +827,7 @@ The number of Troves to consider for redemption can be capped by passing a non-z
 
 `withdrawHLQTY()`: When the current time is later than the `unlockTime` and the caller is the beneficiary, it transfers their HLQTY to them.
 
-### DCHF token `DCHFToken.sol` and HLQTY token `HLQTYToken.sol`
+### HCHF token `HCHFToken.sol` and HLQTY token `HLQTYToken.sol`
 
 Standard ERC20 and EIP2612 (`permit()` ) functionality.
 
@@ -843,7 +843,7 @@ https://eips.ethereum.org/EIPS/eip-2612
 
 ## Supplying Hints to Trove operations
 
-Troves in HLiquity are recorded in a sorted doubly linked list, sorted by their NICR, from high to low. NICR stands for the nominal collateral ratio that is simply the amount of collateral (in HBAR) multiplied by 100e18 and divided by the amount of debt (in DCHF), without taking the HBAR:CHF price into account. Given that all Troves are equally affected by HBAR price changes, they do not need to be sorted by their real ICR.
+Troves in HLiquity are recorded in a sorted doubly linked list, sorted by their NICR, from high to low. NICR stands for the nominal collateral ratio that is simply the amount of collateral (in HBAR) multiplied by 100e18 and divided by the amount of debt (in HCHF), without taking the HBAR:CHF price into account. Given that all Troves are equally affected by HBAR price changes, they do not need to be sorted by their real ICR.
 
 All Trove operations that change the collateralization ratio need to either insert or reinsert the Trove to the `SortedTroves` list. To reduce the computational complexity (and gas cost) of the insertion to the linked list, two ‘hints’ may be provided.
 
@@ -883,15 +883,15 @@ Hints allow cheaper Trove operations for the user, at the expense of a slightly 
   const toWei = web3.utils.toWei
   const toBN = web3.utils.toBN
 
-  const DCHFAmount = toBN(toWei('2500')) // borrower wants to withdraw 2500 DCHF
+  const HCHFAmount = toBN(toWei('2500')) // borrower wants to withdraw 2500 HCHF
   const HBARColl = toBN(toWei('5')) // borrower wants to lock 5 HBAR collateral
 
   // Call deployed TroveManager contract to read the liquidation reserve and latest borrowing fee
-  const liquidationReserve = await troveManager.DCHF_GAS_COMPENSATION()
-  const expectedFee = await troveManager.getBorrowingFeeWithDecay(DCHFAmount)
+  const liquidationReserve = await troveManager.HCHF_GAS_COMPENSATION()
+  const expectedFee = await troveManager.getBorrowingFeeWithDecay(HCHFAmount)
   
-  // Total debt of the new trove = DCHF amount drawn, plus fee, plus the liquidation reserve
-  const expectedDebt = DCHFAmount.add(expectedFee).add(liquidationReserve)
+  // Total debt of the new trove = HCHF amount drawn, plus fee, plus the liquidation reserve
+  const expectedDebt = HCHFAmount.add(expectedFee).add(liquidationReserve)
 
   // Get the nominal NICR of the new trove
   const _1e20 = toBN(toWei('100'))
@@ -908,18 +908,18 @@ Hints allow cheaper Trove operations for the user, at the expense of a slightly 
 
   // Finally, call openTrove with the exact upperHint and lowerHint
   const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
-  await borrowerOperations.openTrove(maxFee, DCHFAmount, upperHint, lowerHint, { value: HBARColl })
+  await borrowerOperations.openTrove(maxFee, HCHFAmount, upperHint, lowerHint, { value: HBARColl })
 ```
 
 #### Adjusting a Trove
 ```
   const collIncrease = toBN(toWei('1'))  // borrower wants to add 1 HBAR
-  const DCHFRepayment = toBN(toWei('230')) // borrower wants to repay 230 DCHF
+  const HCHFRepayment = toBN(toWei('230')) // borrower wants to repay 230 HCHF
 
   // Get trove's current debt and coll
   const {0: debt, 1: coll} = await troveManager.getEntireDebtAndColl(borrower)
   
-  const newDebt = debt.sub(DCHFRepayment)
+  const newDebt = debt.sub(HCHFRepayment)
   const newColl = coll.add(collIncrease)
 
   NICR = newColl.mul(_1e20).div(newDebt)
@@ -934,7 +934,7 @@ Hints allow cheaper Trove operations for the user, at the expense of a slightly 
   ({ 0: upperHint, 1: lowerHint } = await sortedTroves.findInsertPosition(NICR, approxHint, approxHint))
 
   // Call adjustTrove with the exact upperHint and lowerHint
-  await borrowerOperations.adjustTrove(maxFee, 0, DCHFRepayment, false, upperHint, lowerHint, {value: collIncrease})
+  await borrowerOperations.adjustTrove(maxFee, 0, HCHFRepayment, false, upperHint, lowerHint, {value: collIncrease})
 ```
 
 ### Hints for `redeemCollateral`
@@ -957,20 +957,20 @@ If when the transaction is confirmed the address is in fact not valid - the syst
 
 All Troves that are fully redeemed from in a redemption sequence are left with zero debt, and are closed. The remaining collateral (the difference between the orginal collateral and the amount used for the redemption) will be claimable by the owner.
 
-It’s likely that the last Trove in the redemption sequence would be partially redeemed from - i.e. only some of its debt cancelled with DCHF. In this case, it should be reinserted somewhere between top and bottom of the list. The `_lowerPartialRedemptionHint` and `_upperPartialRedemptionHint` hints passed to `redeemCollateral` describe the future neighbors the expected reinsert position.
+It’s likely that the last Trove in the redemption sequence would be partially redeemed from - i.e. only some of its debt cancelled with HCHF. In this case, it should be reinserted somewhere between top and bottom of the list. The `_lowerPartialRedemptionHint` and `_upperPartialRedemptionHint` hints passed to `redeemCollateral` describe the future neighbors the expected reinsert position.
 
 However, if between the off-chain hint computation and on-chain execution a different transaction changes the state of a Trove that would otherwise be hit by the redemption sequence, then the off-chain hint computation could end up totally inaccurate. This could lead to the whole redemption sequence reverting due to out-of-gas error.
 
 To mitigate this, another hint needs to be provided: `_partialRedemptionHintNICR`, the expected nominal ICR of the final partially-redeemed-from Trove. The on-chain redemption function checks whether, after redemption, the nominal ICR of this Trove would equal the nominal ICR hint.
 
-If not, the redemption sequence doesn’t perform the final partial redemption, and terminates early. This ensures that the transaction doesn’t revert, and most of the requested DCHF redemption can be fulfilled.
+If not, the redemption sequence doesn’t perform the final partial redemption, and terminates early. This ensures that the transaction doesn’t revert, and most of the requested HCHF redemption can be fulfilled.
 
 #### Example Redemption with hints
 ```
  // Get the redemptions hints from the deployed HintHelpers contract
-  const redemptionhint = await hintHelpers.getRedemptionHints(DCHFAmount, price, 50)
+  const redemptionhint = await hintHelpers.getRedemptionHints(HCHFAmount, price, 50)
 
-  const { 0: firstRedemptionHint, 1: partialRedemptionNewICR, 2: truncatedDCHFAmount } = redemptionhint
+  const { 0: firstRedemptionHint, 1: partialRedemptionNewICR, 2: truncatedHCHFAmount } = redemptionhint
 
   // Get the approximate partial redemption hint
   const { hintAddress: approxPartialRedemptionHint } = await contracts.hintHelpers.getApproxHint(partialRedemptionNewICR, numTrials, 42)
@@ -982,10 +982,10 @@ If not, the redemption sequence doesn’t perform the final partial redemption, 
     approxPartialRedemptionHint,
     approxPartialRedemptionHint))
 
-  /* Finally, perform the on-chain redemption, passing the truncated DCHF amount, the correct hints, and the expected
+  /* Finally, perform the on-chain redemption, passing the truncated HCHF amount, the correct hints, and the expected
   * ICR of the final partially redeemed trove in the sequence. 
   */
-  await troveManager.redeemCollateral(truncatedDCHFAmount,
+  await troveManager.redeemCollateral(truncatedHCHFAmount,
     firstRedemptionHint,
     exactPartialRedemptionHint[0],
     exactPartialRedemptionHint[1],
@@ -1003,13 +1003,13 @@ However, gas costs in Hedera are substantial. If the gas costs of our public liq
 
 The protocol thus directly compensates liquidators for their gas costs, to incentivize prompt liquidations in both normal and extreme periods of high gas prices. Liquidators should be confident that they will at least break even by making liquidation transactions.
 
-Gas compensation is paid in a mix of DCHF and HBAR. While the HBAR is taken from the liquidated Trove, the DCHF is provided by the borrower. When a borrower first issues debt, some DCHF is reserved as a Liquidation Reserve. A liquidation transaction thus draws HBAR from the trove(s) it liquidates, and sends the both the reserved DCHF and the compensation in HBAR to the caller, and liquidates the remainder.
+Gas compensation is paid in a mix of HCHF and HBAR. While the HBAR is taken from the liquidated Trove, the HCHF is provided by the borrower. When a borrower first issues debt, some HCHF is reserved as a Liquidation Reserve. A liquidation transaction thus draws HBAR from the trove(s) it liquidates, and sends the both the reserved HCHF and the compensation in HBAR to the caller, and liquidates the remainder.
 
-When a liquidation transaction liquidates multiple Troves, each Trove contributes DCHF and HBAR towards the total compensation for the transaction.
+When a liquidation transaction liquidates multiple Troves, each Trove contributes HCHF and HBAR towards the total compensation for the transaction.
 
 Gas compensation per liquidated Trove is given by the formula:
 
-Gas compensation = `200 DCHF + 0.5% of trove’s collateral (HBAR)`
+Gas compensation = `200 HCHF + 0.5% of trove’s collateral (HBAR)`
 
 The intentions behind this formula are:
 - To ensure that smaller Troves are liquidated promptly in normal times, at least
@@ -1017,21 +1017,21 @@ The intentions behind this formula are:
 
 ### Gas compensation schedule
 
-When a borrower opens a Trove, an additional 200 DCHF debt is issued, and 200 DCHF is minted and sent to a dedicated contract (`GasPool`) for gas compensation - the "gas pool".
+When a borrower opens a Trove, an additional 200 HCHF debt is issued, and 200 HCHF is minted and sent to a dedicated contract (`GasPool`) for gas compensation - the "gas pool".
 
-When a borrower closes their active Trove, this gas compensation is refunded: 200 DCHF is burned from the gas pool's balance, and the corresponding 200 DCHF debt on the Trove is cancelled.
+When a borrower closes their active Trove, this gas compensation is refunded: 200 HCHF is burned from the gas pool's balance, and the corresponding 200 HCHF debt on the Trove is cancelled.
 
-The purpose of the 200 DCHF Liquidation Reserve is to provide a minimum level of gas compensation, regardless of the Trove's collateral size or the current HBAR price.
+The purpose of the 200 HCHF Liquidation Reserve is to provide a minimum level of gas compensation, regardless of the Trove's collateral size or the current HBAR price.
 
 ### Liquidation
 
-When a Trove is liquidated, 0.5% of its collateral is sent to the liquidator, along with the 200 DCHF Liquidation Reserve. Thus, a liquidator always receives `{200 DCHF + 0.5% collateral}` per Trove that they liquidate. The collateral remainder of the Trove is then either offset, redistributed or a combination of both, depending on the amount of DCHF in the Stability Pool.
+When a Trove is liquidated, 0.5% of its collateral is sent to the liquidator, along with the 200 HCHF Liquidation Reserve. Thus, a liquidator always receives `{200 HCHF + 0.5% collateral}` per Trove that they liquidate. The collateral remainder of the Trove is then either offset, redistributed or a combination of both, depending on the amount of HCHF in the Stability Pool.
 
 ### Gas compensation and redemptions
 
 When a Trove is redeemed from, the redemption is made only against (debt - 200), not the entire debt.
 
-But if the redemption causes an amount (debt - 200) to be cancelled, the Trove is then closed: the 200 DCHF Liquidation Reserve is cancelled with its remaining 200 debt. That is, the gas compensation is burned from the gas pool, and the 200 debt is zero’d. The HBAR collateral surplus from the Trove remains in the system, to be later claimed by its owner.
+But if the redemption causes an amount (debt - 200) to be cancelled, the Trove is then closed: the 200 HCHF Liquidation Reserve is cancelled with its remaining 200 debt. That is, the gas compensation is burned from the gas pool, and the 200 debt is zero’d. The HBAR collateral surplus from the Trove remains in the system, to be later claimed by its owner.
 
 ### Gas compensation helper functions
 
@@ -1043,15 +1043,15 @@ Gas compensation functions are found in the parent _LiquityBase.sol_ contract:
 
 ## The Stability Pool
 
-Any DCHF holder may deposit DCHF to the Stability Pool. It is designed to absorb debt from liquidations, and reward depositors with the liquidated collateral, shared between depositors in proportion to their deposit size.
+Any HCHF holder may deposit HCHF to the Stability Pool. It is designed to absorb debt from liquidations, and reward depositors with the liquidated collateral, shared between depositors in proportion to their deposit size.
 
-Since liquidations are expected to occur at an ICR of just below 110%, and even in most extreme cases, still above 100%, a depositor can expect to receive a net gain from most liquidations. When that holds, the dollar value of the HBAR gain from a liquidation exceeds the dollar value of the DCHF loss (assuming the price of DCHF is $1).  
+Since liquidations are expected to occur at an ICR of just below 110%, and even in most extreme cases, still above 100%, a depositor can expect to receive a net gain from most liquidations. When that holds, the dollar value of the HBAR gain from a liquidation exceeds the dollar value of the HCHF loss (assuming the price of HCHF is $1).  
 
 We define the **collateral surplus** in a liquidation as `$(HBAR) - debt`, where `$(...)` represents the dollar value.
 
-At an DCHF price of $1, Troves with `ICR > 100%` have a positive collateral surplus.
+At an HCHF price of $1, Troves with `ICR > 100%` have a positive collateral surplus.
 
-After one or more liquidations, a deposit will have absorbed DCHF losses, and received HBAR gains. The remaining reduced deposit is the **compounded deposit**.
+After one or more liquidations, a deposit will have absorbed HCHF losses, and received HBAR gains. The remaining reduced deposit is the **compounded deposit**.
 
 Stability Providers expect a positive ROI on their initial deposit. That is:
 
@@ -1059,17 +1059,17 @@ Stability Providers expect a positive ROI on their initial deposit. That is:
 
 ### Mixed liquidations: offset and redistribution
 
-When a liquidation hits the Stability Pool, it is known as an **offset**: the debt of the Trove is offset against the DCHF in the Pool. When **x** DCHF debt is offset, the debt is cancelled, and **x** DCHF in the Pool is burned. When the DCHF Stability Pool is greater than the debt of the Trove, all the Trove's debt is cancelled, and all its HBAR is shared between depositors. This is a **pure offset**.
+When a liquidation hits the Stability Pool, it is known as an **offset**: the debt of the Trove is offset against the HCHF in the Pool. When **x** HCHF debt is offset, the debt is cancelled, and **x** HCHF in the Pool is burned. When the HCHF Stability Pool is greater than the debt of the Trove, all the Trove's debt is cancelled, and all its HBAR is shared between depositors. This is a **pure offset**.
 
-It can happen that the DCHF in the Stability Pool is less than the debt of a Trove. In this case, the whole Stability Pool will be used to offset a fraction of the Trove’s debt, and an equal fraction of the Trove’s HBAR collateral will be assigned to Stability Providers. The remainder of the Trove’s debt and HBAR gets redistributed to active Troves. This is a **mixed offset and redistribution**.
+It can happen that the HCHF in the Stability Pool is less than the debt of a Trove. In this case, the whole Stability Pool will be used to offset a fraction of the Trove’s debt, and an equal fraction of the Trove’s HBAR collateral will be assigned to Stability Providers. The remainder of the Trove’s debt and HBAR gets redistributed to active Troves. This is a **mixed offset and redistribution**.
 
 Because the HBAR collateral fraction matches the offset debt fraction, the effective ICR of the collateral and debt that is offset, is equal to the ICR of the Trove. So, for depositors, the ROI per liquidation depends only on the ICR of the liquidated Trove.
 
 ### Stability Pool deposit losses and HBAR gains - implementation
 
-Deposit functionality is handled by `StabilityPool.sol` (`provideToSP`, `withdrawFromSP`, etc).  StabilityPool also handles the liquidation calculation, and holds the DCHF and HBAR balances.
+Deposit functionality is handled by `StabilityPool.sol` (`provideToSP`, `withdrawFromSP`, etc).  StabilityPool also handles the liquidation calculation, and holds the HCHF and HBAR balances.
 
-When a liquidation is offset with the Stability Pool, debt from the liquidation is cancelled with an equal amount of DCHF in the pool, which is burned. 
+When a liquidation is offset with the Stability Pool, debt from the liquidation is cancelled with an equal amount of HCHF in the pool, which is burned. 
 
 Individual deposits absorb the debt from the liquidated Trove in proportion to their deposit as a share of total deposits.
  
@@ -1083,7 +1083,7 @@ Here’s an example of the Stability Pool absorbing liquidations. The Stability 
 
 There are two Troves to be liquidated, T1 and T2:
 
-|   | Trove | Collateral (HBAR) | Debt (DCHF) | ICR         | $(HBAR) ($) | Collateral surplus ($) |
+|   | Trove | Collateral (HBAR) | Debt (HCHF) | ICR         | $(HBAR) ($) | Collateral surplus ($) |
 |---|-------|------------------|-------------|-------------|------------|------------------------|
 |   | T1    | 1.6              | 150         | 1.066666667 | 160        | 10                     |
 |   | T2    | 2.45             | 225         | 1.088888889 | 245        | 20                     |
@@ -1097,7 +1097,7 @@ Here are the deposits, before any liquidations occur:
 | C         | 300     | 0.5    |
 | Total     | 600     | 1      |
 
-Now, the first liquidation T1 is absorbed by the Pool: 150 debt is cancelled with 150 Pool DCHF, and its 1.6 HBAR is split between depositors. We see the gains earned by A, B, C, are in proportion to their share of the total DCHF in the Stability Pool:
+Now, the first liquidation T1 is absorbed by the Pool: 150 debt is cancelled with 150 Pool HCHF, and its 1.6 HBAR is split between depositors. We see the gains earned by A, B, C, are in proportion to their share of the total HCHF in the Stability Pool:
 
 | Deposit | Debt absorbed from T1 | Deposit after | Total HBAR gained | $(deposit + HBAR gain) ($) | Current ROI   |
 |---------|-----------------------|---------------|------------------|---------------------------|---------------|
@@ -1106,7 +1106,7 @@ Now, the first liquidation T1 is absorbed by the Pool: 150 debt is cancelled wit
 | C       | 75                    | 225           | 0.8              | 305                       | 0.01666666667 |
 | Total   | 150                   | 450           | 1.6              | 610                       | 0.01666666667 |
 
-And now the second liquidation, T2, occurs: 225 debt is cancelled with 225 Pool DCHF, and 2.45 HBAR is split between depositors. The accumulated HBAR gain includes all HBAR gain from T1 and T2.
+And now the second liquidation, T2, occurs: 225 debt is cancelled with 225 Pool HCHF, and 2.45 HBAR is split between depositors. The accumulated HBAR gain includes all HBAR gain from T1 and T2.
 
 | Depositor | Debt absorbed from T2 | Deposit after | Accumulated HBAR | $(deposit + HBAR gain) ($) | Current ROI |
 |-----------|-----------------------|---------------|-----------------|---------------------------|-------------|
@@ -1127,7 +1127,7 @@ Eventually, a deposit can be fully “used up” in absorbing debt, and reduced 
 
 A depositor obtains their compounded deposits and corresponding HBAR gain in a “pull-based” manner. The system calculates the depositor’s compounded deposit and accumulated HBAR gain when the depositor makes an operation that changes their HBAR deposit.
 
-Depositors deposit DCHF via `provideToSP`, and withdraw with `withdrawFromSP`. Their accumulated HBAR gain is paid out every time they make a deposit operation - so HBAR payout is triggered by both deposit withdrawals and top-ups.
+Depositors deposit HCHF via `provideToSP`, and withdraw with `withdrawFromSP`. Their accumulated HBAR gain is paid out every time they make a deposit operation - so HBAR payout is triggered by both deposit withdrawals and top-ups.
 
 ### How deposits and HBAR gains are tracked
 
@@ -1217,7 +1217,7 @@ When a liquidation occurs:
 
 ## HLQTY issuance to liquity providers
 
-On deployment a new Uniswap pool will be created for the pair DCHF/HBAR and a Staking rewards contract will be deployed. The contract is based on [Unipool by Synthetix](https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol). More information about their liquidity rewards program can be found in the [original SIP 31](https://sips.synthetix.io/sips/sip-31) and in [their blog](https://blog.synthetix.io/new-uniswap-seth-lp-reward-system/).
+On deployment a new Uniswap pool will be created for the pair HCHF/HBAR and a Staking rewards contract will be deployed. The contract is based on [Unipool by Synthetix](https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol). More information about their liquidity rewards program can be found in the [original SIP 31](https://sips.synthetix.io/sips/sip-31) and in [their blog](https://blog.synthetix.io/new-uniswap-seth-lp-reward-system/).
 
 Essentially the way it works is:
 - Liqudity providers add funds to the Uniswap pool, and get UNIv2 tokens in exchange
@@ -1236,9 +1236,9 @@ HLiquity generates fee revenue from certain operations. Fees are captured by the
 
 A HLQTY holder may stake their HLQTY, and earn a share of all system fees, proportional to their share of the total HLQTY staked.
 
-HLiquity generates revenue in two ways: redemptions, and issuance of new DCHF tokens.
+HLiquity generates revenue in two ways: redemptions, and issuance of new HCHF tokens.
 
-Redemptions fees are paid in HBAR. Issuance fees (when a user opens a Trove, or issues more DCHF from their existing Trove) are paid in DCHF.
+Redemptions fees are paid in HBAR. Issuance fees (when a user opens a Trove, or issues more HCHF from their existing Trove) are paid in HCHF.
 
 ### Redemption Fee
 
@@ -1248,19 +1248,19 @@ In the `TroveManager`, `redeemCollateral` calculates the HBAR fee and transfers 
 
 ### Issuance fee
 
-The issuance fee is charged on the DCHF drawn by the user and is added to the Trove's DCHF debt. It is based on the current borrowing rate.
+The issuance fee is charged on the HCHF drawn by the user and is added to the Trove's HCHF debt. It is based on the current borrowing rate.
 
-When new DCHF are drawn via one of the `BorrowerOperations` functions `openTrove`, `withdrawDCHF` or `adjustTrove`, an extra amount `DCHFFee` is minted, and an equal amount of debt is added to the user’s Trove. The `DCHFFee` is transferred to the staking contract, `HLQTYStaking.sol`.
+When new HCHF are drawn via one of the `BorrowerOperations` functions `openTrove`, `withdrawHCHF` or `adjustTrove`, an extra amount `HCHFFee` is minted, and an equal amount of debt is added to the user’s Trove. The `HCHFFee` is transferred to the staking contract, `HLQTYStaking.sol`.
 
 ### Fee Schedule
 
-Redemption and issuance fees are based on the `baseRate` state variable in TroveManager, which is dynamically updated. The `baseRate` increases with each redemption, and decays according to time passed since the last fee event - i.e. the last redemption or issuance of DCHF.
+Redemption and issuance fees are based on the `baseRate` state variable in TroveManager, which is dynamically updated. The `baseRate` increases with each redemption, and decays according to time passed since the last fee event - i.e. the last redemption or issuance of HCHF.
 
 The current fee schedule:
 
 Upon each redemption:
 - `baseRate` is decayed based on time passed since the last fee event
-- `baseRate` is incremented by an amount proportional to the fraction of the total DCHF supply that was redeemed
+- `baseRate` is incremented by an amount proportional to the fraction of the total HCHF supply that was redeemed
 - The redemption rate is given by `min{REDEMPTION_FEE_FLOOR + baseRate * HBARdrawn, DECIMAL_PRECISION}`
 
 Upon each debt issuance:
@@ -1281,7 +1281,7 @@ Furthermore, the fees cannot become smaller than 0.5%, which in the case of rede
 
 ### Fee decay Implementation
 
-Time is measured in units of minutes. The `baseRate` decay is based on `block.timestamp - lastFeeOpTime`. If less than a minute has passed since the last fee event, then `lastFeeOpTime` is not updated. This prevents “base rate griefing”: i.e. it prevents an attacker stopping the `baseRate` from decaying by making a series of redemptions or issuing DCHF with time intervals of < 1 minute.
+Time is measured in units of minutes. The `baseRate` decay is based on `block.timestamp - lastFeeOpTime`. If less than a minute has passed since the last fee event, then `lastFeeOpTime` is not updated. This prevents “base rate griefing”: i.e. it prevents an attacker stopping the `baseRate` from decaying by making a series of redemptions or issuing HCHF with time intervals of < 1 minute.
 
 The decay parameter is tuned such that the fee changes by a factor of 0.99 per hour, i.e. it loses 1% of its current value per hour. At that rate, after one week, the baseRate decays to 18% of its prior value. The exact decay parameter is subject to change, and will be fine-tuned via economic modelling.
 
@@ -1289,7 +1289,7 @@ The decay parameter is tuned such that the fee changes by a factor of 0.99 per h
 
 HLQTY holders may `stake` and `unstake` their HLQTY in the `HLQTYStaking.sol` contract. 
 
-When a fee event occurs, the fee in DCHF or HBAR is sent to the staking contract, and a reward-per-unit-staked sum (`F_HBAR`, or `F_DCHF`) is incremented. A HLQTY stake earns a share of the fee equal to its share of the total HLQTY staked, at the instant the fee occurred.
+When a fee event occurs, the fee in HCHF or HBAR is sent to the staking contract, and a reward-per-unit-staked sum (`F_HBAR`, or `F_HCHF`) is incremented. A HLQTY stake earns a share of the fee equal to its share of the total HLQTY staked, at the instant the fee occurred.
 
 This staking formula and implementation follows the basic [“Batog” pull-based reward distribution](http://batog.info/papers/scalable-reward-distribution.pdf).
 
@@ -1349,7 +1349,7 @@ PDFs of these can be found in https://github.com/liquity/dev/blob/main/papers
 
 _**Trove:**_ a collateralized debt position, bound to a single Hedera address. Also referred to as a “CDP” in similar protocols.
 
-_**DCHF**_:  The stablecoin that may be issued from a user's collateralized debt position and freely transferred/traded to any Hedera address. Intended to maintain parity with the US dollar, and can always be redeemed directly with the system: 1 DCHF is always exchangeable for $1 CHF worth of HBAR.
+_**HCHF**_:  The stablecoin that may be issued from a user's collateralized debt position and freely transferred/traded to any Hedera address. Intended to maintain parity with the US dollar, and can always be redeemed directly with the system: 1 HCHF is always exchangeable for $1 CHF worth of HBAR.
 
 _**Active Trove:**_ an Hedera address owns an “active Trove” if there is a node in the `SortedTroves` list with ID equal to the address, and non-zero collateral is recorded on the Trove struct for that address.
 
@@ -1357,7 +1357,7 @@ _**Closed Trove:**_ a Trove that was once active, but now has zero debt and zero
 
 _**Active collateral:**_ the amount of HBAR collateral recorded on a Trove’s struct
 
-_**Active debt:**_ the amount of DCHF debt recorded on a Trove’s struct
+_**Active debt:**_ the amount of HCHF debt recorded on a Trove’s struct
 
 _**Entire collateral:**_ the sum of a Trove’s active collateral plus its pending collateral rewards accumulated from distributions
 
@@ -1369,11 +1369,11 @@ _**Nominal collateralization ratio (nominal ICR, NICR):**_ a Trove's nominal ICR
 
 _**Total active collateral:**_ the sum of active collateral over all Troves. Equal to the HBAR in the ActivePool.
 
-_**Total active debt:**_ the sum of active debt over all Troves. Equal to the DCHF in the ActivePool.
+_**Total active debt:**_ the sum of active debt over all Troves. Equal to the HCHF in the ActivePool.
 
 _**Total defaulted collateral:**_ the total HBAR collateral in the DefaultPool
 
-_**Total defaulted debt:**_ the total DCHF debt in the DefaultPool
+_**Total defaulted debt:**_ the total HCHF debt in the DefaultPool
 
 _**Entire system collateral:**_ the sum of the collateral in the ActivePool and DefaultPool
 
@@ -1383,15 +1383,15 @@ _**Total collateralization ratio (TCR):**_ the ratio of the dollar value of the 
 
 _**Critical collateralization ratio (CCR):**_ 150%. When the TCR is below the CCR, the system enters Recovery Mode.
 
-_**Borrower:**_ an externally owned account or contract that locks collateral in a Trove and issues DCHF tokens to their own address. They “borrow” DCHF tokens against their HBAR collateral.
+_**Borrower:**_ an externally owned account or contract that locks collateral in a Trove and issues HCHF tokens to their own address. They “borrow” HCHF tokens against their HBAR collateral.
 
-_**Depositor:**_ an externally owned account or contract that has assigned DCHF tokens to the Stability Pool, in order to earn returns from liquidations, and receive HLQTY token issuance.
+_**Depositor:**_ an externally owned account or contract that has assigned HCHF tokens to the Stability Pool, in order to earn returns from liquidations, and receive HLQTY token issuance.
 
-_**Redemption:**_ the act of swapping DCHF tokens with the system, in return for an equivalent value of HBAR. Any account with a DCHF token balance may redeem them, whether or not they are a borrower.
+_**Redemption:**_ the act of swapping HCHF tokens with the system, in return for an equivalent value of HBAR. Any account with a HCHF token balance may redeem them, whether or not they are a borrower.
 
-When DCHF is redeemed for HBAR, the HBAR is always withdrawn from the lowest collateral Troves, in ascending order of their collateralization ratio. A redeemer can not selectively target Troves with which to swap DCHF for HBAR.
+When HCHF is redeemed for HBAR, the HBAR is always withdrawn from the lowest collateral Troves, in ascending order of their collateralization ratio. A redeemer can not selectively target Troves with which to swap HCHF for HBAR.
 
-_**Repayment:**_ when a borrower sends DCHF tokens to their own Trove, reducing their debt, and increasing their collateralization ratio.
+_**Repayment:**_ when a borrower sends HCHF tokens to their own Trove, reducing their debt, and increasing their collateralization ratio.
 
 _**Retrieval:**_ when a borrower with an active Trove withdraws some or all of their HBAR collateral from their own trove, either reducing their collateralization ratio, or closing their Trove (if they have zero debt and withdraw all their HBAR)
 
@@ -1399,17 +1399,17 @@ _**Liquidation:**_ the act of force-closing an undercollateralized Trove and red
 
 Liquidation functionality is permissionless and publically available - anyone may liquidate an undercollateralized Trove, or batch liquidate Troves in ascending order of collateralization ratio.
 
-_**Collateral Surplus**_: The difference between the dollar value of a Trove's HBAR collateral, and the dollar value of its DCHF debt. In a full liquidation, this is the net gain earned by the recipients of the liquidation.
+_**Collateral Surplus**_: The difference between the dollar value of a Trove's HBAR collateral, and the dollar value of its HCHF debt. In a full liquidation, this is the net gain earned by the recipients of the liquidation.
 
-_**Offset:**_ cancellation of liquidated debt with DCHF in the Stability Pool, and assignment of liquidated collateral to Stability Pool depositors, in proportion to their deposit.
+_**Offset:**_ cancellation of liquidated debt with HCHF in the Stability Pool, and assignment of liquidated collateral to Stability Pool depositors, in proportion to their deposit.
 
 _**Redistribution:**_ assignment of liquidated debt and collateral directly to active Troves, in proportion to their collateral.
 
-_**Pure offset:**_  when a Trove's debt is entirely cancelled with DCHF in the Stability Pool, and all of it's liquidated HBAR collateral is assigned to Stability Providers.
+_**Pure offset:**_  when a Trove's debt is entirely cancelled with HCHF in the Stability Pool, and all of it's liquidated HBAR collateral is assigned to Stability Providers.
 
-_**Mixed offset and redistribution:**_  When the Stability Pool DCHF only covers a fraction of the liquidated Trove's debt.  This fraction of debt is cancelled with DCHF in the Stability Pool, and an equal fraction of the Trove's collateral is assigned to depositors. The remaining collateral & debt is redistributed directly to active Troves.
+_**Mixed offset and redistribution:**_  When the Stability Pool HCHF only covers a fraction of the liquidated Trove's debt.  This fraction of debt is cancelled with HCHF in the Stability Pool, and an equal fraction of the Trove's collateral is assigned to depositors. The remaining collateral & debt is redistributed directly to active Troves.
 
-_**Gas compensation:**_ A refund, in DCHF and HBAR, automatically paid to the caller of a liquidation function, intended to at least cover the gas cost of the transaction. Designed to ensure that liquidators are not dissuaded by potentially high gas costs.
+_**Gas compensation:**_ A refund, in HCHF and HBAR, automatically paid to the caller of a liquidation function, intended to at least cover the gas cost of the transaction. Designed to ensure that liquidators are not dissuaded by potentially high gas costs.
 
 ## Development
 
@@ -1700,7 +1700,7 @@ When the trove is at one end of the `SortedTroves` list and adjusted such that i
 - Depositor sees incoming price drop tx (or just anticipates one, by reading exchange price data), that would shortly be followed by unprofitable liquidation txs
 - Depositor front-runs with `withdrawFromSP()` to evade the loss
 
-Stability Pool depositors expect to make profits from liquidations which are likely to happen at a collateral ratio slightly below 110%, but well above 100%. In rare cases (flash crashes, oracle failures), troves may be liquidated below 100% though, resulting in a net loss for stability depositors. Depositors thus have an incentive to withdraw their deposits if they anticipate liquidations below 100% (note that the exact threshold of such “unprofitable” liquidations will depend on the current Dollar price of DCHF).
+Stability Pool depositors expect to make profits from liquidations which are likely to happen at a collateral ratio slightly below 110%, but well above 100%. In rare cases (flash crashes, oracle failures), troves may be liquidated below 100% though, resulting in a net loss for stability depositors. Depositors thus have an incentive to withdraw their deposits if they anticipate liquidations below 100% (note that the exact threshold of such “unprofitable” liquidations will depend on the current Dollar price of HCHF).
 
 As long the difference between two price feed updates is <10% and price stability is maintained, loss evasion situations should be rare. The percentage changes between two consecutive prices reported by Chainlink’s HBAR:CHF oracle has only ever come close to 10% a handful of times in the past few years.
 
@@ -1716,7 +1716,7 @@ This solution is only partially effective since it does not prevent stability de
 - User front-runs it and immediately makes a deposit with `provideToSP()`
 - User earns a profit
 
-Front-runners could deposit funds to the Stability Pool on the fly (instead of keeping their funds in the pool) and make liquidation gains when they see a pending price update or liquidate transaction. They could even borrow the DCHF using a trove as a flash loan.
+Front-runners could deposit funds to the Stability Pool on the fly (instead of keeping their funds in the pool) and make liquidation gains when they see a pending price update or liquidate transaction. They could even borrow the HCHF using a trove as a flash loan.
 
 Such flash deposit-liquidations would actually be beneficial (in terms of TCR) to system health and prevent redistributions, since the pool can be filled on the spot to liquidate troves anytime, if only for the length of 1 transaction.
 
@@ -1728,7 +1728,7 @@ Such flash deposit-liquidations would actually be beneficial (in terms of TCR) t
 -Attacker front-runs with mass openLoan txs
 -Incoming operation becomes more costly - more traversals needed for insertion
 
-It’s theoretically possible to increase the number of the troves that need to be traversed on-chain. That is, an attacker that sees a pending borrower transaction (or redemption or liquidation transaction) could try to increase the number of traversed troves by introducing additional troves on the way. However, the number of troves that an attacker can inject before the pending transaction gets mined is limited by the amount of spendable gas. Also, the total costs of making the path longer by 1 are significantly higher (gas costs of opening a trove, plus the 0.5% borrowing fee) than the costs of one extra traversal step (simply reading from storage). The attacker also needs significant capital on-hand, since the minimum debt for a trove is 2000 DCHF.
+It’s theoretically possible to increase the number of the troves that need to be traversed on-chain. That is, an attacker that sees a pending borrower transaction (or redemption or liquidation transaction) could try to increase the number of traversed troves by introducing additional troves on the way. However, the number of troves that an attacker can inject before the pending transaction gets mined is limited by the amount of spendable gas. Also, the total costs of making the path longer by 1 are significantly higher (gas costs of opening a trove, plus the 0.5% borrowing fee) than the costs of one extra traversal step (simply reading from storage). The attacker also needs significant capital on-hand, since the minimum debt for a trove is 2000 HCHF.
 
 In case of a redemption, the “last” trove affected by the transaction may end up being only partially redeemed from, which means that its ICR will change so that it needs to be reinserted at a different place in the sorted trove list (note that this is not the case for partial liquidations in recovery mode, which preserve the ICR). A special ICR hint therefore needs to be provided by the transaction sender for that matter, which may become incorrect if another transaction changes the order before the redemption is processed. The protocol gracefully handles this by terminating the redemption sequence at the last fully redeemed trove (see [here](https://github.com/liquity/dev#hints-for-redeemcollateral)).
 
@@ -1743,14 +1743,14 @@ The content of this readme document (“Readme”) is of purely informational na
 
 Please read this Disclaimer carefully before accessing, interacting with, or using the Liquity Protocol software, consisting of the Liquity Protocol technology stack (in particular its smart contracts) as well as any other Liquity technology such as e.g., the launch kit for frontend operators (together the “Liquity Protocol Software”). 
 
-While Liquity AG developed the Liquity Protocol Software, the Liquity Protocol Software runs in a fully decentralized and autonomous manner on the Hedera network. Liquity AG is not involved in the operation of the Liquity Protocol Software nor has it any control over transactions made using its smart contracts. Further, Liquity AG does neither enter into any relationship with users of the Liquity Protocol Software and/or frontend operators, nor does it operate an own frontend. Any and all functionalities of the Liquity Protocol Software, including the DCHF and the HLQTY, are of purely technical nature and there is no claim towards any private individual or legal entity in this regard.
+While Liquity AG developed the Liquity Protocol Software, the Liquity Protocol Software runs in a fully decentralized and autonomous manner on the Hedera network. Liquity AG is not involved in the operation of the Liquity Protocol Software nor has it any control over transactions made using its smart contracts. Further, Liquity AG does neither enter into any relationship with users of the Liquity Protocol Software and/or frontend operators, nor does it operate an own frontend. Any and all functionalities of the Liquity Protocol Software, including the HCHF and the HLQTY, are of purely technical nature and there is no claim towards any private individual or legal entity in this regard.
 
-LIQUITY AG IS NOT LIABLE TO ANY USER FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, IN CONNECTION WITH THE USE OR INABILITY TO USE THE LIQUITY PROTOCOL SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF HBAR, DCHF OR HLQTY, NON-ALLOCATION OF TECHNICAL FEES TO HLQTY HOLDERS, LOSS OF DATA, BUSINESS INTERRUPTION, DATA BEING RENDERED INACCURATE OR OTHER LOSSES SUSTAINED BY A USER OR THIRD PARTIES AS A RESULT OF THE LIQUITY PROTOCOL SOFTWARE AND/OR ANY ACTIVITY OF A FRONTEND OPERATOR OR A FAILURE OF THE LIQUITY PROTOCOL SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE).
+LIQUITY AG IS NOT LIABLE TO ANY USER FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, IN CONNECTION WITH THE USE OR INABILITY TO USE THE LIQUITY PROTOCOL SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF HBAR, HCHF OR HLQTY, NON-ALLOCATION OF TECHNICAL FEES TO HLQTY HOLDERS, LOSS OF DATA, BUSINESS INTERRUPTION, DATA BEING RENDERED INACCURATE OR OTHER LOSSES SUSTAINED BY A USER OR THIRD PARTIES AS A RESULT OF THE LIQUITY PROTOCOL SOFTWARE AND/OR ANY ACTIVITY OF A FRONTEND OPERATOR OR A FAILURE OF THE LIQUITY PROTOCOL SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE).
 
 The Liquity Protocol Software has been developed and published under the GNU GPL v3 open-source license, which forms an integral part of this disclaimer. 
 
-THE LIQUITY PROTOCOL SOFTWARE HAS BEEN PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THE LIQUITY PROTOCOL SOFTWARE IS HIGHLY EXPERIMENTAL AND ANY REAL HBAR AND/OR DCHF AND/OR HLQTY SENT, STAKED OR DEPOSITED TO THE LIQUITY PROTOCOL SOFTWARE ARE AT RISK OF BEING LOST INDEFINITELY, WITHOUT ANY KIND OF CONSIDERATION.
+THE LIQUITY PROTOCOL SOFTWARE HAS BEEN PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THE LIQUITY PROTOCOL SOFTWARE IS HIGHLY EXPERIMENTAL AND ANY REAL HBAR AND/OR HCHF AND/OR HLQTY SENT, STAKED OR DEPOSITED TO THE LIQUITY PROTOCOL SOFTWARE ARE AT RISK OF BEING LOST INDEFINITELY, WITHOUT ANY KIND OF CONSIDERATION.
 
 There are no official frontend operators, and the use of any frontend is made by users at their own risk. To assess the trustworthiness of a frontend operator lies in the sole responsibility of the users and must be made carefully.
 
-User is solely responsible for complying with applicable law when interacting (in particular, when using HBAR, DCHF, HLQTY or other Token) with the Liquity Protocol Software whatsoever. 
+User is solely responsible for complying with applicable law when interacting (in particular, when using HBAR, HCHF, HLQTY or other Token) with the Liquity Protocol Software whatsoever. 
