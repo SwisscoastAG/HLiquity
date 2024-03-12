@@ -8,12 +8,10 @@ import "../Dependencies/SafeMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
 import "../Interfaces/IHLQTYToken.sol";
-import "./Dependencies/SafeERC20.sol";
 import "./Interfaces/ILPTokenWrapper.sol";
 import "./Interfaces/IUnipool.sol";
 import "../Dependencies/console.sol";
-import "../Dependencies/HederaResponseCodes.sol";
-import "../Dependencies/HederaTokenService.sol";
+import "../Dependencies/BaseHST.sol";
 
 // Adapted from: https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol
 // Some more useful references:
@@ -22,11 +20,10 @@ import "../Dependencies/HederaTokenService.sol";
 // Incremental changes (commit by commit) from the original to this version: https://github.com/liquity/dev/pull/271
 
 // LPTokenWrapper contains the basic staking functionality
-contract LPTokenWrapper is ILPTokenWrapper, HederaTokenService {
+contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
-    IERC20 public uniToken;
+    address public uniToken;
 
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
@@ -42,13 +39,13 @@ contract LPTokenWrapper is ILPTokenWrapper, HederaTokenService {
     function stake(uint256 amount) public virtual override {
         _totalSupply = _totalSupply.add(amount);
         _balances[msg.sender] = _balances[msg.sender].add(amount);
-        uniToken.safeTransferFrom(msg.sender, address(this), amount);
+        _transfer(uniToken, msg.sender, address(this), amount);
     }
 
     function withdraw(uint256 amount) public virtual override {
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        uniToken.safeTransfer(msg.sender, amount);
+        _transfer(uniToken, address(this), msg.sender, amount);
     }
 }
 
@@ -98,11 +95,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         checkContract(_hlqtyTokenAddress);
         hlqtyToken = IHLQTYToken(_hlqtyTokenAddress);
 
-        int responseCode = HederaTokenService.associateToken(address(this), hlqtyToken.getTokenAddress());
-
-        if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert ();
-        }
+        _associateToken(address(this),hlqtyToken.getTokenAddress());
 
         emit HLQTYTokenAddressChanged(_hlqtyTokenAddress);
     }
@@ -200,16 +193,10 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
         require(reward > 0, "Nothing to claim");
 
         rewards[msg.sender] = 0;
-        int64 safeReward = int64(reward);
-        int responseCode = HederaTokenService.transferToken(hlqtyToken.getTokenAddress(), address(this), msg.sender, safeReward);
-        _checkResponse(responseCode);
-        emit RewardPaid(msg.sender, reward);
-    }
 
-    function _checkResponse(int responseCode) internal pure returns (bool) {
-        // Using require to check the condition, and provide a custom error message if it fails.
-        require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
-        return true;
+        _transfer(hlqtyToken.getTokenAddress(), address(this), msg.sender, reward);
+
+        emit RewardPaid(msg.sender, reward);
     }
 
     // Used only on initialization, sets the reward rate and the end time for the program

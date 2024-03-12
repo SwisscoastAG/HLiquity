@@ -17,9 +17,6 @@ import "../Interfaces/IPyth.sol";
 contract PythCaller is IPythCaller {
     using SafeMath for uint256;
 
-    bytes32 constant public HBAR_USD_PYTH = 0x3728e591097635310e6341af53db8b7ee42da9b3a8d918f9463ce9cca886dfbd;
-    bytes32 constant public USD_CHF_PYTH = 0x0b1e3297e69f162877b577b0d6a47a0d63b2392bc8499e6540da4187a63e28f8;
-
     IPyth public pyth;
 
     constructor (address _pythAddress) public {
@@ -35,7 +32,7 @@ contract PythCaller is IPythCaller {
     * @return value the value retrieved
     * @return _timestampRetrieved the value's timestamp
     */
-    function getPythCurrentValue()
+    function getPythCurrentValue(bytes32 HBARUSD, bytes32 USDCHF)
     external
     view
     override
@@ -45,16 +42,16 @@ contract PythCaller is IPythCaller {
         uint256 _timestampRetrieved
     )
     {
-        (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPriceUnsafe(HBAR_USD_PYTH);
-        (int64 priceUSDCHF, , int32 expoUSDCHF, ) = pyth.getPriceUnsafe(USD_CHF_PYTH);
+        (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPriceUnsafe(HBARUSD);
+        (int64 priceUSDCHF, , int32 expoUSDCHF, uint publishTimeUSDCHF ) = pyth.getPriceUnsafe(USDCHF);
 
         uint256 basePriceHBARUSD = convertToUint(priceHBARUSD, expoHBARUSD, 8);
         uint256 basePriceUSDCHF = convertToUint(priceUSDCHF, expoUSDCHF, 8);
 
         uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSDCHF;
 
-        // Using the timestamp from the HBAR/USD price as reference
-        uint256 publishTime = publishTimeHBARUSD;
+        // Using the smaller of the two timestamps as reference
+        uint256 publishTime = publishTimeHBARUSD < publishTimeUSDCHF ? publishTimeHBARUSD : publishTimeUSDCHF;
 
         if (hbarChfPrice > 0) return (true, hbarChfPrice, publishTime);
         return (false, 0, publishTime);

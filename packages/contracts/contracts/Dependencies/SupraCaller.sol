@@ -28,7 +28,7 @@ contract SupraCaller is ISupraCaller {
     * @return value the value retrieved
     * @return _timestampRetrieved the value's timestamp
     */
-    function getSupraCurrentValue(uint256 _priceIndex)
+    function getSupraCurrentValue(uint256 _priceIndexHBARUSD, uint256 _priceIndexUSDCH)
     external
     view
     override
@@ -38,11 +38,24 @@ contract SupraCaller is ISupraCaller {
         uint256 _timestampRetrieved
     )
     {
-        (uint256 round, uint256 decimals, uint256 _time, uint256 _price) = supra.getSvalue(_priceIndex);
-        if (_price > 0) {
-            uint256 positiveValue = _price;
-            return (true, positiveValue, _time);
+        (uint256 roundHBARUSD, uint256 decimalsHBARUSD, uint256 _timeHBARUSD, uint256 _priceHBARUSD) = supra.getSvalue(_priceIndexHBARUSD);
+        (uint256 roundUSDCHF, uint256 decimalsUSDCHF, uint256 _timeUSDCHF, uint256 _priceUSDCHF) = supra.getSvalue(_priceIndexUSDCH);
+
+        uint256 basePriceHBARUSD = _scalePriceByDigits(_priceHBARUSD, decimalsHBARUSD);
+        uint256 basePriceUSDCHF = _scalePriceByDigits(_priceUSDCHF, decimalsUSDCHF);
+
+        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSDCHF;
+
+        uint256 publishTime = _timeHBARUSD < _timeUSDCHF ? _timeHBARUSD : _timeUSDCHF;
+
+        if (hbarChfPrice > 0) {
+            uint256 positiveValue = hbarChfPrice;
+            return (true, positiveValue, publishTime);
         }
-        return (false, 0, _time);
+        return (false, 0, publishTime);
+    }
+
+    function _scalePriceByDigits(uint _price, uint decimals) internal pure returns (uint) {
+        return _price.mul(10**(8 - decimals));
     }
 }
