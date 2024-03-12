@@ -244,11 +244,11 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
             }
         })
 
-        // increaseLUSD
+        // increaseDCHF
         it("increaseLUSDDebt(): reverts when called by an account that is not BO nor TroveM", async () => {
             // Attempt call from alice
             try {
-                const txAlice = await activePool.increaseLUSDDebt(100, {from: alice})
+                const txAlice = await activePool.increaseDCHFDebt(100, {from: alice})
 
             } catch (err) {
                 assert.include(err.message, "revert")
@@ -260,7 +260,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
         it("decreaseLUSDDebt(): reverts when called by an account that is not BO nor TroveM nor SP", async () => {
             // Attempt call from alice
             try {
-                const txAlice = await activePool.decreaseLUSDDebt(100, {from: alice})
+                const txAlice = await activePool.decreaseDCHFDebt(100, {from: alice})
 
             } catch (err) {
                 assert.include(err.message, "revert")
@@ -302,7 +302,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
         it("increaseLUSDDebt(): reverts when called by an account that is not TroveManager", async () => {
             // Attempt call from alice
             try {
-                const txAlice = await defaultPool.increaseLUSDDebt(100, {from: alice})
+                const txAlice = await defaultPool.increaseDCHFDebt(100, {from: alice})
 
             } catch (err) {
                 assert.include(err.message, "revert")
@@ -314,7 +314,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
         it("decreaseLUSD(): reverts when called by an account that is not TroveManager", async () => {
             // Attempt call from alice
             try {
-                const txAlice = await defaultPool.decreaseLUSDDebt(100, {from: alice})
+                const txAlice = await defaultPool.decreaseDCHFDebt(100, {from: alice})
 
             } catch (err) {
                 assert.include(err.message, "revert")
@@ -495,7 +495,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
     describe('LQTYStaking', async accounts => {
         it("increaseF_LUSD(): reverts when caller is not TroveManager", async () => {
             try {
-                const txAlice = await lqtyStaking.increaseF_LUSD(dec(1, 18), {from: alice})
+                const txAlice = await lqtyStaking.increaseF_DCHF(dec(1, 18), {from: alice})
 
             } catch (err) {
                 assert.include(err.message, "revert")
@@ -510,7 +510,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
             // multisig tries to call it
             try {
-                const tx = await lqtyToken.sendToLQTYStaking(multisig, 1, {from: multisig})
+                const tx = await lqtyToken.sendToHLQTYStaking(multisig, 1, {from: multisig})
             } catch (err) {
                 assert.include(err.message, "revert")
             }
@@ -528,7 +528,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
             // Alice tries to call it
             try {
-                const tx = await lqtyToken.sendToLQTYStaking(alice, dec(1, 8), {from: alice})
+                const tx = await lqtyToken.sendToHLQTYStaking(alice, dec(1, 8), {from: alice})
             } catch (err) {
                 assert.include(err.message, "revert")
             }
@@ -537,9 +537,9 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
     describe('CommunityIssuance', async accounts => {
         it("sendLQTY(): reverts when caller is not the StabilityPool", async () => {
-            const tx1 = communityIssuance.sendLQTY(alice, dec(100, 18), {from: alice})
-            const tx2 = communityIssuance.sendLQTY(bob, dec(100, 18), {from: alice})
-            const tx3 = communityIssuance.sendLQTY(stabilityPool.address, dec(100, 18), {from: alice})
+            const tx1 = communityIssuance.sendHLQTY(alice, dec(100, 18), {from: alice})
+            const tx2 = communityIssuance.sendHLQTY(bob, dec(100, 18), {from: alice})
+            const tx3 = communityIssuance.sendHLQTY(stabilityPool.address, dec(100, 18), {from: alice})
 
             assertRevert(tx1)
             assertRevert(tx2)
@@ -547,7 +547,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
         })
 
         it("issueLQTY(): reverts when caller is not the StabilityPool", async () => {
-            const tx1 = communityIssuance.issueLQTY({from: alice})
+            const tx1 = communityIssuance.issueHLQTY({from: alice})
 
             assertRevert(tx1)
         })

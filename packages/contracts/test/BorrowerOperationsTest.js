@@ -6,7 +6,7 @@ const {associateTokenWithAccount} = require("../utils/HederaOperations");
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
 const NonPayable = artifacts.require('NonPayable.sol')
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDTokenTester = artifacts.require("./LUSDTokenTester")
+const LUSDTokenTester = artifacts.require("./DCHFTokenTester")
 
 const th = testHelpers.TestHelper
 
@@ -103,7 +103,7 @@ contract('BorrowerOperations', async accounts => {
             communityIssuance = LQTYContracts.communityIssuance
             lockupContractFactory = LQTYContracts.lockupContractFactory
 
-            LUSD_GAS_COMPENSATION = await borrowerOperations.LUSD_GAS_COMPENSATION()
+            LUSD_GAS_COMPENSATION = await borrowerOperations.DCHF_GAS_COMPENSATION()
             MIN_NET_DEBT = await borrowerOperations.MIN_NET_DEBT()
             BORROWING_FEE_FLOOR = await borrowerOperations.BORROWING_FEE_FLOOR()
 
@@ -240,7 +240,7 @@ contract('BorrowerOperations', async accounts => {
             assert.isFalse(await sortedTroves.contains(carol))
 
             const L_ETH = await troveManager.L_ETH()
-            const L_LUSDDebt = await troveManager.L_LUSDDebt()
+            const L_LUSDDebt = await troveManager.L_DCHFDebt()
 
             // check Alice and Bob's reward snapshots are zero before they alter their Troves
             const alice_rewardSnapshot_Before = await troveManager.rewardSnapshots(alice)
@@ -258,8 +258,8 @@ contract('BorrowerOperations', async accounts => {
 
             const alicePendingETHReward = toBN(await troveManager.getPendingETHReward(alice) * 10 ** 10);
             const bobPendingETHReward = toBN(await troveManager.getPendingETHReward(bob) * 10 ** 10);
-            const alicePendingLUSDDebtReward = await troveManager.getPendingLUSDDebtReward(alice)
-            const bobPendingLUSDDebtReward = await troveManager.getPendingLUSDDebtReward(bob)
+            const alicePendingLUSDDebtReward = await troveManager.getPendingDCHFDebtReward(alice)
+            const bobPendingLUSDDebtReward = await troveManager.getPendingDCHFDebtReward(bob)
             for (reward of [alicePendingETHReward, bobPendingETHReward, alicePendingLUSDDebtReward, bobPendingLUSDDebtReward]) {
                 assert.isTrue(reward.gt(toBN('0')))
             }
@@ -487,14 +487,14 @@ contract('BorrowerOperations', async accounts => {
             }
         })
 
-        it.only("withdrawColl(): reverts if system is in Recovery Mode", async () => {
+        it("withdrawColl(): reverts if system is in Recovery Mode", async () => {
             // --- SETUP ---
             // A and B open troves at 150% ICR
             await openTrove({ICR: toBN(dec(15, 7)), extraParams: {from: bob}})
             await openTrove({ICR: toBN(dec(15, 7)), extraParams: {from: alice}})
 
             const TCR = (await th.getTCR(contracts)).toString()
-            assert.equal(TCR, '1500000000')
+            assert.equal(TCR, '150000000')
 
             // --- TEST ---
 

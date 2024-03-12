@@ -18,7 +18,7 @@ const CommunityIssuance = artifacts.require("./CommunityIssuance.sol")
 
 const Unipool = artifacts.require("./Unipool.sol")
 
-const LQTYTokenTester = artifacts.require("./LQTYTokenTester.sol")
+const LQTYTokenTester = artifacts.require("./HLQTYTokenTester.sol")
 const CommunityIssuanceTester = artifacts.require("./CommunityIssuanceTester.sol")
 const StabilityPoolTester = artifacts.require("./StabilityPoolTester.sol")
 const ActivePoolTester = artifacts.require("./ActivePoolTester.sol")
@@ -26,7 +26,7 @@ const DefaultPoolTester = artifacts.require("./DefaultPoolTester.sol")
 const LiquityMathTester = artifacts.require("./LiquityMathTester.sol")
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
 const TroveManagerTester = artifacts.require("./TroveManagerTester.sol")
-const LUSDTokenTester = artifacts.require("./LUSDTokenTester.sol")
+const LUSDTokenTester = artifacts.require("./DCHFTokenTester.sol")
 
 // Proxy scripts
 const BorrowerOperationsScript = artifacts.require('BorrowerOperationsScript')
@@ -34,7 +34,7 @@ const BorrowerWrappersScript = artifacts.require('BorrowerWrappersScript')
 const TroveManagerScript = artifacts.require('TroveManagerScript')
 const StabilityPoolScript = artifacts.require('StabilityPoolScript')
 const TokenScript = artifacts.require('TokenScript')
-const LQTYStakingScript = artifacts.require('LQTYStakingScript')
+const LQTYStakingScript = artifacts.require('HLQTYStakingScript')
 const {
     buildUserProxies,
     BorrowerOperationsProxy,
@@ -428,7 +428,7 @@ class DeploymentHelper {
 
     static async connectLQTYContracts(LQTYContracts) {
         // Set LQTYToken address in LCF
-        await LQTYContracts.lockupContractFactory.setLQTYTokenAddress(LQTYContracts.lqtyToken.address);
+        await LQTYContracts.lockupContractFactory.setHLQTYTokenAddress(LQTYContracts.lqtyToken.address);
     }
 
     static async connectLQTYContractsToCore(LQTYContracts, coreContracts, bountyAddress, lpRewardsAddress, multisigAddress) {
