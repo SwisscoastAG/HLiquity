@@ -44,7 +44,7 @@ contract SupraCaller is ISupraCaller {
         uint256 basePriceHBARUSD = _scalePriceByDigits(_priceHBARUSD, decimalsHBARUSD);
         uint256 basePriceUSHCHF = _scalePriceByDigits(_priceUSHCHF, decimalsUSHCHF);
 
-        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSHCHF;
+        uint256 hbarChfPrice = (basePriceHBARUSD * basePriceUSHCHF) / 1e8;
 
         uint256 publishTime = _timeHBARUSD < _timeUSHCHF ? _timeHBARUSD : _timeUSHCHF;
 
@@ -56,6 +56,6 @@ contract SupraCaller is ISupraCaller {
     }
 
     function _scalePriceByDigits(uint _price, uint decimals) internal pure returns (uint) {
-        return _price.mul(10**(8 - decimals));
+        return _price.div(10**(decimals - 8));
     }
 }

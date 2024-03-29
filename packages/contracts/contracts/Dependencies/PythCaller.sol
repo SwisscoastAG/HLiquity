@@ -48,7 +48,7 @@ contract PythCaller is IPythCaller {
         uint256 basePriceHBARUSD = convertToUint(priceHBARUSD, expoHBARUSD, 8);
         uint256 basePriceUSHCHF = convertToUint(priceUSHCHF, expoUSHCHF, 8);
 
-        uint256 hbarChfPrice = basePriceHBARUSD * basePriceUSHCHF;
+        uint256 hbarChfPrice = (basePriceHBARUSD * basePriceUSHCHF) / 1e8;
 
         // Using the smaller of the two timestamps as reference
         uint256 publishTime = publishTimeHBARUSD < publishTimeUSHCHF ? publishTimeHBARUSD : publishTimeUSHCHF;
