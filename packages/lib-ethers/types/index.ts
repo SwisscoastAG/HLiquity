@@ -74,8 +74,8 @@ interface BorrowerOperationsCalls {
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
   hchfToken(_overrides?: CallOverrides): Promise<string>;
-  hlqtyStaking(_overrides?: CallOverrides): Promise<string>;
-  hlqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
+  hlqtStaking(_overrides?: CallOverrides): Promise<string>;
+  hlqtStakingAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
@@ -91,7 +91,7 @@ interface BorrowerOperationsTransactions {
   moveETHGainToTrove(_borrower: string, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
   openTrove(_maxFeePercentage: BigNumberish, _HCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
   repayHCHF(_HCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
-  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _sortedTrovesAddress: string, _hchfTokenAddress: string, _hlqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _sortedTrovesAddress: string, _hchfTokenAddress: string, _hlqtStakingAddress: string, _overrides?: Overrides): Promise<void>;
   withdrawColl(_collWithdrawal: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
   withdrawHCHF(_maxFeePercentage: BigNumberish, _HCHFAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
 }
@@ -105,8 +105,8 @@ export interface BorrowerOperations
     GasPoolAddressChanged(_gasPoolAddress?: null): EventFilter;
     HCHFBorrowingFeePaid(_borrower?: string | null, _HCHFFee?: null): EventFilter;
     HCHFTokenAddressChanged(_hchfTokenAddress?: null): EventFilter;
-    HLQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
-    LQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
+    HLQTStakingAddressChanged(_hlqtStakingAddress?: null): EventFilter;
+    LQTYStakingAddressChanged(_hlqtStakingAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
     SortedTrovesAddressChanged(_sortedTrovesAddress?: null): EventFilter;
@@ -121,8 +121,8 @@ export interface BorrowerOperations
   extractEvents(logs: Log[], name: "GasPoolAddressChanged"): _TypedLogDescription<{ _gasPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "HCHFBorrowingFeePaid"): _TypedLogDescription<{ _borrower: string; _HCHFFee: BigNumber }>[];
   extractEvents(logs: Log[], name: "HCHFTokenAddressChanged"): _TypedLogDescription<{ _hchfTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "HLQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTStakingAddressChanged"): _TypedLogDescription<{ _hlqtStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
   extractEvents(logs: Log[], name: "SortedTrovesAddressChanged"): _TypedLogDescription<{ _sortedTrovesAddress: string }>[];
@@ -169,22 +169,22 @@ export interface CollSurplusPool
 
 interface CommunityIssuanceCalls {
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  HLQTYSupplyCap(_overrides?: CallOverrides): Promise<BigNumber>;
+  HLQTSupplyCap(_overrides?: CallOverrides): Promise<BigNumber>;
   ISSUANCE_FACTOR(_overrides?: CallOverrides): Promise<BigNumber>;
   NAME(_overrides?: CallOverrides): Promise<string>;
   SECONDS_IN_ONE_MINUTE(_overrides?: CallOverrides): Promise<BigNumber>;
   deploymentTime(_overrides?: CallOverrides): Promise<BigNumber>;
-  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
+  hlqtToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   stabilityPoolAddress(_overrides?: CallOverrides): Promise<string>;
-  totalHLQTYIssued(_overrides?: CallOverrides): Promise<BigNumber>;
+  totalHLQTIssued(_overrides?: CallOverrides): Promise<BigNumber>;
 }
 
 interface CommunityIssuanceTransactions {
-  issueHLQTY(_overrides?: Overrides): Promise<BigNumber>;
-  sendHLQTY(_account: string, _HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_hlqtyTokenAddress: string, _stabilityPoolAddress: string, _overrides?: Overrides): Promise<void>;
+  issueHLQT(_overrides?: Overrides): Promise<BigNumber>;
+  sendHLQT(_account: string, _HLQTamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  setAddresses(_hlqtTokenAddress: string, _stabilityPoolAddress: string, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
@@ -192,16 +192,16 @@ interface CommunityIssuanceTransactions {
 export interface CommunityIssuance
   extends _TypedLiquityContract<CommunityIssuanceCalls, CommunityIssuanceTransactions> {
   readonly filters: {
-    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
+    HLQTTokenAddressSet(_hlqtTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StabilityPoolAddressSet(_stabilityPoolAddress?: null): EventFilter;
-    TotalHLQTYIssuedUpdated(_totalHLQTYIssued?: null): EventFilter;
+    TotalHLQTIssuedUpdated(_totalHLQTIssued?: null): EventFilter;
     Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTTokenAddressSet"): _TypedLogDescription<{ _hlqtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressSet"): _TypedLogDescription<{ _stabilityPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "TotalHLQTYIssuedUpdated"): _TypedLogDescription<{ _totalHLQTYIssued: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TotalHLQTIssuedUpdated"): _TypedLogDescription<{ _totalHLQTIssued: BigNumber }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
 }
 
@@ -361,7 +361,7 @@ export interface IERC20
 interface LockupContractFactoryCalls {
   NAME(_overrides?: CallOverrides): Promise<string>;
   SECONDS_IN_ONE_YEAR(_overrides?: CallOverrides): Promise<BigNumber>;
-  hlqtyTokenAddress(_overrides?: CallOverrides): Promise<string>;
+  hlqtTokenAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   isRegisteredLockup(_contractAddress: string, _overrides?: CallOverrides): Promise<boolean>;
   lockupContractToDeployer(arg0: string, _overrides?: CallOverrides): Promise<string>;
@@ -370,17 +370,17 @@ interface LockupContractFactoryCalls {
 
 interface LockupContractFactoryTransactions {
   deployLockupContract(_beneficiary: string, _unlockTime: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setHLQTYTokenAddress(_hlqtyTokenAddress: string, _overrides?: Overrides): Promise<void>;
+  setHLQTTokenAddress(_hlqtTokenAddress: string, _overrides?: Overrides): Promise<void>;
 }
 
 export interface LockupContractFactory
   extends _TypedLiquityContract<LockupContractFactoryCalls, LockupContractFactoryTransactions> {
   readonly filters: {
-    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
+    HLQTTokenAddressSet(_hlqtTokenAddress?: null): EventFilter;
     LockupContractDeployedThroughFactory(_lockupContractAddress?: null, _beneficiary?: null, _unlockTime?: null, _deployer?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTTokenAddressSet"): _TypedLogDescription<{ _hlqtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractDeployedThroughFactory"): _TypedLogDescription<{ _lockupContractAddress: string; _beneficiary: string; _unlockTime: BigNumber; _deployer: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
 }
@@ -433,7 +433,7 @@ export interface HCHFToken
   extractEvents(logs: Log[], name: "TroveManagerAddressChanged"): _TypedLogDescription<{ _troveManagerAddress: string }>[];
 }
 
-interface HLQTYStakingCalls {
+interface HLQTStakingCalls {
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
   F_ETH(_overrides?: CallOverrides): Promise<BigNumber>;
   F_HCHF(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -443,27 +443,27 @@ interface HLQTYStakingCalls {
   getPendingETHGain(_user: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getPendingHCHFGain(_user: string, _overrides?: CallOverrides): Promise<BigNumber>;
   hchfToken(_overrides?: CallOverrides): Promise<string>;
-  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
+  hlqtToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   owner(_overrides?: CallOverrides): Promise<string>;
   snapshots(arg0: string, _overrides?: CallOverrides): Promise<{ F_ETH_Snapshot: BigNumber; F_HCHF_Snapshot: BigNumber }>;
   stakes(arg0: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  totalHLQTYStaked(_overrides?: CallOverrides): Promise<BigNumber>;
+  totalHLQTStaked(_overrides?: CallOverrides): Promise<BigNumber>;
   troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
-interface HLQTYStakingTransactions {
+interface HLQTStakingTransactions {
   increaseF_ETH(_ETHFee: BigNumberish, _overrides?: Overrides): Promise<void>;
   increaseF_HCHF(_HCHFFee: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_hlqtyTokenAddress: string, _hchfTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
-  stake(_HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  setAddresses(_hlqtTokenAddress: string, _hchfTokenAddress: string, _troveManagerAddress: string, _borrowerOperationsAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
+  stake(_HLQTamount: BigNumberish, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
-  unstake(_HLQTYamount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  unstake(_HLQTamount: BigNumberish, _overrides?: Overrides): Promise<void>;
 }
 
-export interface HLQTYStaking
-  extends _TypedLiquityContract<HLQTYStakingCalls, HLQTYStakingTransactions> {
+export interface HLQTStaking
+  extends _TypedLiquityContract<HLQTStakingCalls, HLQTStakingTransactions> {
   readonly filters: {
     ActivePoolAddressSet(_activePoolAddress?: null): EventFilter;
     BorrowerOperationsAddressSet(_borrowerOperationsAddress?: null): EventFilter;
@@ -471,12 +471,12 @@ export interface HLQTYStaking
     F_ETHUpdated(_F_ETH?: null): EventFilter;
     F_HCHFUpdated(_F_HCHF?: null): EventFilter;
     HCHFTokenAddressSet(_hchfTokenAddress?: null): EventFilter;
-    HLQTYTokenAddressSet(_hlqtyTokenAddress?: null): EventFilter;
+    HLQTTokenAddressSet(_hlqtTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     StakeChanged(staker?: string | null, newStake?: null): EventFilter;
     StakerSnapshotsUpdated(_staker?: null, _F_ETH?: null, _F_HCHF?: null): EventFilter;
     StakingGainsWithdrawn(staker?: string | null, HCHFGain?: null, ETHGain?: null): EventFilter;
-    TotalHLQTYStakedUpdated(_totalHLQTYStaked?: null): EventFilter;
+    TotalHLQTStakedUpdated(_totalHLQTStaked?: null): EventFilter;
     Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
     TroveManagerAddressSet(_troveManager?: null): EventFilter;
   };
@@ -486,17 +486,17 @@ export interface HLQTYStaking
   extractEvents(logs: Log[], name: "F_ETHUpdated"): _TypedLogDescription<{ _F_ETH: BigNumber }>[];
   extractEvents(logs: Log[], name: "F_HCHFUpdated"): _TypedLogDescription<{ _F_HCHF: BigNumber }>[];
   extractEvents(logs: Log[], name: "HCHFTokenAddressSet"): _TypedLogDescription<{ _hchfTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "HLQTYTokenAddressSet"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTTokenAddressSet"): _TypedLogDescription<{ _hlqtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "StakeChanged"): _TypedLogDescription<{ staker: string; newStake: BigNumber }>[];
   extractEvents(logs: Log[], name: "StakerSnapshotsUpdated"): _TypedLogDescription<{ _staker: string; _F_ETH: BigNumber; _F_HCHF: BigNumber }>[];
   extractEvents(logs: Log[], name: "StakingGainsWithdrawn"): _TypedLogDescription<{ staker: string; HCHFGain: BigNumber; ETHGain: BigNumber }>[];
-  extractEvents(logs: Log[], name: "TotalHLQTYStakedUpdated"): _TypedLogDescription<{ _totalHLQTYStaked: BigNumber }>[];
+  extractEvents(logs: Log[], name: "TotalHLQTStakedUpdated"): _TypedLogDescription<{ _totalHLQTStaked: BigNumber }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
   extractEvents(logs: Log[], name: "TroveManagerAddressSet"): _TypedLogDescription<{ _troveManager: string }>[];
 }
 
-interface HLQTYTokenCalls {
+interface HLQTTokenCalls {
   ONE_YEAR_IN_SECONDS(_overrides?: CallOverrides): Promise<BigNumber>;
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   communityIssuanceAddress(_overrides?: CallOverrides): Promise<string>;
@@ -504,7 +504,7 @@ interface HLQTYTokenCalls {
   getDeploymentStartTime(_overrides?: CallOverrides): Promise<BigNumber>;
   getLpRewardsEntitlement(_overrides?: CallOverrides): Promise<BigNumber>;
   getTokenAddress(_overrides?: CallOverrides): Promise<string>;
-  hlqtyStakingAddress(_overrides?: CallOverrides): Promise<string>;
+  hlqtStakingAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lockupContractFactory(_overrides?: CallOverrides): Promise<string>;
   multisigAddress(_overrides?: CallOverrides): Promise<string>;
@@ -515,18 +515,18 @@ interface HLQTYTokenCalls {
   totalSupply(_overrides?: CallOverrides): Promise<BigNumber>;
 }
 
-interface HLQTYTokenTransactions {
+interface HLQTTokenTransactions {
   initialize(_bountyAddress: string, _lpRewardsAddress: string, _overrides?: Overrides): Promise<void>;
-  sendToHLQTYStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
+  sendToHLQTStaking(_sender: string, _amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   transferFrom(token: string, from: string, to: string, amount: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
   transferFromNFT(token: string, from: string, to: string, serialNumber: BigNumberish, _overrides?: Overrides): Promise<BigNumber>;
 }
 
-export interface HLQTYToken
-  extends _TypedLiquityContract<HLQTYTokenCalls, HLQTYTokenTransactions> {
+export interface HLQTToken
+  extends _TypedLiquityContract<HLQTTokenCalls, HLQTTokenTransactions> {
   readonly filters: {
     CommunityIssuanceAddressSet(_communityIssuanceAddress?: null): EventFilter;
-    HLQTYStakingAddressSet(_hlqtyStakingAddress?: null): EventFilter;
+    HLQTStakingAddressSet(_hlqtStakingAddress?: null): EventFilter;
     LockupContractFactoryAddressSet(_lockupContractFactoryAddress?: null): EventFilter;
     MetadataSet(admin?: string | null, metadata?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
@@ -537,7 +537,7 @@ export interface HLQTYToken
     Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
   };
   extractEvents(logs: Log[], name: "CommunityIssuanceAddressSet"): _TypedLogDescription<{ _communityIssuanceAddress: string }>[];
-  extractEvents(logs: Log[], name: "HLQTYStakingAddressSet"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTStakingAddressSet"): _TypedLogDescription<{ _hlqtStakingAddress: string }>[];
   extractEvents(logs: Log[], name: "LockupContractFactoryAddressSet"): _TypedLogDescription<{ _lockupContractFactoryAddress: string }>[];
   extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
@@ -692,17 +692,17 @@ interface StabilityPoolCalls {
   getCompoundedFrontEndStake(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getCompoundedHCHFDeposit(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getDepositorETHGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  getDepositorHLQTYGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  getDepositorHLQTGain(_depositor: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getETH(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemColl(_overrides?: CallOverrides): Promise<BigNumber>;
   getEntireSystemDebt(_overrides?: CallOverrides): Promise<BigNumber>;
-  getFrontEndHLQTYGain(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
+  getFrontEndHLQTGain(_frontEnd: string, _overrides?: CallOverrides): Promise<BigNumber>;
   getTotalHCHFDeposits(_overrides?: CallOverrides): Promise<BigNumber>;
   hchfToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lastETHError_Offset(_overrides?: CallOverrides): Promise<BigNumber>;
   lastHCHFLossError_Offset(_overrides?: CallOverrides): Promise<BigNumber>;
-  lastHLQTYError(_overrides?: CallOverrides): Promise<BigNumber>;
+  lastHLQTError(_overrides?: CallOverrides): Promise<BigNumber>;
   owner(_overrides?: CallOverrides): Promise<string>;
   priceFeed(_overrides?: CallOverrides): Promise<string>;
   sortedTroves(_overrides?: CallOverrides): Promise<string>;
@@ -737,8 +737,8 @@ export interface StabilityPool
     FrontEndTagSet(_depositor?: string | null, _frontEnd?: string | null): EventFilter;
     G_Updated(_G?: null, _epoch?: null, _scale?: null): EventFilter;
     HCHFTokenAddressChanged(_newHCHFTokenAddress?: null): EventFilter;
-    HLQTYPaidToDepositor(_depositor?: string | null, _HLQTY?: null): EventFilter;
-    HLQTYPaidToFrontEnd(_frontEnd?: string | null, _HLQTY?: null): EventFilter;
+    HLQTPaidToDepositor(_depositor?: string | null, _HLQT?: null): EventFilter;
+    HLQTPaidToFrontEnd(_frontEnd?: string | null, _HLQT?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     P_Updated(_P?: null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
@@ -765,8 +765,8 @@ export interface StabilityPool
   extractEvents(logs: Log[], name: "FrontEndTagSet"): _TypedLogDescription<{ _depositor: string; _frontEnd: string }>[];
   extractEvents(logs: Log[], name: "G_Updated"): _TypedLogDescription<{ _G: BigNumber; _epoch: BigNumber; _scale: BigNumber }>[];
   extractEvents(logs: Log[], name: "HCHFTokenAddressChanged"): _TypedLogDescription<{ _newHCHFTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "HLQTYPaidToDepositor"): _TypedLogDescription<{ _depositor: string; _HLQTY: BigNumber }>[];
-  extractEvents(logs: Log[], name: "HLQTYPaidToFrontEnd"): _TypedLogDescription<{ _frontEnd: string; _HLQTY: BigNumber }>[];
+  extractEvents(logs: Log[], name: "HLQTPaidToDepositor"): _TypedLogDescription<{ _depositor: string; _HLQT: BigNumber }>[];
+  extractEvents(logs: Log[], name: "HLQTPaidToFrontEnd"): _TypedLogDescription<{ _frontEnd: string; _HLQT: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "P_Updated"): _TypedLogDescription<{ _P: BigNumber }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
@@ -828,8 +828,8 @@ interface TroveManagerCalls {
   getTroveStatus(_borrower: string, _overrides?: CallOverrides): Promise<BigNumber>;
   hasPendingRewards(_borrower: string, _overrides?: CallOverrides): Promise<boolean>;
   hchfToken(_overrides?: CallOverrides): Promise<string>;
-  hlqtyStaking(_overrides?: CallOverrides): Promise<string>;
-  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
+  hlqtStaking(_overrides?: CallOverrides): Promise<string>;
+  hlqtToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lastETHError_Redistribution(_overrides?: CallOverrides): Promise<BigNumber>;
   lastFeeOperationTime(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -858,7 +858,7 @@ interface TroveManagerTransactions {
   liquidateTroves(_n: BigNumberish, _overrides?: Overrides): Promise<void>;
   redeemCollateral(_HCHFamount: BigNumberish, _firstRedemptionHint: string, _upperPartialRedemptionHint: string, _lowerPartialRedemptionHint: string, _partialRedemptionHintNICR: BigNumberish, _maxIterations: BigNumberish, _maxFeePercentage: BigNumberish, _overrides?: Overrides): Promise<void>;
   removeStake(_borrower: string, _overrides?: Overrides): Promise<void>;
-  setAddresses(_borrowerOperationsAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _hchfTokenAddress: string, _sortedTrovesAddress: string, _hlqtyTokenAddress: string, _hlqtyStakingAddress: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_borrowerOperationsAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _hchfTokenAddress: string, _sortedTrovesAddress: string, _hlqtTokenAddress: string, _hlqtStakingAddress: string, _overrides?: Overrides): Promise<void>;
   setTroveStatus(_borrower: string, _num: BigNumberish, _overrides?: Overrides): Promise<void>;
   updateStakeAndTotalStakes(_borrower: string, _overrides?: Overrides): Promise<BigNumber>;
   updateTroveRewardSnapshots(_borrower: string, _overrides?: Overrides): Promise<void>;
@@ -874,8 +874,8 @@ export interface TroveManager
     DefaultPoolAddressChanged(_defaultPoolAddress?: null): EventFilter;
     GasPoolAddressChanged(_gasPoolAddress?: null): EventFilter;
     HCHFTokenAddressChanged(_newHCHFTokenAddress?: null): EventFilter;
-    LQTYStakingAddressChanged(_hlqtyStakingAddress?: null): EventFilter;
-    LQTYTokenAddressChanged(_hlqtyTokenAddress?: null): EventFilter;
+    LQTYStakingAddressChanged(_hlqtStakingAddress?: null): EventFilter;
+    LQTYTokenAddressChanged(_hlqtTokenAddress?: null): EventFilter;
     LTermsUpdated(_L_ETH?: null, _L_HCHFDebt?: null): EventFilter;
     LastFeeOpTimeUpdated(_lastFeeOpTime?: null): EventFilter;
     Liquidation(_liquidatedDebt?: null, _liquidatedColl?: null, _collGasCompensation?: null, _HCHFGasCompensation?: null): EventFilter;
@@ -898,8 +898,8 @@ export interface TroveManager
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _defaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "GasPoolAddressChanged"): _TypedLogDescription<{ _gasPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "HCHFTokenAddressChanged"): _TypedLogDescription<{ _newHCHFTokenAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtyStakingAddress: string }>[];
-  extractEvents(logs: Log[], name: "LQTYTokenAddressChanged"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYStakingAddressChanged"): _TypedLogDescription<{ _hlqtStakingAddress: string }>[];
+  extractEvents(logs: Log[], name: "LQTYTokenAddressChanged"): _TypedLogDescription<{ _hlqtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "LTermsUpdated"): _TypedLogDescription<{ _L_ETH: BigNumber; _L_HCHFDebt: BigNumber }>[];
   extractEvents(logs: Log[], name: "LastFeeOpTimeUpdated"): _TypedLogDescription<{ _lastFeeOpTime: BigNumber }>[];
   extractEvents(logs: Log[], name: "Liquidation"): _TypedLogDescription<{ _liquidatedDebt: BigNumber; _liquidatedColl: BigNumber; _collGasCompensation: BigNumber; _HCHFGasCompensation: BigNumber }>[];
@@ -921,7 +921,7 @@ interface UnipoolCalls {
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   duration(_overrides?: CallOverrides): Promise<BigNumber>;
   earned(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
-  hlqtyToken(_overrides?: CallOverrides): Promise<string>;
+  hlqtToken(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lastTimeRewardApplicable(_overrides?: CallOverrides): Promise<BigNumber>;
   lastUpdateTime(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -949,7 +949,7 @@ interface UnipoolTransactions {
 export interface Unipool
   extends _TypedLiquityContract<UnipoolCalls, UnipoolTransactions> {
   readonly filters: {
-    HLQTYTokenAddressChanged(_hlqtyTokenAddress?: null): EventFilter;
+    HLQTTokenAddressChanged(_hlqtTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     RewardAdded(reward?: null): EventFilter;
     RewardPaid(user?: string | null, reward?: null): EventFilter;
@@ -958,7 +958,7 @@ export interface Unipool
     UniTokenAddressChanged(_uniTokenAddress?: null): EventFilter;
     Withdrawn(user?: string | null, amount?: null): EventFilter;
   };
-  extractEvents(logs: Log[], name: "HLQTYTokenAddressChanged"): _TypedLogDescription<{ _hlqtyTokenAddress: string }>[];
+  extractEvents(logs: Log[], name: "HLQTTokenAddressChanged"): _TypedLogDescription<{ _hlqtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "RewardAdded"): _TypedLogDescription<{ reward: BigNumber }>[];
   extractEvents(logs: Log[], name: "RewardPaid"): _TypedLogDescription<{ user: string; reward: BigNumber }>[];

@@ -74,7 +74,7 @@ const addGasForPotentialLastFeeOperationTimeUpdate = (gas: BigNumber) => gas.add
 // An extra traversal can take ~12K.
 const addGasForPotentialListTraversal = (gas: BigNumber) => gas.add(25000);
 
-const addGasForHLQTYIssuance = (gas: BigNumber) => gas.add(50000);
+const addGasForHLQTIssuance = (gas: BigNumber) => gas.add(50000);
 
 const addGasForUnipoolRewardUpdate = (gas: BigNumber) => gas.add(20000);
 
@@ -415,15 +415,15 @@ export class PopulatableEthersLiquity
       .extractEvents(logs, "ETHGainWithdrawn")
       .map(({ args: { _ETH, _HCHFLoss } }) => [decimalify(_ETH), decimalify(_HCHFLoss)]);
 
-    const [hlqtyReward] = stabilityPool
-      .extractEvents(logs, "HLQTYPaidToDepositor")
-      .map(({ args: { _HLQTY } }) => decimalify(_HLQTY));
+    const [hlqtReward] = stabilityPool
+      .extractEvents(logs, "HLQTPaidToDepositor")
+      .map(({ args: { _HLQT } }) => decimalify(_HLQT));
 
     return {
       hchfLoss,
       newHCHFDeposit,
       collateralGain,
-      hlqtyReward
+      hlqtReward
     };
   }
 
@@ -750,7 +750,7 @@ export class PopulatableEthersLiquity
       return this._wrapLiquidation(
         await troveManager.estimateAndPopulate.batchLiquidateTroves(
           { gasLimit: 3000000 },
-          addGasForHLQTYIssuance,
+          addGasForHLQTIssuance,
           address
         )
       );
@@ -758,7 +758,7 @@ export class PopulatableEthersLiquity
       return this._wrapLiquidation(
         await troveManager.estimateAndPopulate.liquidate(
           { gasLimit: 3000000 },
-          addGasForHLQTYIssuance,
+          addGasForHLQTIssuance,
           address
         )
       );
@@ -775,7 +775,7 @@ export class PopulatableEthersLiquity
     return this._wrapLiquidation(
       await troveManager.estimateAndPopulate.liquidateTroves(
         { gasLimit: 3000000 },
-        addGasForHLQTYIssuance,
+        addGasForHLQTIssuance,
         maximumNumberOfTrovesToLiquidate
       )
     );
@@ -793,7 +793,7 @@ export class PopulatableEthersLiquity
       { depositHCHF },
       await stabilityPool.estimateAndPopulate.provideToSP(
         { gasLimit: 3000000 },
-        addGasForHLQTYIssuance,
+        addGasForHLQTIssuance,
         depositHCHF.hex,
         frontendTag ?? this._readable.connection.frontendTag ?? AddressZero
       )
@@ -810,7 +810,7 @@ export class PopulatableEthersLiquity
     return this._wrapStabilityDepositWithdrawal(
       await stabilityPool.estimateAndPopulate.withdrawFromSP(
         { gasLimit: 3000000 },
-        addGasForHLQTYIssuance,
+        addGasForHLQTIssuance,
         Decimal.from(amount).hex
       )
     );
@@ -825,7 +825,7 @@ export class PopulatableEthersLiquity
     return this._wrapStabilityPoolGainsWithdrawal(
       await stabilityPool.estimateAndPopulate.withdrawFromSP(
         { gasLimit: 3000000 },
-        addGasForHLQTYIssuance,
+        addGasForHLQTIssuance,
         Decimal.ZERO.hex
       )
     );
@@ -848,7 +848,7 @@ export class PopulatableEthersLiquity
     return this._wrapCollateralGainTransfer(
       await stabilityPool.estimateAndPopulate.withdrawETHGainToTrove(
         { gasLimit: 3000000 },
-        compose(addGasForPotentialListTraversal, addGasForHLQTYIssuance),
+        compose(addGasForPotentialListTraversal, addGasForHLQTIssuance),
         ...(await this._findHints(finalTrove))
       )
     );
@@ -924,27 +924,27 @@ export class PopulatableEthersLiquity
     return populateRedemption(attemptedHCHFAmount, maxRedemptionRate, truncatedAmount, partialHints);
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeHLQTY} */
-  async stakeHLQTY(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeHLQT} */
+  async stakeHLQT(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { hlqtyStaking } = _getContracts(this._readable.connection);
+    const { hlqtStaking } = _getContracts(this._readable.connection);
 
     return this._wrapSimpleTransaction(
-      await hlqtyStaking.estimateAndPopulate.stake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
+      await hlqtStaking.estimateAndPopulate.stake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.unstakeHLQTY} */
-  async unstakeHLQTY(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.unstakeHLQT} */
+  async unstakeHLQT(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { hlqtyStaking } = _getContracts(this._readable.connection);
+    const { hlqtStaking } = _getContracts(this._readable.connection);
 
     return this._wrapSimpleTransaction(
-      await hlqtyStaking.estimateAndPopulate.unstake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
+      await hlqtStaking.estimateAndPopulate.unstake({ gasLimit: 3000000 }, id, Decimal.from(amount).hex)
     );
   }
 
@@ -952,7 +952,7 @@ export class PopulatableEthersLiquity
   withdrawGainsFromStaking(
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    return this.unstakeHLQTY(Decimal.ZERO, overrides);
+    return this.unstakeHLQT(Decimal.ZERO, overrides);
   }
 
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.registerFrontend} */
@@ -1043,8 +1043,8 @@ export class PopulatableEthersLiquity
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawHLQTYRewardFromLiquidityMining} */
-  async withdrawHLQTYRewardFromLiquidityMining(
+  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.withdrawHLQTRewardFromLiquidityMining} */
+  async withdrawHLQTRewardFromLiquidityMining(
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
     const { unipool } = _getContracts(this._readable.connection);

@@ -137,12 +137,12 @@ class MainnetDeploymentHelper {
   }
 
   async deployLQTYContractsMainnet(bountyAddress, lpRewardsAddress, multisigAddress, deploymentState) {
-    const lqtyStakingFactory = await this.getFactory("HLQTYStaking")
+    const lqtyStakingFactory = await this.getFactory("HLQTStaking")
     const lockupContractFactory_Factory = await this.getFactory("LockupContractFactory")
     const communityIssuanceFactory = await this.getFactory("CommunityIssuance")
-    const lqtyTokenFactory = await this.getFactory("HLQTYToken")
+    const lqtyTokenFactory = await this.getFactory("HLQTToken")
 
-    const lqtyStaking = await this.loadOrDeploy(lqtyStakingFactory, 'hlqtyStaking', deploymentState)
+    const lqtyStaking = await this.loadOrDeploy(lqtyStakingFactory, 'hlqtStaking', deploymentState)
     const lockupContractFactory = await this.loadOrDeploy(lockupContractFactory_Factory, 'lockupContractFactory', deploymentState)
     const communityIssuance = await this.loadOrDeploy(communityIssuanceFactory, 'communityIssuance', deploymentState)
 
@@ -157,7 +157,7 @@ class MainnetDeploymentHelper {
     ]
     const lqtyToken = await this.loadOrDeploy(
       lqtyTokenFactory,
-      'hlqtyToken',
+      'hlqtToken',
       deploymentState,
       lqtyTokenParams
     )
@@ -165,10 +165,10 @@ class MainnetDeploymentHelper {
     if (!this.configParams.ETHERSCAN_BASE_URL) {
       console.log('No Etherscan Url defined, skipping verification')
     } else {
-      await this.verifyContract('hlqtyStaking', deploymentState)
+      await this.verifyContract('hlqtStaking', deploymentState)
       await this.verifyContract('lockupContractFactory', deploymentState)
       await this.verifyContract('communityIssuance', deploymentState)
-      await this.verifyContract('hlqtyToken', deploymentState, lqtyTokenParams)
+      await this.verifyContract('hlqtToken', deploymentState, lqtyTokenParams)
     }
 
     const LQTYContracts = {

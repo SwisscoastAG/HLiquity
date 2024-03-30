@@ -27,9 +27,9 @@ Exposed through [ReadableEthersLiquity.connection](./lib-ethers.readableethersli
 |  [bootstrapPeriod](./lib-ethers.ethersliquityconnection.bootstrapperiod.md) | number | Time period (in seconds) after <code>deploymentDate</code> during which redemptions are disabled. |
 |  [chainId](./lib-ethers.ethersliquityconnection.chainid.md) | number | Chain ID of the connected network. |
 |  [deploymentDate](./lib-ethers.ethersliquityconnection.deploymentdate.md) | Date | Date when the Liquity contracts were deployed. |
-|  [liquidityMiningHLQTYRewardRate](./lib-ethers.ethersliquityconnection.liquiditymininghlqtyrewardrate.md) | [Decimal](./lib-base.decimal.md) | Amount of HLQTY collectively rewarded to stakers of the liquidity mining pool per second. |
+|  [liquidityMiningHLQTRewardRate](./lib-ethers.ethersliquityconnection.liquiditymininghlqtrewardrate.md) | [Decimal](./lib-base.decimal.md) | Amount of HLQT collectively rewarded to stakers of the liquidity mining pool per second. |
 |  [provider](./lib-ethers.ethersliquityconnection.provider.md) | [EthersProvider](./lib-ethers.ethersprovider.md) | Ethers <code>Provider</code> used for connecting to the network. |
 |  [signer?](./lib-ethers.ethersliquityconnection.signer.md) | [EthersSigner](./lib-ethers.etherssigner.md) | <i>(Optional)</i> Ethers <code>Signer</code> used for sending transactions. |
-|  [totalStabilityPoolHLQTYReward](./lib-ethers.ethersliquityconnection.totalstabilitypoolhlqtyreward.md) | [Decimal](./lib-base.decimal.md) | Total amount of HLQTY allocated for rewarding stability depositors. |
+|  [totalStabilityPoolHLQTReward](./lib-ethers.ethersliquityconnection.totalstabilitypoolhlqtreward.md) | [Decimal](./lib-base.decimal.md) | Total amount of HLQT allocated for rewarding stability depositors. |
 |  [version](./lib-ethers.ethersliquityconnection.version.md) | string | Version of the Liquity contracts (Git commit hash). |
 

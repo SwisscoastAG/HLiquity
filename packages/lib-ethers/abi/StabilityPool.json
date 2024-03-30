@@ -277,11 +277,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_HLQTY",
+        "name": "_HLQT",
         "type": "uint256"
       }
     ],
-    "name": "HLQTYPaidToDepositor",
+    "name": "HLQTPaidToDepositor",
     "type": "event"
   },
   {
@@ -296,11 +296,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_HLQTY",
+        "name": "_HLQT",
         "type": "uint256"
       }
     ],
-    "name": "HLQTYPaidToFrontEnd",
+    "name": "HLQTPaidToFrontEnd",
     "type": "event"
   },
   {
@@ -967,7 +967,7 @@
         "type": "address"
       }
     ],
-    "name": "getDepositorHLQTYGain",
+    "name": "getDepositorHLQTGain",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1025,7 +1025,7 @@
         "type": "address"
       }
     ],
-    "name": "getFrontEndHLQTYGain",
+    "name": "getFrontEndHLQTGain",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1103,7 +1103,7 @@
   },
   {
     "inputs": [],
-    "name": "lastHLQTYError",
+    "name": "lastHLQTError",
     "outputs": [
       {
         "internalType": "uint256",

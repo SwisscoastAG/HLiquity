@@ -4,7 +4,7 @@
 
 ## EthersLiquityConnectionOptionalParams.frontendTag property
 
-Address that will receive HLQTY rewards from newly created Stability Deposits by default.
+Address that will receive HLQT rewards from newly created Stability Deposits by default.
 
 <b>Signature:</b>
 
@@ -14,5 +14,5 @@ readonly frontendTag?: string;
 
 ## Remarks
 
-For example  will tag newly made Stability Deposits with this address when its `frontendTag` parameter is omitted.
+For example [depositHCHFInStabilityPool(amount, frontendTag?)](./lib-ethers.ethersliquity.deposithchfinstabilitypool.md) will tag newly made Stability Deposits with this address when its `frontendTag` parameter is omitted.
 

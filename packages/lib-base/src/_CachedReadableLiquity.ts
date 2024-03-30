@@ -1,6 +1,6 @@
 import {Decimal} from "./Decimal";
 import {Fees} from "./Fees";
-import {HLQTYStake} from "./HLQTYStake";
+import {HLQTStake} from "./HLQTStake";
 import {StabilityDeposit} from "./StabilityDeposit";
 import {Trove, TroveWithPendingRedistribution, UserTrove} from "./Trove";
 import {FrontendStatus, ReadableLiquity, TroveListingParams} from "./ReadableLiquity";
@@ -101,10 +101,10 @@ export class _CachedReadableLiquity<T extends unknown[]>
         );
     }
 
-    async getRemainingStabilityPoolHLQTYReward(...extraParams: T): Promise<Decimal> {
+    async getRemainingStabilityPoolHLQTReward(...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getRemainingStabilityPoolHLQTYReward(...extraParams) ??
-            this._readable.getRemainingStabilityPoolHLQTYReward(...extraParams)
+            this._cache.getRemainingStabilityPoolHLQTReward(...extraParams) ??
+            this._readable.getRemainingStabilityPoolHLQTReward(...extraParams)
         );
     }
 
@@ -129,17 +129,17 @@ export class _CachedReadableLiquity<T extends unknown[]>
         );
     }
 
-    async getHLQTYTokenAddress(...extraParams: T): Promise<string> {
+    async getHLQTTokenAddress(...extraParams: T): Promise<string> {
         return (
-            this._cache.getHLQTYTokenAddress(...extraParams) ??
-            this._readable.getHLQTYTokenAddress(...extraParams)
+            this._cache.getHLQTTokenAddress(...extraParams) ??
+            this._readable.getHLQTTokenAddress(...extraParams)
         );
     }
 
-    async getHLQTYBalance(address?: string, ...extraParams: T): Promise<Decimal> {
+    async getHLQTBalance(address?: string, ...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getHLQTYBalance(address, ...extraParams) ??
-            this._readable.getHLQTYBalance(address, ...extraParams)
+            this._cache.getHLQTBalance(address, ...extraParams) ??
+            this._readable.getHLQTBalance(address, ...extraParams)
         );
     }
 
@@ -157,10 +157,10 @@ export class _CachedReadableLiquity<T extends unknown[]>
         );
     }
 
-    async getRemainingLiquidityMiningHLQTYReward(...extraParams: T): Promise<Decimal> {
+    async getRemainingLiquidityMiningHLQTReward(...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getRemainingLiquidityMiningHLQTYReward(...extraParams) ??
-            this._readable.getRemainingLiquidityMiningHLQTYReward(...extraParams)
+            this._cache.getRemainingLiquidityMiningHLQTReward(...extraParams) ??
+            this._readable.getRemainingLiquidityMiningHLQTReward(...extraParams)
         );
     }
 
@@ -178,10 +178,10 @@ export class _CachedReadableLiquity<T extends unknown[]>
         );
     }
 
-    async getLiquidityMiningHLQTYReward(address?: string, ...extraParams: T): Promise<Decimal> {
+    async getLiquidityMiningHLQTReward(address?: string, ...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getLiquidityMiningHLQTYReward(address, ...extraParams) ??
-            this._readable.getLiquidityMiningHLQTYReward(address, ...extraParams)
+            this._cache.getLiquidityMiningHLQTReward(address, ...extraParams) ??
+            this._readable.getLiquidityMiningHLQTReward(address, ...extraParams)
         );
     }
 
@@ -219,17 +219,17 @@ export class _CachedReadableLiquity<T extends unknown[]>
         return this._cache.getFees(...extraParams) ?? this._readable.getFees(...extraParams);
     }
 
-    async getHLQTYStake(address?: string, ...extraParams: T): Promise<HLQTYStake> {
+    async getHLQTStake(address?: string, ...extraParams: T): Promise<HLQTStake> {
         return (
-            this._cache.getHLQTYStake(address, ...extraParams) ??
-            this._readable.getHLQTYStake(address, ...extraParams)
+            this._cache.getHLQTStake(address, ...extraParams) ??
+            this._readable.getHLQTStake(address, ...extraParams)
         );
     }
 
-    async getTotalStakedHLQTY(...extraParams: T): Promise<Decimal> {
+    async getTotalStakedHLQT(...extraParams: T): Promise<Decimal> {
         return (
-            this._cache.getTotalStakedHLQTY(...extraParams) ??
-            this._readable.getTotalStakedHLQTY(...extraParams)
+            this._cache.getTotalStakedHLQT(...extraParams) ??
+            this._readable.getTotalStakedHLQT(...extraParams)
         );
     }
 

@@ -23,5 +23,5 @@ Throws [TransactionFailedError](./lib-base.transactionfailederror.md) in case of
 
 The collateral gain is transfered to the Trove as additional collateral.
 
-As a side-effect, the transaction will also pay out the Stability Deposit's [HLQTY reward](./lib-base.stabilitydeposit.hlqtyreward.md)<!-- -->.
+As a side-effect, the transaction will also pay out the Stability Deposit's [HLQT reward](./lib-base.stabilitydeposit.hlqtreward.md)<!-- -->.
 

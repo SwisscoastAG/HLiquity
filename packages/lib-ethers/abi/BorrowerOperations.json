@@ -89,11 +89,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyStakingAddress",
+        "name": "_hlqtStakingAddress",
         "type": "address"
       }
     ],
-    "name": "HLQTYStakingAddressChanged",
+    "name": "HLQTStakingAddressChanged",
     "type": "event"
   },
   {
@@ -102,7 +102,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyStakingAddress",
+        "name": "_hlqtStakingAddress",
         "type": "address"
       }
     ],
@@ -509,10 +509,10 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyStaking",
+    "name": "hlqtStaking",
     "outputs": [
       {
-        "internalType": "contract IHLQTYStaking",
+        "internalType": "contract IHLQTStaking",
         "name": "",
         "type": "address"
       }
@@ -522,7 +522,7 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyStakingAddress",
+    "name": "hlqtStakingAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -695,7 +695,7 @@
       },
       {
         "internalType": "address",
-        "name": "_hlqtyStakingAddress",
+        "name": "_hlqtStakingAddress",
         "type": "address"
       }
     ],

@@ -419,7 +419,7 @@ describe("EthersLiquity", () => {
 
         it("other user's deposit should be tagged with the frontend's address", async () => {
             const frontendTag = await user.getAddress();
-            const tokenIdLqty = await liquity.getHLQTYTokenAddress();
+            const tokenIdLqty = await liquity.getHLQTTokenAddress();
             const associateLqtyTx = await new TokenAssociateTransaction()
                 .setAccountId(accountId)
                 .setTokenIds([TokenId.fromSolidityAddress(tokenIdLqty)])
@@ -428,7 +428,7 @@ describe("EthersLiquity", () => {
             const associateLqtyTxSubmit = await associateLqtyTx.execute(userClient);
             const associateLqtyRx = await associateLqtyTxSubmit.getReceipt(userClient);
             console.log(
-                `Manual Association HLQTY: ${associateLqtyRx.status.toString()} \n`,
+                `Manual Association HLQT: ${associateLqtyRx.status.toString()} \n`,
             );
 
             const associateLqtyUserTx = await new TokenAssociateTransaction()
@@ -439,7 +439,7 @@ describe("EthersLiquity", () => {
             const associateLqtyUserTxSubmit = await associateLqtyUserTx.execute(otherUserClient);
             const associateLqtyUserRx = await associateLqtyUserTxSubmit.getReceipt(otherUserClient);
             console.log(
-                `Manual Association HLQTY: ${associateLqtyUserRx.status.toString()} \n`,
+                `Manual Association HLQT: ${associateLqtyUserRx.status.toString()} \n`,
             );
 
 
@@ -527,7 +527,7 @@ describe("EthersLiquity", () => {
                 hchfLoss: Decimal.from(0),
                 newHCHFDeposit: smallStabilityDeposit,
                 collateralGain: Decimal.from(0),
-                hlqtyReward: Decimal.from(0),
+                hlqtReward: Decimal.from(0),
 
                 change: {
                     depositHCHF: smallStabilityDeposit
@@ -629,7 +629,7 @@ describe("EthersLiquity", () => {
             expect(details).to.deep.equal({
                 hchfLoss: smallStabilityDeposit,
                 newHCHFDeposit: Decimal.ZERO,
-                hlqtyReward: Decimal.ZERO,
+                hlqtReward: Decimal.ZERO,
 
                 collateralGain: troveWithVeryLowICR.collateral
                     .mul(0.995) // -0.5% gas compensation
@@ -755,7 +755,7 @@ describe("EthersLiquity", () => {
             expect(`${stake}`).to.equal(`${someUniTokens}`);
         });
 
-        it("should have an HLQTY reward after some time has passed", async function () {
+        it("should have an HLQT reward after some time has passed", async function () {
             this.timeout("20s");
 
             // Liquidity mining rewards are seconds-based, so we don't need to wait long.
@@ -766,12 +766,12 @@ describe("EthersLiquity", () => {
             // Trigger a new block with a dummy TX.
             await liquity._mintUniToken(0);
 
-            const hlqtyReward = Number(await liquity.getLiquidityMiningHLQTYReward());
-            expect(hlqtyReward).to.be.at.least(1); // ~0.2572 per second [(4e6/3) / (60*24*60*60)]
+            const hlqtReward = Number(await liquity.getLiquidityMiningHLQTReward());
+            expect(hlqtReward).to.be.at.least(1); // ~0.2572 per second [(4e6/3) / (60*24*60*60)]
 
-            await liquity.withdrawHLQTYRewardFromLiquidityMining();
-            const hlqtyBalance = Number(await liquity.getHLQTYBalance());
-            expect(hlqtyBalance).to.be.at.least(hlqtyReward); // may have increased since checking
+            await liquity.withdrawHLQTRewardFromLiquidityMining();
+            const hlqtBalance = Number(await liquity.getHLQTBalance());
+            expect(hlqtBalance).to.be.at.least(hlqtReward); // may have increased since checking
         });
 
         it("should partially unstake", async () => {
@@ -784,7 +784,7 @@ describe("EthersLiquity", () => {
             expect(`${uniTokenBalance}`).to.equal(`${someUniTokens / 2}`);
         });
 
-        it("should unstake remaining tokens and withdraw remaining HLQTY reward", async () => {
+        it("should unstake remaining tokens and withdraw remaining HLQT reward", async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             await liquity._mintUniToken(0); // dummy block
             await liquity.exitLiquidityMining({gasLimit: 300000});
@@ -792,8 +792,8 @@ describe("EthersLiquity", () => {
             const uniTokenStake = await liquity.getLiquidityMiningStake();
             expect(`${uniTokenStake}`).to.equal("0");
 
-            const hlqtyReward = await liquity.getLiquidityMiningHLQTYReward();
-            expect(`${hlqtyReward}`).to.equal("0");
+            const hlqtReward = await liquity.getLiquidityMiningHLQTReward();
+            expect(`${hlqtReward}`).to.equal("0");
 
             const uniTokenBalance = await liquity.getUniTokenBalance();
             expect(`${uniTokenBalance}`).to.equal(`${someUniTokens}`);

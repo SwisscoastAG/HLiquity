@@ -34,19 +34,19 @@ The constructor for this class is marked as internal. Third-party code should no
 |  [getHCHFBalance(address, overrides)](./lib-ethers.readableethersliquity.gethchfbalance.md) |  | Get the amount of HCHF held by an address. |
 |  [getHCHFInStabilityPool(overrides)](./lib-ethers.readableethersliquity.gethchfinstabilitypool.md) |  | Get the total amount of HCHF currently deposited in the Stability Pool. |
 |  [getHCHFTokenAddress(overrides)](./lib-ethers.readableethersliquity.gethchftokenaddress.md) |  |  |
-|  [getHLQTYBalance(address, overrides)](./lib-ethers.readableethersliquity.gethlqtybalance.md) |  | Get the amount of HLQTY held by an address. |
-|  [getHLQTYStake(address, overrides)](./lib-ethers.readableethersliquity.gethlqtystake.md) |  | Get the current state of an HLQTY Stake. |
-|  [getHLQTYTokenAddress(overrides)](./lib-ethers.readableethersliquity.gethlqtytokenaddress.md) |  |  |
-|  [getLiquidityMiningHLQTYReward(address, overrides)](./lib-ethers.readableethersliquity.getliquiditymininghlqtyreward.md) |  | Get the amount of HLQTY earned by an address through mining liquidity. |
+|  [getHLQTBalance(address, overrides)](./lib-ethers.readableethersliquity.gethlqtbalance.md) |  | Get the amount of HLQT held by an address. |
+|  [getHLQTStake(address, overrides)](./lib-ethers.readableethersliquity.gethlqtstake.md) |  | Get the current state of an HLQT Stake. |
+|  [getHLQTTokenAddress(overrides)](./lib-ethers.readableethersliquity.gethlqttokenaddress.md) |  |  |
+|  [getLiquidityMiningHLQTReward(address, overrides)](./lib-ethers.readableethersliquity.getliquiditymininghlqtreward.md) |  | Get the amount of HLQT earned by an address through mining liquidity. |
 |  [getLiquidityMiningStake(address, overrides)](./lib-ethers.readableethersliquity.getliquidityminingstake.md) |  | Get the amount of Uniswap ETH/HCHF LP tokens currently staked by an address in liquidity mining. |
 |  [getNumberOfTroves(overrides)](./lib-ethers.readableethersliquity.getnumberoftroves.md) |  | Get number of Troves that are currently open. |
 |  [getPrice(overrides)](./lib-ethers.readableethersliquity.getprice.md) |  | Get the current price of the native currency (e.g. Ether) in USD. |
-|  [getRemainingLiquidityMiningHLQTYReward(overrides)](./lib-ethers.readableethersliquity.getremainingliquiditymininghlqtyreward.md) |  | Get the remaining HLQTY that will be collectively rewarded to liquidity miners. |
-|  [getRemainingStabilityPoolHLQTYReward(overrides)](./lib-ethers.readableethersliquity.getremainingstabilitypoolhlqtyreward.md) |  | Get the remaining HLQTY that will be collectively rewarded to stability depositors. |
+|  [getRemainingLiquidityMiningHLQTReward(overrides)](./lib-ethers.readableethersliquity.getremainingliquiditymininghlqtreward.md) |  | Get the remaining HLQT that will be collectively rewarded to liquidity miners. |
+|  [getRemainingStabilityPoolHLQTReward(overrides)](./lib-ethers.readableethersliquity.getremainingstabilitypoolhlqtreward.md) |  | Get the remaining HLQT that will be collectively rewarded to stability depositors. |
 |  [getStabilityDeposit(address, overrides)](./lib-ethers.readableethersliquity.getstabilitydeposit.md) |  | Get the current state of a Stability Deposit. |
 |  [getTotal(overrides)](./lib-ethers.readableethersliquity.gettotal.md) |  | Get the total amount of collateral and debt in the Liquity system. |
 |  [getTotalRedistributed(overrides)](./lib-ethers.readableethersliquity.gettotalredistributed.md) |  | Get the total collateral and debt per stake that has been liquidated through redistribution. |
-|  [getTotalStakedHLQTY(overrides)](./lib-ethers.readableethersliquity.gettotalstakedhlqty.md) |  | Get the total amount of HLQTY currently staked. |
+|  [getTotalStakedHLQT(overrides)](./lib-ethers.readableethersliquity.gettotalstakedhlqt.md) |  | Get the total amount of HLQT currently staked. |
 |  [getTotalStakedUniTokens(overrides)](./lib-ethers.readableethersliquity.gettotalstakedunitokens.md) |  | Get the total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. |
 |  [getTrove(address, overrides)](./lib-ethers.readableethersliquity.gettrove.md) |  | Get the current state of a Trove. |
 |  [getTroveBeforeRedistribution(address, overrides)](./lib-ethers.readableethersliquity.gettrovebeforeredistribution.md) |  | Get a Trove in its state after the last direct modification. |

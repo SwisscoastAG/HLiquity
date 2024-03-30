@@ -4,7 +4,7 @@
 
 ## PopulatableEthersLiquity.withdrawGainsFromStabilityPool() method
 
-Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQTY reward](./lib-base.stabilitydeposit.hlqtyreward.md) from Stability Deposit.
+Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQT reward](./lib-base.stabilitydeposit.hlqtreward.md) from Stability Deposit.
 
 <b>Signature:</b>
 

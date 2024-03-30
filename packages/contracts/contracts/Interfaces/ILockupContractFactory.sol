@@ -6,12 +6,12 @@ interface ILockupContractFactory {
     
     // --- Events ---
 
-    event HLQTYTokenAddressSet(address _hlqtyTokenAddress);
+    event HLQTTokenAddressSet(address _hlqtTokenAddress);
     event LockupContractDeployedThroughFactory(address _lockupContractAddress, address _beneficiary, uint _unlockTime, address _deployer);
 
     // --- Functions ---
 
-    function setHLQTYTokenAddress(address _hlqtyTokenAddress) external;
+    function setHLQTTokenAddress(address _hlqtTokenAddress) external;
 
     function deployLockupContract(address _beneficiary, uint _unlockTime) external;
 

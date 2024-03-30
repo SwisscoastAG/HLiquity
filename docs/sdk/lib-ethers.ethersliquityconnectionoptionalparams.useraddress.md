@@ -4,7 +4,7 @@
 
 ## EthersLiquityConnectionOptionalParams.userAddress property
 
-Address whose Trove, Stability Deposit, HLQTY Stake and balances will be read by default.
+Address whose Trove, Stability Deposit, HLQT Stake and balances will be read by default.
 
 <b>Signature:</b>
 

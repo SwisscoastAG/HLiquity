@@ -10,11 +10,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       }
     ],
-    "name": "HLQTYTokenAddressSet",
+    "name": "HLQTTokenAddressSet",
     "type": "event"
   },
   {
@@ -55,11 +55,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_totalHLQTYIssued",
+        "name": "_totalHLQTIssued",
         "type": "uint256"
       }
     ],
-    "name": "TotalHLQTYIssuedUpdated",
+    "name": "TotalHLQTIssuedUpdated",
     "type": "event"
   },
   {
@@ -108,7 +108,7 @@
   },
   {
     "inputs": [],
-    "name": "HLQTYSupplyCap",
+    "name": "HLQTSupplyCap",
     "outputs": [
       {
         "internalType": "uint256",
@@ -173,10 +173,10 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyToken",
+    "name": "hlqtToken",
     "outputs": [
       {
-        "internalType": "contract IHLQTYToken",
+        "internalType": "contract IHLQTToken",
         "name": "",
         "type": "address"
       }
@@ -199,7 +199,7 @@
   },
   {
     "inputs": [],
-    "name": "issueHLQTY",
+    "name": "issueHLQT",
     "outputs": [
       {
         "internalType": "uint256",
@@ -232,11 +232,11 @@
       },
       {
         "internalType": "uint256",
-        "name": "_HLQTYamount",
+        "name": "_HLQTamount",
         "type": "uint256"
       }
     ],
-    "name": "sendHLQTY",
+    "name": "sendHLQT",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -245,7 +245,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       },
       {
@@ -274,7 +274,7 @@
   },
   {
     "inputs": [],
-    "name": "totalHLQTYIssued",
+    "name": "totalHLQTIssued",
     "outputs": [
       {
         "internalType": "uint256",

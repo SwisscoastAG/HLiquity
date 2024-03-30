@@ -10,14 +10,14 @@ import "../Interfaces/IBorrowerOperations.sol";
 import "../Interfaces/ITroveManager.sol";
 import "../Interfaces/IStabilityPool.sol";
 import "../Interfaces/IPriceFeed.sol";
-import "../Interfaces/IHLQTYStaking.sol";
+import "../Interfaces/IHLQTStaking.sol";
 import "./BorrowerOperationsScript.sol";
 import "./ETHTransferScript.sol";
-import "./HLQTYStakingScript.sol";
+import "./HLQTStakingScript.sol";
 import "../Dependencies/console.sol";
 
 
-contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, HLQTYStakingScript {
+contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, HLQTStakingScript {
     using SafeMath for uint;
 
     string constant public NAME = "BorrowerWrappersScript";
@@ -26,16 +26,16 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
     IStabilityPool immutable stabilityPool;
     IPriceFeed immutable priceFeed;
     IERC20 immutable hchfToken;
-    IERC20 immutable hlqtyToken;
-    IHLQTYStaking immutable hlqtyStaking;
+    IERC20 immutable hlqtToken;
+    IHLQTStaking immutable hlqtStaking;
 
     constructor(
         address _borrowerOperationsAddress,
         address _troveManagerAddress,
-        address _hlqtyStakingAddress
+        address _hlqtStakingAddress
     )
         BorrowerOperationsScript(IBorrowerOperations(_borrowerOperationsAddress))
-        HLQTYStakingScript(_hlqtyStakingAddress)
+        HLQTStakingScript(_hlqtStakingAddress)
         public
     {
         checkContract(_troveManagerAddress);
@@ -54,13 +54,13 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         checkContract(hchfTokenCached);
         hchfToken = IERC20(hchfTokenCached);
 
-        address hlqtyTokenCached = address(troveManagerCached.hlqtyToken());
-        checkContract(hlqtyTokenCached);
-        hlqtyToken = IERC20(hlqtyTokenCached);
+        address hlqtTokenCached = address(troveManagerCached.hlqtToken());
+        checkContract(hlqtTokenCached);
+        hlqtToken = IERC20(hlqtTokenCached);
 
-        IHLQTYStaking hlqtyStakingCached = troveManagerCached.hlqtyStaking();
-        require(_hlqtyStakingAddress == address(hlqtyStakingCached), "BorrowerWrappersScript: Wrong HLQTYStaking address");
-        hlqtyStaking = hlqtyStakingCached;
+        IHLQTStaking hlqtStakingCached = troveManagerCached.hlqtStaking();
+        require(_hlqtStakingAddress == address(hlqtStakingCached), "BorrowerWrappersScript: Wrong HLQTStaking address");
+        hlqtStaking = hlqtStakingCached;
     }
 
     function claimCollateralAndOpenTrove(uint _maxFee, uint _HCHFAmount, address _upperHint, address _lowerHint) external payable {
@@ -82,13 +82,13 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
 
     function claimSPRewardsAndRecycle(uint _maxFee, address _upperHint, address _lowerHint) external {
         uint collBalanceBefore = address(this).balance;
-        uint hlqtyBalanceBefore = hlqtyToken.balanceOf(address(this));
+        uint hlqtBalanceBefore = hlqtToken.balanceOf(address(this));
 
         // Claim rewards
         stabilityPool.withdrawFromSP(0);
 
         uint collBalanceAfter = address(this).balance;
-        uint hlqtyBalanceAfter = hlqtyToken.balanceOf(address(this));
+        uint hlqtBalanceAfter = hlqtToken.balanceOf(address(this));
         uint claimedCollateral = collBalanceAfter.sub(collBalanceBefore);
 
         // Add claimed ETH to trove, get more HCHF and stake it into the Stability Pool
@@ -102,20 +102,20 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
             }
         }
 
-        // Stake claimed HLQTY
-        uint claimedHLQTY = hlqtyBalanceAfter.sub(hlqtyBalanceBefore);
-        if (claimedHLQTY > 0) {
-            hlqtyStaking.stake(claimedHLQTY);
+        // Stake claimed HLQT
+        uint claimedHLQT = hlqtBalanceAfter.sub(hlqtBalanceBefore);
+        if (claimedHLQT > 0) {
+            hlqtStaking.stake(claimedHLQT);
         }
     }
 
     function claimStakingGainsAndRecycle(uint _maxFee, address _upperHint, address _lowerHint) external {
         uint collBalanceBefore = address(this).balance;
         uint hchfBalanceBefore = hchfToken.balanceOf(address(this));
-        uint hlqtyBalanceBefore = hlqtyToken.balanceOf(address(this));
+        uint hlqtBalanceBefore = hlqtToken.balanceOf(address(this));
 
         // Claim gains
-        hlqtyStaking.unstake(0);
+        hlqtStaking.unstake(0);
 
         uint gainedCollateral = address(this).balance.sub(collBalanceBefore); // stack too deep issues :'(
         uint gainedHCHF = hchfToken.balanceOf(address(this)).sub(hchfBalanceBefore);
@@ -132,11 +132,11 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         if (totalHCHF > 0) {
             stabilityPool.provideToSP(totalHCHF, address(0));
 
-            // Providing to Stability Pool also triggers HLQTY claim, so stake it if any
-            uint hlqtyBalanceAfter = hlqtyToken.balanceOf(address(this));
-            uint claimedHLQTY = hlqtyBalanceAfter.sub(hlqtyBalanceBefore);
-            if (claimedHLQTY > 0) {
-                hlqtyStaking.stake(claimedHLQTY);
+            // Providing to Stability Pool also triggers HLQT claim, so stake it if any
+            uint hlqtBalanceAfter = hlqtToken.balanceOf(address(this));
+            uint claimedHLQT = hlqtBalanceAfter.sub(hlqtBalanceBefore);
+            if (claimedHLQT > 0) {
+                hlqtStaking.stake(claimedHLQT);
             }
         }
 

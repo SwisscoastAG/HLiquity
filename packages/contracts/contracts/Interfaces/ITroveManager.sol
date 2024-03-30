@@ -5,8 +5,8 @@ pragma solidity 0.6.11;
 import "./ILiquityBase.sol";
 import "./IStabilityPool.sol";
 import "./IHCHFToken.sol";
-import "./IHLQTYToken.sol";
-import "./IHLQTYStaking.sol";
+import "./IHLQTToken.sol";
+import "./IHLQTStaking.sol";
 
 
 // Common interface for the Trove Manager.
@@ -23,8 +23,8 @@ interface ITroveManager is ILiquityBase {
     event GasPoolAddressChanged(address _gasPoolAddress);
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event LQTYTokenAddressChanged(address _hlqtyTokenAddress);
-    event LQTYStakingAddressChanged(address _hlqtyStakingAddress);
+    event LQTYTokenAddressChanged(address _hlqtTokenAddress);
+    event LQTYStakingAddressChanged(address _hlqtStakingAddress);
 
     event Liquidation(uint _liquidatedDebt, uint _liquidatedColl, uint _collGasCompensation, uint _HCHFGasCompensation);
     event Redemption(uint _attemptedHCHFAmount, uint _actualHCHFAmount, uint _ETHSent, uint _ETHFee);
@@ -50,14 +50,14 @@ interface ITroveManager is ILiquityBase {
         address _priceFeedAddress,
         address _hchfTokenAddress,
         address _sortedTrovesAddress,
-        address _hlqtyTokenAddress,
-        address _hlqtyStakingAddress
+        address _hlqtTokenAddress,
+        address _hlqtStakingAddress
     ) external;
 
     function stabilityPool() external view returns (IStabilityPool);
     function hchfToken() external view returns (IHCHFToken);
-    function hlqtyToken() external view returns (IHLQTYToken);
-    function hlqtyStaking() external view returns (IHLQTYStaking);
+    function hlqtToken() external view returns (IHLQTToken);
+    function hlqtStaking() external view returns (IHLQTStaking);
 
     function getTroveOwnersCount() external view returns (uint);
 

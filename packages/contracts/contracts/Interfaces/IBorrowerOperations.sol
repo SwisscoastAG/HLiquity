@@ -16,7 +16,7 @@ interface IBorrowerOperations {
     event PriceFeedAddressChanged(address  _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event HCHFTokenAddressChanged(address _hchfTokenAddress);
-    event HLQTYStakingAddressChanged(address _hlqtyStakingAddress);
+    event HLQTStakingAddressChanged(address _hlqtStakingAddress);
 
     event TroveCreated(address indexed _borrower, uint arrayIndex);
     event TroveUpdated(address indexed _borrower, uint _debt, uint _coll, uint stake, uint8 operation);
@@ -34,7 +34,7 @@ interface IBorrowerOperations {
         address _priceFeedAddress,
         address _sortedTrovesAddress,
         address _hchfTokenAddress,
-        address _hlqtyStakingAddress
+        address _hlqtStakingAddress
     ) external;
 
     function openTrove(uint _maxFee, uint _HCHFAmount, address _upperHint, address _lowerHint) external payable;

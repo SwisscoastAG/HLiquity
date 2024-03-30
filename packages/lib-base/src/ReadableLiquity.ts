@@ -2,7 +2,7 @@ import { Decimal } from "./Decimal";
 import { Trove, TroveWithPendingRedistribution, UserTrove } from "./Trove";
 import { StabilityDeposit } from "./StabilityDeposit";
 import { Fees } from "./Fees";
-import { HLQTYStake } from "./HLQTYStake";
+import { HLQTStake } from "./HLQTStake";
 import {EthersCallOverrides} from "@liquity/lib-ethers/src/types";
 
 /**
@@ -103,9 +103,9 @@ export interface ReadableLiquity {
   getStabilityDeposit(address?: string): Promise<StabilityDeposit>;
 
   /**
-   * Get the remaining HLQTY that will be collectively rewarded to stability depositors.
+   * Get the remaining HLQT that will be collectively rewarded to stability depositors.
    */
-  getRemainingStabilityPoolHLQTYReward(): Promise<Decimal>;
+  getRemainingStabilityPoolHLQTReward(): Promise<Decimal>;
 
   /**
    * Get the total amount of HCHF currently deposited in the Stability Pool.
@@ -127,18 +127,18 @@ export interface ReadableLiquity {
 
 
   /**
-   * Get the address of the HST Token of HLQTY
+   * Get the address of the HST Token of HLQT
    *
    */
-  getHLQTYTokenAddress(): Promise<string>
+  getHLQTTokenAddress(): Promise<string>
 
 
   /**
-   * Get the amount of HLQTY held by an address.
+   * Get the amount of HLQT held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
-  getHLQTYBalance(address?: string): Promise<Decimal>;
+  getHLQTBalance(address?: string): Promise<Decimal>;
 
   /**
    * Get the amount of Uniswap ETH/HCHF LP tokens held by an address.
@@ -155,9 +155,9 @@ export interface ReadableLiquity {
   getUniTokenAllowance(address?: string): Promise<Decimal>;
 
   /**
-   * Get the remaining HLQTY that will be collectively rewarded to liquidity miners.
+   * Get the remaining HLQT that will be collectively rewarded to liquidity miners.
    */
-  getRemainingLiquidityMiningHLQTYReward(): Promise<Decimal>;
+  getRemainingLiquidityMiningHLQTReward(): Promise<Decimal>;
 
   /**
    * Get the amount of Uniswap ETH/HCHF LP tokens currently staked by an address in liquidity mining.
@@ -172,11 +172,11 @@ export interface ReadableLiquity {
   getTotalStakedUniTokens(): Promise<Decimal>;
 
   /**
-   * Get the amount of HLQTY earned by an address through mining liquidity.
+   * Get the amount of HLQT earned by an address through mining liquidity.
    *
-   * @param address - Address whose HLQTY reward should be retrieved.
+   * @param address - Address whose HLQT reward should be retrieved.
    */
-  getLiquidityMiningHLQTYReward(address?: string): Promise<Decimal>;
+  getLiquidityMiningHLQTReward(address?: string): Promise<Decimal>;
 
   /**
    * Get the amount of leftover collateral available for withdrawal by an address.
@@ -208,16 +208,16 @@ export interface ReadableLiquity {
   getFees(): Promise<Fees>;
 
   /**
-   * Get the current state of an HLQTY Stake.
+   * Get the current state of an HLQT Stake.
    *
-   * @param address - Address that owns the HLQTY Stake.
+   * @param address - Address that owns the HLQT Stake.
    */
-  getHLQTYStake(address?: string): Promise<HLQTYStake>;
+  getHLQTStake(address?: string): Promise<HLQTStake>;
 
   /**
-   * Get the total amount of HLQTY currently staked.
+   * Get the total amount of HLQT currently staked.
    */
-  getTotalStakedHLQTY(): Promise<Decimal>;
+  getTotalStakedHLQT(): Promise<Decimal>;
 
   /**
    * Check whether an address is registered as a Liquity frontend, and what its kickback rate is.

@@ -13,7 +13,7 @@ import { FailedReceipt } from '@liquity/lib-base';
 import { Fees } from '@liquity/lib-base';
 import { FrontendStatus } from '@liquity/lib-base';
 import { HLiquityStore } from '@liquity/lib-base';
-import { HLQTYStake } from '@liquity/lib-base';
+import { HLQTStake } from '@liquity/lib-base';
 import { LiquidationDetails } from '@liquity/lib-base';
 import { LiquityReceipt } from '@liquity/lib-base';
 import { LiquityStoreState } from '@liquity/lib-base';
@@ -133,13 +133,13 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
-    getHLQTYBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    getHLQTBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
-    getHLQTYStake(address?: string, overrides?: EthersCallOverrides): Promise<HLQTYStake>;
+    getHLQTStake(address?: string, overrides?: EthersCallOverrides): Promise<HLQTStake>;
     // (undocumented)
-    getHLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
+    getHLQTTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
-    getLiquidityMiningHLQTYReward(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    getLiquidityMiningHLQTReward(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getLiquidityMiningStake(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
@@ -147,11 +147,11 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     getPrice(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
-    getRemainingLiquidityMiningHLQTYReward(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getRemainingLiquidityMiningHLQTReward(overrides?: EthersCallOverrides): Promise<Decimal>;
     // @internal (undocumented)
-    _getRemainingLiquidityMiningHLQTYRewardCalculator(overrides?: EthersCallOverrides): Promise<(blockTimestamp: number) => Decimal>;
+    _getRemainingLiquidityMiningHLQTRewardCalculator(overrides?: EthersCallOverrides): Promise<(blockTimestamp: number) => Decimal>;
     // (undocumented)
-    getRemainingStabilityPoolHLQTYReward(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getRemainingStabilityPoolHLQTReward(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getStabilityDeposit(address?: string, overrides?: EthersCallOverrides): Promise<StabilityDeposit>;
     // (undocumented)
@@ -159,7 +159,7 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     getTotalRedistributed(overrides?: EthersCallOverrides): Promise<Trove>;
     // (undocumented)
-    getTotalStakedHLQTY(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getTotalStakedHLQT(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getTotalStakedUniTokens(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
@@ -197,13 +197,13 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // @internal (undocumented)
     setPrice(price: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
-    stakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
+    stakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
     stakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
     transferCollateralGainToTrove(overrides?: EthersTransactionOverrides): Promise<CollateralGainTransferDetails>;
     // (undocumented)
-    unstakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
+    unstakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
     unstakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
@@ -215,7 +215,7 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     withdrawHCHFFromStabilityPool(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<StabilityDepositChangeDetails>;
     // (undocumented)
-    withdrawHLQTYRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<void>;
+    withdrawHLQTRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<void>;
 }
 
 // @public
@@ -228,12 +228,12 @@ export interface EthersLiquityConnection extends EthersLiquityConnectionOptional
     readonly deploymentDate: Date;
     // @internal (undocumented)
     readonly _isDev: boolean;
-    readonly liquidityMiningHLQTYRewardRate: Decimal;
+    readonly liquidityMiningHLQTRewardRate: Decimal;
     // @internal (undocumented)
     readonly _priceFeedIsTestnet: boolean;
     readonly provider: EthersProvider;
     readonly signer?: EthersSigner;
-    readonly totalStabilityPoolHLQTYReward: Decimal;
+    readonly totalStabilityPoolHLQTReward: Decimal;
     readonly version: string;
 }
 
@@ -341,13 +341,13 @@ export class PopulatableEthersLiquity implements PopulatableLiquity<EthersTransa
     // @internal (undocumented)
     setPrice(price: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
-    stakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
+    stakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
     stakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
     transferCollateralGainToTrove(overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<CollateralGainTransferDetails>>;
     // (undocumented)
-    unstakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
+    unstakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
     unstakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
@@ -359,7 +359,7 @@ export class PopulatableEthersLiquity implements PopulatableLiquity<EthersTransa
     // (undocumented)
     withdrawHCHFFromStabilityPool(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<StabilityDepositChangeDetails>>;
     // (undocumented)
-    withdrawHLQTYRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
+    withdrawHLQTRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     }
 
 // @public
@@ -422,13 +422,13 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     // (undocumented)
     getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
-    getHLQTYBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    getHLQTBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
-    getHLQTYStake(address?: string, overrides?: EthersCallOverrides): Promise<HLQTYStake>;
+    getHLQTStake(address?: string, overrides?: EthersCallOverrides): Promise<HLQTStake>;
     // (undocumented)
-    getHLQTYTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
+    getHLQTTokenAddress(overrides?: EthersCallOverrides): Promise<string>;
     // (undocumented)
-    getLiquidityMiningHLQTYReward(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    getLiquidityMiningHLQTReward(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getLiquidityMiningStake(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
@@ -436,11 +436,11 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     // (undocumented)
     getPrice(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
-    getRemainingLiquidityMiningHLQTYReward(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getRemainingLiquidityMiningHLQTReward(overrides?: EthersCallOverrides): Promise<Decimal>;
     // @internal (undocumented)
-    _getRemainingLiquidityMiningHLQTYRewardCalculator(overrides?: EthersCallOverrides): Promise<(blockTimestamp: number) => Decimal>;
+    _getRemainingLiquidityMiningHLQTRewardCalculator(overrides?: EthersCallOverrides): Promise<(blockTimestamp: number) => Decimal>;
     // (undocumented)
-    getRemainingStabilityPoolHLQTYReward(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getRemainingStabilityPoolHLQTReward(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getStabilityDeposit(address?: string, overrides?: EthersCallOverrides): Promise<StabilityDeposit>;
     // (undocumented)
@@ -448,7 +448,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     // (undocumented)
     getTotalRedistributed(overrides?: EthersCallOverrides): Promise<Trove>;
     // (undocumented)
-    getTotalStakedHLQTY(overrides?: EthersCallOverrides): Promise<Decimal>;
+    getTotalStakedHLQT(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
     getTotalStakedUniTokens(overrides?: EthersCallOverrides): Promise<Decimal>;
     // (undocumented)
@@ -513,13 +513,13 @@ export class SendableEthersLiquity implements SendableLiquity<EthersTransactionR
     // @internal (undocumented)
     setPrice(price: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
-    stakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
+    stakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
     stakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
     transferCollateralGainToTrove(overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<CollateralGainTransferDetails>>;
     // (undocumented)
-    unstakeHLQTY(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
+    unstakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
     unstakeUniTokens(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
@@ -531,7 +531,7 @@ export class SendableEthersLiquity implements SendableLiquity<EthersTransactionR
     // (undocumented)
     withdrawHCHFFromStabilityPool(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<StabilityDepositChangeDetails>>;
     // (undocumented)
-    withdrawHLQTYRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
+    withdrawHLQTRewardFromLiquidityMining(overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
 }
 
 // @public

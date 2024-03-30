@@ -510,7 +510,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
             // multisig tries to call it
             try {
-                const tx = await lqtyToken.sendToHLQTYStaking(multisig, 1, {from: multisig})
+                const tx = await lqtyToken.sendToHLQTStaking(multisig, 1, {from: multisig})
             } catch (err) {
                 assert.include(err.message, "revert")
             }
@@ -528,7 +528,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
             // Alice tries to call it
             try {
-                const tx = await lqtyToken.sendToHLQTYStaking(alice, dec(1, 8), {from: alice})
+                const tx = await lqtyToken.sendToHLQTStaking(alice, dec(1, 8), {from: alice})
             } catch (err) {
                 assert.include(err.message, "revert")
             }
@@ -537,9 +537,9 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
 
     describe('CommunityIssuance', async accounts => {
         it("sendLQTY(): reverts when caller is not the StabilityPool", async () => {
-            const tx1 = communityIssuance.sendHLQTY(alice, dec(100, 18), {from: alice})
-            const tx2 = communityIssuance.sendHLQTY(bob, dec(100, 18), {from: alice})
-            const tx3 = communityIssuance.sendHLQTY(stabilityPool.address, dec(100, 18), {from: alice})
+            const tx1 = communityIssuance.sendHLQT(alice, dec(100, 18), {from: alice})
+            const tx2 = communityIssuance.sendHLQT(bob, dec(100, 18), {from: alice})
+            const tx3 = communityIssuance.sendHLQT(stabilityPool.address, dec(100, 18), {from: alice})
 
             assertRevert(tx1)
             assertRevert(tx2)
@@ -547,7 +547,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
         })
 
         it("issueLQTY(): reverts when caller is not the StabilityPool", async () => {
-            const tx1 = communityIssuance.issueHLQTY({from: alice})
+            const tx1 = communityIssuance.issueHLQT({from: alice})
 
             assertRevert(tx1)
         })

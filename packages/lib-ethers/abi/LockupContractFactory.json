@@ -5,11 +5,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       }
     ],
-    "name": "HLQTYTokenAddressSet",
+    "name": "HLQTTokenAddressSet",
     "type": "event"
   },
   {
@@ -108,7 +108,7 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyTokenAddress",
+    "name": "hlqtTokenAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -187,11 +187,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       }
     ],
-    "name": "setHLQTYTokenAddress",
+    "name": "setHLQTTokenAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

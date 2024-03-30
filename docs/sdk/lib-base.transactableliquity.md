@@ -36,14 +36,14 @@ Implemented by [EthersLiquity](./lib-ethers.ethersliquity.md)<!-- -->.
 |  [redeemHCHF(amount, maxRedemptionRate)](./lib-base.transactableliquity.redeemhchf.md) | Redeem HCHF to native currency (e.g. Ether) at face value. |
 |  [registerFrontend(kickbackRate)](./lib-base.transactableliquity.registerfrontend.md) | Register current wallet address as a Liquity frontend. |
 |  [repayHCHF(amount)](./lib-base.transactableliquity.repayhchf.md) | Adjust existing Trove by repaying some of its debt. |
-|  [stakeHLQTY(amount)](./lib-base.transactableliquity.stakehlqty.md) | Stake HLQTY to start earning fee revenue or increase existing stake. |
-|  [stakeUniTokens(amount)](./lib-base.transactableliquity.stakeunitokens.md) | Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQTY. |
+|  [stakeHLQT(amount)](./lib-base.transactableliquity.stakehlqt.md) | Stake HLQT to start earning fee revenue or increase existing stake. |
+|  [stakeUniTokens(amount)](./lib-base.transactableliquity.stakeunitokens.md) | Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQT. |
 |  [transferCollateralGainToTrove()](./lib-base.transactableliquity.transfercollateralgaintotrove.md) | Transfer [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) from Stability Deposit to Trove. |
-|  [unstakeHLQTY(amount)](./lib-base.transactableliquity.unstakehlqty.md) | Withdraw HLQTY from staking. |
+|  [unstakeHLQT(amount)](./lib-base.transactableliquity.unstakehlqt.md) | Withdraw HLQT from staking. |
 |  [unstakeUniTokens(amount)](./lib-base.transactableliquity.unstakeunitokens.md) | Withdraw Uniswap ETH/HCHF LP tokens from liquidity mining. |
 |  [withdrawCollateral(amount)](./lib-base.transactableliquity.withdrawcollateral.md) | Adjust existing Trove by withdrawing some of its collateral. |
-|  [withdrawGainsFromStabilityPool()](./lib-base.transactableliquity.withdrawgainsfromstabilitypool.md) | Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQTY reward](./lib-base.stabilitydeposit.hlqtyreward.md) from Stability Deposit. |
-|  [withdrawGainsFromStaking()](./lib-base.transactableliquity.withdrawgainsfromstaking.md) | Withdraw [collateral gain](./lib-base.hlqtystake.collateralgain.md) and  from HLQTY stake. |
+|  [withdrawGainsFromStabilityPool()](./lib-base.transactableliquity.withdrawgainsfromstabilitypool.md) | Withdraw [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQT reward](./lib-base.stabilitydeposit.hlqtreward.md) from Stability Deposit. |
+|  [withdrawGainsFromStaking()](./lib-base.transactableliquity.withdrawgainsfromstaking.md) | Withdraw [collateral gain](./lib-base.hlqtstake.collateralgain.md) and [HCHF gain](./lib-base.hlqtstake.hchfgain.md) from HLQT stake. |
 |  [withdrawHCHFFromStabilityPool(amount)](./lib-base.transactableliquity.withdrawhchffromstabilitypool.md) | Withdraw HCHF from Stability Deposit. |
-|  [withdrawHLQTYRewardFromLiquidityMining()](./lib-base.transactableliquity.withdrawhlqtyrewardfromliquiditymining.md) | Withdraw HLQTY that has been earned by mining liquidity. |
+|  [withdrawHLQTRewardFromLiquidityMining()](./lib-base.transactableliquity.withdrawhlqtrewardfromliquiditymining.md) | Withdraw HLQT that has been earned by mining liquidity. |
 

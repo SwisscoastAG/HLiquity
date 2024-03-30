@@ -125,8 +125,8 @@ export interface StabilityPoolGainsWithdrawalDetails {
   /** Amount of native currency (e.g. Ether) paid out to the depositor in this transaction. */
   collateralGain: Decimal;
 
-  /** Amount of HLQTY rewarded to the depositor in this transaction. */
-  hlqtyReward: Decimal;
+  /** Amount of HLQT rewarded to the depositor in this transaction. */
+  hlqtReward: Decimal;
 }
 
 /**
@@ -313,7 +313,7 @@ export interface TransactableLiquity {
    * Make a new Stability Deposit, or top up existing one.
    *
    * @param amount - Amount of HCHF to add to new or existing deposit.
-   * @param frontendTag - Address that should receive a share of this deposit's HLQTY rewards.
+   * @param frontendTag - Address that should receive a share of this deposit's HLQT rewards.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -323,7 +323,7 @@ export interface TransactableLiquity {
    *
    * As a side-effect, the transaction will also pay out an existing Stability Deposit's
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtReward | HLQT reward}.
    */
   depositHCHFInStabilityPool(
     amount: Decimalish,
@@ -341,13 +341,13 @@ export interface TransactableLiquity {
    * @remarks
    * As a side-effect, the transaction will also pay out the Stability Deposit's
    * {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtReward | HLQT reward}.
    */
   withdrawHCHFFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
 
   /**
    * Withdraw {@link @liquity/lib-base#StabilityDeposit.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward} from Stability Deposit.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtReward | HLQT reward} from Stability Deposit.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -365,7 +365,7 @@ export interface TransactableLiquity {
    * The collateral gain is transfered to the Trove as additional collateral.
    *
    * As a side-effect, the transaction will also pay out the Stability Deposit's
-   * {@link @liquity/lib-base#StabilityDeposit.hlqtyReward | HLQTY reward}.
+   * {@link @liquity/lib-base#StabilityDeposit.hlqtReward | HLQT reward}.
    */
   transferCollateralGainToTrove(): Promise<CollateralGainTransferDetails>;
 
@@ -398,38 +398,38 @@ export interface TransactableLiquity {
   claimCollateralSurplus(): Promise<void>;
 
   /**
-   * Stake HLQTY to start earning fee revenue or increase existing stake.
+   * Stake HLQT to start earning fee revenue or increase existing stake.
    *
-   * @param amount - Amount of HLQTY to add to new or existing stake.
-   *
-   * @throws
-   * Throws {@link TransactionFailedError} in case of transaction failure.
-   *
-   * @remarks
-   * As a side-effect, the transaction will also pay out an existing HLQTY stake's
-   * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain}.
-   */
-  stakeHLQTY(amount: Decimalish): Promise<void>;
-
-  /**
-   * Withdraw HLQTY from staking.
-   *
-   * @param amount - Amount of HLQTY to withdraw.
+   * @param amount - Amount of HLQT to add to new or existing stake.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    *
    * @remarks
-   * As a side-effect, the transaction will also pay out the HLQTY stake's
-   * {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain}.
+   * As a side-effect, the transaction will also pay out an existing HLQT stake's
+   * {@link @liquity/lib-base#HLQTStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTStake.hchfGain | HCHF gain}.
    */
-  unstakeHLQTY(amount: Decimalish): Promise<void>;
+  stakeHLQT(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw {@link @liquity/lib-base#HLQTYStake.collateralGain | collateral gain} and
-   * {@link @liquity/lib-base#HLQTYStake.hchfGain | HCHF gain} from HLQTY stake.
+   * Withdraw HLQT from staking.
+   *
+   * @param amount - Amount of HLQT to withdraw.
+   *
+   * @throws
+   * Throws {@link TransactionFailedError} in case of transaction failure.
+   *
+   * @remarks
+   * As a side-effect, the transaction will also pay out the HLQT stake's
+   * {@link @liquity/lib-base#HLQTStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTStake.hchfGain | HCHF gain}.
+   */
+  unstakeHLQT(amount: Decimalish): Promise<void>;
+
+  /**
+   * Withdraw {@link @liquity/lib-base#HLQTStake.collateralGain | collateral gain} and
+   * {@link @liquity/lib-base#HLQTStake.hchfGain | HCHF gain} from HLQT stake.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
@@ -453,7 +453,7 @@ export interface TransactableLiquity {
   approveUniTokens(allowance?: Decimalish): Promise<void>;
 
   /**
-   * Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQTY.
+   * Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQT.
    *
    * @param amount - Amount of LP tokens to add to new or existing stake.
    *
@@ -473,12 +473,12 @@ export interface TransactableLiquity {
   unstakeUniTokens(amount: Decimalish): Promise<void>;
 
   /**
-   * Withdraw HLQTY that has been earned by mining liquidity.
+   * Withdraw HLQT that has been earned by mining liquidity.
    *
    * @throws
    * Throws {@link TransactionFailedError} in case of transaction failure.
    */
-  withdrawHLQTYRewardFromLiquidityMining(): Promise<void>;
+  withdrawHLQTRewardFromLiquidityMining(): Promise<void>;
 
   /**
    * Withdraw all staked LP tokens from liquidity mining and claim reward.
@@ -491,7 +491,7 @@ export interface TransactableLiquity {
   /**
    * Register current wallet address as a Liquity frontend.
    *
-   * @param kickbackRate - The portion of HLQTY rewards to pass onto users of the frontend
+   * @param kickbackRate - The portion of HLQT rewards to pass onto users of the frontend
    *                       (between 0 and 1).
    *
    * @throws

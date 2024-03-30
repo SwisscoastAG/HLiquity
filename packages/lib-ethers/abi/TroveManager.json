@@ -96,7 +96,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyStakingAddress",
+        "name": "_hlqtStakingAddress",
         "type": "address"
       }
     ],
@@ -109,7 +109,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       }
     ],
@@ -1280,10 +1280,10 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyStaking",
+    "name": "hlqtStaking",
     "outputs": [
       {
-        "internalType": "contract IHLQTYStaking",
+        "internalType": "contract IHLQTStaking",
         "name": "",
         "type": "address"
       }
@@ -1293,10 +1293,10 @@
   },
   {
     "inputs": [],
-    "name": "hlqtyToken",
+    "name": "hlqtToken",
     "outputs": [
       {
-        "internalType": "contract IHLQTYToken",
+        "internalType": "contract IHLQTToken",
         "name": "",
         "type": "address"
       }
@@ -1585,12 +1585,12 @@
       },
       {
         "internalType": "address",
-        "name": "_hlqtyTokenAddress",
+        "name": "_hlqtTokenAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_hlqtyStakingAddress",
+        "name": "_hlqtStakingAddress",
         "type": "address"
       }
     ],

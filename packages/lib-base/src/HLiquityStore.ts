@@ -4,7 +4,7 @@ import { Decimal } from "./Decimal";
 import { StabilityDeposit } from "./StabilityDeposit";
 import { Trove, TroveWithPendingRedistribution, UserTrove } from "./Trove";
 import { Fees } from "./Fees";
-import { HLQTYStake } from "./HLQTYStake";
+import { HLQTStake } from "./HLQTStake";
 import { FrontendStatus } from "./ReadableLiquity";
 
 /**
@@ -31,11 +31,11 @@ export interface LiquityStoreBaseState {
   /** HCHF HST Token address */
   hchfTokenAddress: string,
 
-  /** HLQTY HST Token address */
-  hlqtyTokenAddress: string,
+  /** HLQT HST Token address */
+  hlqtTokenAddress: string,
 
-  /** User's HLQTY token balance. */
-  hlqtyBalance: Decimal;
+  /** User's HLQT token balance. */
+  hlqtBalance: Decimal;
 
   /** User's Uniswap ETH/HCHF LP token balance. */
   uniTokenBalance: Decimal;
@@ -43,8 +43,8 @@ export interface LiquityStoreBaseState {
   /** The liquidity mining contract's allowance of user's Uniswap ETH/HCHF LP tokens. */
   uniTokenAllowance: Decimal;
 
-  /** Remaining HLQTY that will be collectively rewarded to liquidity miners. */
-  remainingLiquidityMiningHLQTYReward: Decimal;
+  /** Remaining HLQT that will be collectively rewarded to liquidity miners. */
+  remainingLiquidityMiningHLQTReward: Decimal;
 
   /** Amount of Uniswap ETH/HCHF LP tokens the user has staked in liquidity mining. */
   liquidityMiningStake: Decimal;
@@ -52,8 +52,8 @@ export interface LiquityStoreBaseState {
   /** Total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. */
   totalStakedUniTokens: Decimal;
 
-  /** Amount of HLQTY the user has earned through mining liquidity. */
-  liquidityMiningHLQTYReward: Decimal;
+  /** Amount of HLQT the user has earned through mining liquidity. */
+  liquidityMiningHLQTReward: Decimal;
 
   /**
    * Amount of leftover collateral available for withdrawal to the user.
@@ -93,17 +93,17 @@ export interface LiquityStoreBaseState {
   /** User's stability deposit. */
   stabilityDeposit: StabilityDeposit;
 
-  /** Remaining HLQTY that will be collectively rewarded to stability depositors. */
-  remainingStabilityPoolHLQTYReward: Decimal;
+  /** Remaining HLQT that will be collectively rewarded to stability depositors. */
+  remainingStabilityPoolHLQTReward: Decimal;
 
   /** @internal */
   _feesInNormalMode: Fees;
 
-  /** User's HLQTY stake. */
-  hlqtyStake: HLQTYStake;
+  /** User's HLQT stake. */
+  hlqtStake: HLQTStake;
 
-  /** Total amount of HLQTY currently staked. */
-  totalStakedHLQTY: Decimal;
+  /** Total amount of HLQT currently staked. */
+  totalStakedHLQT: Decimal;
 
   /** @internal */
   _riskiestTroveBeforeRedistribution: TroveWithPendingRedistribution;
@@ -372,18 +372,18 @@ export abstract class HLiquityStore<T = unknown> {
           baseStateUpdate.hchfTokenAddress
       ),
 
-      hlqtyTokenAddress: this._updateIfChanged(
+      hlqtTokenAddress: this._updateIfChanged(
           strictEquals,
-          "hlqtyTokenAddress",
-          baseState.hlqtyTokenAddress,
-          baseStateUpdate.hlqtyTokenAddress
+          "hlqtTokenAddress",
+          baseState.hlqtTokenAddress,
+          baseStateUpdate.hlqtTokenAddress
       ),
 
-      hlqtyBalance: this._updateIfChanged(
+      hlqtBalance: this._updateIfChanged(
         eq,
-        "hlqtyBalance",
-        baseState.hlqtyBalance,
-        baseStateUpdate.hlqtyBalance
+        "hlqtBalance",
+        baseState.hlqtBalance,
+        baseStateUpdate.hlqtBalance
       ),
 
       uniTokenBalance: this._updateIfChanged(
@@ -400,10 +400,10 @@ export abstract class HLiquityStore<T = unknown> {
         baseStateUpdate.uniTokenAllowance
       ),
 
-      remainingLiquidityMiningHLQTYReward: this._silentlyUpdateIfChanged(
+      remainingLiquidityMiningHLQTReward: this._silentlyUpdateIfChanged(
         eq,
-        baseState.remainingLiquidityMiningHLQTYReward,
-        baseStateUpdate.remainingLiquidityMiningHLQTYReward
+        baseState.remainingLiquidityMiningHLQTReward,
+        baseStateUpdate.remainingLiquidityMiningHLQTReward
       ),
 
       liquidityMiningStake: this._updateIfChanged(
@@ -420,10 +420,10 @@ export abstract class HLiquityStore<T = unknown> {
         baseStateUpdate.totalStakedUniTokens
       ),
 
-      liquidityMiningHLQTYReward: this._silentlyUpdateIfChanged(
+      liquidityMiningHLQTReward: this._silentlyUpdateIfChanged(
         eq,
-        baseState.liquidityMiningHLQTYReward,
-        baseStateUpdate.liquidityMiningHLQTYReward
+        baseState.liquidityMiningHLQTReward,
+        baseStateUpdate.liquidityMiningHLQTReward
       ),
 
       collateralSurplusBalance: this._updateIfChanged(
@@ -465,10 +465,10 @@ export abstract class HLiquityStore<T = unknown> {
         baseStateUpdate.stabilityDeposit
       ),
 
-      remainingStabilityPoolHLQTYReward: this._silentlyUpdateIfChanged(
+      remainingStabilityPoolHLQTReward: this._silentlyUpdateIfChanged(
         eq,
-        baseState.remainingStabilityPoolHLQTYReward,
-        baseStateUpdate.remainingStabilityPoolHLQTYReward
+        baseState.remainingStabilityPoolHLQTReward,
+        baseStateUpdate.remainingStabilityPoolHLQTReward
       ),
 
       _feesInNormalMode: this._silentlyUpdateIfChanged(
@@ -477,18 +477,18 @@ export abstract class HLiquityStore<T = unknown> {
         baseStateUpdate._feesInNormalMode
       ),
 
-      hlqtyStake: this._updateIfChanged(
+      hlqtStake: this._updateIfChanged(
         equals,
-        "hlqtyStake",
-        baseState.hlqtyStake,
-        baseStateUpdate.hlqtyStake
+        "hlqtStake",
+        baseState.hlqtStake,
+        baseStateUpdate.hlqtStake
       ),
 
-      totalStakedHLQTY: this._updateIfChanged(
+      totalStakedHLQT: this._updateIfChanged(
         eq,
-        "totalStakedHLQTY",
-        baseState.totalStakedHLQTY,
-        baseStateUpdate.totalStakedHLQTY
+        "totalStakedHLQT",
+        baseState.totalStakedHLQT,
+        baseStateUpdate.totalStakedHLQT
       ),
 
       _riskiestTroveBeforeRedistribution: this._silentlyUpdateIfChanged(

@@ -131,19 +131,19 @@ import "./Dependencies/BaseHST.sol";
  * https://github.com/liquity/liquity/blob/master/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf
  *
  *
- * --- HLQTY ISSUANCE TO STABILITY POOL DEPOSITORS ---
+ * --- HLQT ISSUANCE TO STABILITY POOL DEPOSITORS ---
  *
- * An HLQTY issuance event occurs at every deposit operation, and every liquidation.
+ * An HLQT issuance event occurs at every deposit operation, and every liquidation.
  *
  * Each deposit is tagged with the address of the front end through which it was made.
  *
- * All deposits earn a share of the issued HLQTY in proportion to the deposit as a share of total deposits. The HLQTY earned
+ * All deposits earn a share of the issued HLQT in proportion to the deposit as a share of total deposits. The HLQT earned
  * by a given deposit, is split between the depositor and the front end through which the deposit was made, based on the front end's kickbackRate.
  *
  * Please see the system Readme for an overview:
  * https://github.com/liquity/dev/blob/main/README.md#lqty-issuance-to-stability-providers
  *
- * We use the same mathematical product-sum approach to track HLQTY gains for depositors, where 'G' is the sum corresponding to HLQTY gains.
+ * We use the same mathematical product-sum approach to track HLQT gains for depositors, where 'G' is the sum corresponding to HLQT gains.
  * The product P (and snapshot P_t) is re-used, as the ratio P/P_t tracks a deposit's depletion due to liquidations.
  *
  */
@@ -221,16 +221,16 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     mapping (uint128 => mapping(uint128 => uint)) public epochToScaleToSum;
 
     /*
-    * Similarly, the sum 'G' is used to calculate HLQTY gains. During it's lifetime, each deposit d_t earns a HLQTY gain of
+    * Similarly, the sum 'G' is used to calculate HLQT gains. During it's lifetime, each deposit d_t earns a HLQT gain of
     *  ( d_t * [G - G_t] )/P_t, where G_t is the depositor's snapshot of G taken at time t when  the deposit was made.
     *
-    *  HLQTY reward events occur are triggered by depositor operations (new deposit, topup, withdrawal), and liquidations.
-    *  In each case, the HLQTY reward is issued (i.e. G is updated), before other state changes are made.
+    *  HLQT reward events occur are triggered by depositor operations (new deposit, topup, withdrawal), and liquidations.
+    *  In each case, the HLQT reward is issued (i.e. G is updated), before other state changes are made.
     */
     mapping (uint128 => mapping(uint128 => uint)) public epochToScaleToG;
 
-    // Error tracker for the error correction in the HLQTY issuance calculation
-    uint public lastHLQTYError;
+    // Error tracker for the error correction in the HLQT issuance calculation
+    uint public lastHLQTError;
     // Error trackers for the error correction in the offset calculation
     uint public lastETHError_Offset;
     uint public lastHCHFLossError_Offset;
@@ -264,8 +264,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     event FrontEndStakeChanged(address indexed _frontEnd, uint _newFrontEndStake, address _depositor);
 
     event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _HCHFLoss);
-    event HLQTYPaidToDepositor(address indexed _depositor, uint _HLQTY);
-    event HLQTYPaidToFrontEnd(address indexed _frontEnd, uint _HLQTY);
+    event HLQTPaidToDepositor(address indexed _depositor, uint _HLQT);
+    event HLQTPaidToFrontEnd(address indexed _frontEnd, uint _HLQT);
     event EtherSent(address _to, uint _amount);
 
     // --- Contract setters ---
@@ -327,10 +327,10 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
     /*  provideToSP():
     *
-    * - Triggers a HLQTY issuance, based on time passed since the last issuance. The HLQTY issuance is shared between *all* depositors and front ends
+    * - Triggers a HLQT issuance, based on time passed since the last issuance. The HLQT issuance is shared between *all* depositors and front ends
     * - Tags the deposit with the provided front end tag param, if it's a new deposit
-    * - Sends depositor's accumulated gains (HLQTY, ETH) to depositor
-    * - Sends the tagged front end's accumulated HLQTY gains to the tagged front end
+    * - Sends depositor's accumulated gains (HLQT, ETH) to depositor
+    * - Sends the tagged front end's accumulated HLQT gains to the tagged front end
     * - Increases deposit and tagged front end's stake, and takes new snapshots for each.
     */
     function provideToSP(uint _amount, address _frontEndTag) external override {
@@ -342,16 +342,16 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         ICommunityIssuance communityIssuanceCached = communityIssuance;
 
-        _triggerHLQTYIssuance(communityIssuanceCached);
+        _triggerHLQTIssuance(communityIssuanceCached);
 
         if (initialDeposit == 0) {_setFrontEndTag(msg.sender, _frontEndTag);}
         uint depositorETHGain = getDepositorETHGain(msg.sender);
         uint compoundedHCHFDeposit = getCompoundedHCHFDeposit(msg.sender);
         uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
-        // First pay out any HLQTY gains
+        // First pay out any HLQT gains
         address frontEnd = deposits[msg.sender].frontEndTag;
-        _payOutHLQTYGains(communityIssuanceCached, msg.sender, frontEnd);
+        _payOutHLQTGains(communityIssuanceCached, msg.sender, frontEnd);
 
         // Update front end stake
         uint compoundedFrontEndStake = getCompoundedFrontEndStake(frontEnd);
@@ -372,10 +372,10 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
     /*  withdrawFromSP():
     *
-    * - Triggers a HLQTY issuance, based on time passed since the last issuance. The HLQTY issuance is shared between *all* depositors and front ends
+    * - Triggers a HLQT issuance, based on time passed since the last issuance. The HLQT issuance is shared between *all* depositors and front ends
     * - Removes the deposit's front end tag if it is a full withdrawal
-    * - Sends all depositor's accumulated gains (HLQTY, ETH) to depositor
-    * - Sends the tagged front end's accumulated HLQTY gains to the tagged front end
+    * - Sends all depositor's accumulated gains (HLQT, ETH) to depositor
+    * - Sends the tagged front end's accumulated HLQT gains to the tagged front end
     * - Decreases deposit and tagged front end's stake, and takes new snapshots for each.
     *
     * If _amount > userDeposit, the user withdraws all of their compounded deposit.
@@ -387,7 +387,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         ICommunityIssuance communityIssuanceCached = communityIssuance;
 
-        _triggerHLQTYIssuance(communityIssuanceCached);
+        _triggerHLQTIssuance(communityIssuanceCached);
 
         uint depositorETHGain = getDepositorETHGain(msg.sender);
 
@@ -395,9 +395,9 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         uint HCHFtoWithdraw = LiquityMath._min(_amount, compoundedHCHFDeposit);
         uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
-        // First pay out any HLQTY gains
+        // First pay out any HLQT gains
         address frontEnd = deposits[msg.sender].frontEndTag;
-        _payOutHLQTYGains(communityIssuanceCached, msg.sender, frontEnd);
+        _payOutHLQTGains(communityIssuanceCached, msg.sender, frontEnd);
         
         // Update front end stake
         uint compoundedFrontEndStake = getCompoundedFrontEndStake(frontEnd);
@@ -418,9 +418,9 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     }
 
     /* withdrawETHGainToTrove:
-    * - Triggers a HLQTY issuance, based on time passed since the last issuance. The HLQTY issuance is shared between *all* depositors and front ends
-    * - Sends all depositor's HLQTY gain to  depositor
-    * - Sends all tagged front end's HLQTY gain to the tagged front end
+    * - Triggers a HLQT issuance, based on time passed since the last issuance. The HLQT issuance is shared between *all* depositors and front ends
+    * - Sends all depositor's HLQT gain to  depositor
+    * - Sends all tagged front end's HLQT gain to the tagged front end
     * - Transfers the depositor's entire ETH gain from the Stability Pool to the caller's trove
     * - Leaves their compounded deposit in the Stability Pool
     * - Updates snapshots for deposit and tagged front end stake */
@@ -432,16 +432,16 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         ICommunityIssuance communityIssuanceCached = communityIssuance;
 
-        _triggerHLQTYIssuance(communityIssuanceCached);
+        _triggerHLQTIssuance(communityIssuanceCached);
 
         uint depositorETHGain = getDepositorETHGain(msg.sender);
 
         uint compoundedHCHFDeposit = getCompoundedHCHFDeposit(msg.sender);
         uint HCHFLoss = initialDeposit.sub(compoundedHCHFDeposit); // Needed only for event log
 
-        // First pay out any HLQTY gains
+        // First pay out any HLQT gains
         address frontEnd = deposits[msg.sender].frontEndTag;
-        _payOutHLQTYGains(communityIssuanceCached, msg.sender, frontEnd);
+        _payOutHLQTGains(communityIssuanceCached, msg.sender, frontEnd);
 
         // Update front end stake
         uint compoundedFrontEndStake = getCompoundedFrontEndStake(frontEnd);
@@ -464,34 +464,34 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         borrowerOperations.moveETHGainToTrove{ value: depositorETHGain }(msg.sender, _upperHint, _lowerHint);
     }
 
-    // --- HLQTY issuance functions ---
+    // --- HLQT issuance functions ---
 
-    function _triggerHLQTYIssuance(ICommunityIssuance _communityIssuance) internal {
-        uint HLQTYIssuance = _communityIssuance.issueHLQTY();
-       _updateG(HLQTYIssuance);
+    function _triggerHLQTIssuance(ICommunityIssuance _communityIssuance) internal {
+        uint HLQTIssuance = _communityIssuance.issueHLQT();
+       _updateG(HLQTIssuance);
     }
 
-    function _updateG(uint _HLQTYIssuance) internal {
+    function _updateG(uint _HLQTIssuance) internal {
         uint totalHCHF = totalHCHFDeposits; // cached to save an SLOAD
         /*
-        * When total deposits is 0, G is not updated. In this case, the HLQTY issued can not be obtained by later
+        * When total deposits is 0, G is not updated. In this case, the HLQT issued can not be obtained by later
         * depositors - it is missed out on, and remains in the balanceof the CommunityIssuance contract.
         *
         */
-        if (totalHCHF == 0 || _HLQTYIssuance == 0) {return;}
+        if (totalHCHF == 0 || _HLQTIssuance == 0) {return;}
 
-        uint HLQTYPerUnitStaked;
-        HLQTYPerUnitStaked =_computeHLQTYPerUnitStaked(_HLQTYIssuance, totalHCHF);
+        uint HLQTPerUnitStaked;
+        HLQTPerUnitStaked =_computeHLQTPerUnitStaked(_HLQTIssuance, totalHCHF);
 
-        uint marginalHLQTYGain = HLQTYPerUnitStaked.mul(P);
-        epochToScaleToG[currentEpoch][currentScale] = epochToScaleToG[currentEpoch][currentScale].add(marginalHLQTYGain);
+        uint marginalHLQTGain = HLQTPerUnitStaked.mul(P);
+        epochToScaleToG[currentEpoch][currentScale] = epochToScaleToG[currentEpoch][currentScale].add(marginalHLQTGain);
 
         emit G_Updated(epochToScaleToG[currentEpoch][currentScale], currentEpoch, currentScale);
     }
 
-    function _computeHLQTYPerUnitStaked(uint _HLQTYIssuance, uint _totalHCHFDeposits) internal returns (uint) {
+    function _computeHLQTPerUnitStaked(uint _HLQTIssuance, uint _totalHCHFDeposits) internal returns (uint) {
         /*  
-        * Calculate the HLQTY-per-unit staked.  Division uses a "feedback" error correction, to keep the
+        * Calculate the HLQT-per-unit staked.  Division uses a "feedback" error correction, to keep the
         * cumulative error low in the running total G:
         *
         * 1) Form a numerator which compensates for the floor division error that occurred the last time this 
@@ -501,12 +501,12 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         * 4) Store this error for use in the next correction when this function is called.
         * 5) Note: static analysis tools complain about this "division before multiplication", however, it is intended.
         */
-        uint HLQTYNumerator = _HLQTYIssuance.mul(DECIMAL_PRECISION).add(lastHLQTYError);
+        uint HLQTNumerator = _HLQTIssuance.mul(DECIMAL_PRECISION).add(lastHLQTError);
 
-        uint HLQTYPerUnitStaked = HLQTYNumerator.div(_totalHCHFDeposits);
-        lastHLQTYError = HLQTYNumerator.sub(HLQTYPerUnitStaked.mul(_totalHCHFDeposits));
+        uint HLQTPerUnitStaked = HLQTNumerator.div(_totalHCHFDeposits);
+        lastHLQTError = HLQTNumerator.sub(HLQTPerUnitStaked.mul(_totalHCHFDeposits));
 
-        return HLQTYPerUnitStaked;
+        return HLQTPerUnitStaked;
     }
 
     // --- Liquidation functions ---
@@ -521,7 +521,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         uint totalHCHF = totalHCHFDeposits; // cached to save an SLOAD
         if (totalHCHF == 0 || _debtToOffset == 0) { return; }
 
-        _triggerHLQTYIssuance(communityIssuance);
+        _triggerHLQTIssuance(communityIssuance);
 
         (uint ETHGainPerUnitStaked,
             uint HCHFLossPerUnitStaked) = _computeRewardsPerUnitStaked(_collToAdd, _debtToOffset, totalHCHF);
@@ -683,12 +683,12 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     }
 
     /*
-    * Calculate the HLQTY gain earned by a deposit since its last snapshots were taken.
-    * Given by the formula:  HLQTY = d0 * (G - G(0))/P(0)
+    * Calculate the HLQT gain earned by a deposit since its last snapshots were taken.
+    * Given by the formula:  HLQT = d0 * (G - G(0))/P(0)
     * where G(0) and P(0) are the depositor's snapshots of the sum G and product P, respectively.
     * d0 is the last recorded deposit value.
     */
-    function getDepositorHLQTYGain(address _depositor) public view override returns (uint) {
+    function getDepositorHLQTGain(address _depositor) public view override returns (uint) {
         uint initialDeposit = deposits[_depositor].initialValue;
         if (initialDeposit == 0) {return 0;}
 
@@ -703,18 +703,18 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         Snapshots memory snapshots = depositSnapshots[_depositor];
 
-        uint HLQTYGain = kickbackRate.mul(_getHLQTYGainFromSnapshots(initialDeposit, snapshots)).div(DECIMAL_PRECISION);
+        uint HLQTGain = kickbackRate.mul(_getHLQTGainFromSnapshots(initialDeposit, snapshots)).div(DECIMAL_PRECISION);
 
-        return HLQTYGain;
+        return HLQTGain;
     }
 
     /*
-    * Return the HLQTY gain earned by the front end. Given by the formula:  E = D0 * (G - G(0))/P(0)
+    * Return the HLQT gain earned by the front end. Given by the formula:  E = D0 * (G - G(0))/P(0)
     * where G(0) and P(0) are the depositor's snapshots of the sum G and product P, respectively.
     *
     * D0 is the last recorded value of the front end's total tagged deposits.
     */
-    function getFrontEndHLQTYGain(address _frontEnd) public view override returns (uint) {
+    function getFrontEndHLQTGain(address _frontEnd) public view override returns (uint) {
         uint frontEndStake = frontEndStakes[_frontEnd];
         if (frontEndStake == 0) { return 0; }
 
@@ -723,14 +723,14 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
 
         Snapshots memory snapshots = frontEndSnapshots[_frontEnd];
 
-        uint HLQTYGain = frontEndShare.mul(_getHLQTYGainFromSnapshots(frontEndStake, snapshots)).div(DECIMAL_PRECISION);
-        return HLQTYGain;
+        uint HLQTGain = frontEndShare.mul(_getHLQTGainFromSnapshots(frontEndStake, snapshots)).div(DECIMAL_PRECISION);
+        return HLQTGain;
     }
 
-    function _getHLQTYGainFromSnapshots(uint initialStake, Snapshots memory snapshots) internal view returns (uint) {
+    function _getHLQTGainFromSnapshots(uint initialStake, Snapshots memory snapshots) internal view returns (uint) {
        /*
-        * Grab the sum 'G' from the epoch at which the stake was made. The HLQTY gain may span up to one scale change.
-        * If it does, the second portion of the HLQTY gain is scaled by 1e4.
+        * Grab the sum 'G' from the epoch at which the stake was made. The HLQT gain may span up to one scale change.
+        * If it does, the second portion of the HLQT gain is scaled by 1e4.
         * If the gain spans no scale change, the second portion will be 0.
         */
         uint128 epochSnapshot = snapshots.epoch;
@@ -741,9 +741,9 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         uint firstPortion = epochToScaleToG[epochSnapshot][scaleSnapshot].sub(G_Snapshot);
         uint secondPortion = epochToScaleToG[epochSnapshot][scaleSnapshot.add(1)].div(SCALE_FACTOR);
 
-        uint HLQTYGain = initialStake.mul(firstPortion.add(secondPortion)).div(P_Snapshot).div(DECIMAL_PRECISION);
+        uint HLQTGain = initialStake.mul(firstPortion.add(secondPortion)).div(P_Snapshot).div(DECIMAL_PRECISION);
 
-        return HLQTYGain;
+        return HLQTGain;
     }
 
     // --- Compounded deposit and compounded front end stake ---
@@ -824,7 +824,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         return compoundedStake;
     }
 
-    // --- Sender functions for HCHF deposit, ETH gains and HLQTY gains ---
+    // --- Sender functions for HCHF deposit, ETH gains and HLQT gains ---
 
     // Transfer the HCHF tokens from the user to the Stability Pool's address, and update its recorded HCHF
     function _sendHCHFtoStabilityPool(address _address, uint _amount) internal {
@@ -928,18 +928,18 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         emit FrontEndSnapshotUpdated(_frontEnd, currentP, currentG);
     }
 
-    function _payOutHLQTYGains(ICommunityIssuance _communityIssuance, address _depositor, address _frontEnd) internal {
-        // Pay out front end's HLQTY gain
+    function _payOutHLQTGains(ICommunityIssuance _communityIssuance, address _depositor, address _frontEnd) internal {
+        // Pay out front end's HLQT gain
         if (_frontEnd != address(0)) {
-            uint frontEndHLQTYGain = getFrontEndHLQTYGain(_frontEnd);
-            _communityIssuance.sendHLQTY(_frontEnd, frontEndHLQTYGain);
-            emit HLQTYPaidToFrontEnd(_frontEnd, frontEndHLQTYGain);
+            uint frontEndHLQTGain = getFrontEndHLQTGain(_frontEnd);
+            _communityIssuance.sendHLQT(_frontEnd, frontEndHLQTGain);
+            emit HLQTPaidToFrontEnd(_frontEnd, frontEndHLQTGain);
         }
 
-        // Pay out depositor's HLQTY gain
-        uint depositorHLQTYGain = getDepositorHLQTYGain(_depositor);
-        _communityIssuance.sendHLQTY(_depositor, depositorHLQTYGain);
-        emit HLQTYPaidToDepositor(_depositor, depositorHLQTYGain);
+        // Pay out depositor's HLQT gain
+        uint depositorHLQTGain = getDepositorHLQTGain(_depositor);
+        _communityIssuance.sendHLQT(_depositor, depositorHLQTGain);
+        emit HLQTPaidToDepositor(_depositor, depositorHLQTGain);
     }
 
     // --- 'require' functions ---

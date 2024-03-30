@@ -8,7 +8,7 @@ import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/IHCHFToken.sol";
 import "./Interfaces/ICollSurplusPool.sol";
 import "./Interfaces/ISortedTroves.sol";
-import "./Interfaces/IHLQTYStaking.sol";
+import "./Interfaces/IHLQTStaking.sol";
 import "./Dependencies/LiquityBase.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
@@ -29,8 +29,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     ICollSurplusPool collSurplusPool;
 
-    IHLQTYStaking public hlqtyStaking;
-    address public hlqtyStakingAddress;
+    IHLQTStaking public hlqtStaking;
+    address public hlqtStakingAddress;
 
     IHCHFToken public hchfToken;
 
@@ -90,7 +90,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     event PriceFeedAddressChanged(address  _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event HCHFTokenAddressChanged(address _hchfTokenAddress);
-    event LQTYStakingAddressChanged(address _hlqtyStakingAddress);
+    event LQTYStakingAddressChanged(address _hlqtStakingAddress);
 
     event TroveCreated(address indexed _borrower, uint arrayIndex);
     event TroveUpdated(address indexed _borrower, uint _debt, uint _coll, uint stake, BorrowerOperation operation);
@@ -108,7 +108,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address _priceFeedAddress,
         address _sortedTrovesAddress,
         address _hchfTokenAddress,
-        address _hlqtyStakingAddress
+        address _hlqtStakingAddress
     )
         external
         override
@@ -126,7 +126,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         checkContract(_priceFeedAddress);
         checkContract(_sortedTrovesAddress);
         checkContract(_hchfTokenAddress);
-        checkContract(_hlqtyStakingAddress);
+        checkContract(_hlqtStakingAddress);
 
         troveManager = ITroveManager(_troveManagerAddress);
         activePool = IActivePool(_activePoolAddress);
@@ -138,8 +138,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         priceFeed = IPriceFeed(_priceFeedAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
         hchfToken = IHCHFToken(_hchfTokenAddress);
-        hlqtyStakingAddress = _hlqtyStakingAddress;
-        hlqtyStaking = IHLQTYStaking(_hlqtyStakingAddress);
+        hlqtStakingAddress = _hlqtStakingAddress;
+        hlqtStaking = IHLQTStaking(_hlqtStakingAddress);
 
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
@@ -150,7 +150,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         emit PriceFeedAddressChanged(_priceFeedAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit HCHFTokenAddressChanged(_hchfTokenAddress);
-        emit LQTYStakingAddressChanged(_hlqtyStakingAddress);
+        emit LQTYStakingAddressChanged(_hlqtStakingAddress);
 
         _renounceOwnership();
     }
@@ -370,9 +370,9 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         _requireUserAcceptsFee(HCHFFee, _HCHFAmount, _maxFeePercentage);
         
-        // Send fee to HLQTY staking contract
-        hlqtyStaking.increaseF_HCHF(HCHFFee);
-        _hchfToken.mint(hlqtyStakingAddress, HCHFFee);
+        // Send fee to HLQT staking contract
+        hlqtStaking.increaseF_HCHF(HCHFFee);
+        _hchfToken.mint(hlqtStakingAddress, HCHFFee);
 
         return HCHFFee;
     }

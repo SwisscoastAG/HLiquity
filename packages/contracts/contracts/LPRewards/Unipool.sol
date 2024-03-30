@@ -7,7 +7,7 @@ import "../Dependencies/LiquityMath.sol";
 import "../Dependencies/SafeMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
-import "../Interfaces/IHLQTYToken.sol";
+import "../Interfaces/IHLQTToken.sol";
 import "./Interfaces/ILPTokenWrapper.sol";
 import "./Interfaces/IUnipool.sol";
 import "../Dependencies/console.sol";
@@ -60,14 +60,14 @@ contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
  * - Liquidity providers can claim their rewards when they want
  * - Liquidity providers can unstake UNIv2 LP tokens to exit the program (i.e., stop earning rewards) when they want
 
- * Funds for rewards will only be added once, on deployment of HLQTY token,
+ * Funds for rewards will only be added once, on deployment of HLQT token,
  * which will happen after this contract is deployed and before this `setParams` in this contract is called.
 
  * If at some point the total amount of staked tokens is zero, the clock will be “stopped”,
  * so the period will be extended by the time during which the staking pool is empty,
- * in order to avoid getting HLQTY tokens locked.
+ * in order to avoid getting HLQT tokens locked.
  * That also means that the start time for the program will be the event that occurs first:
- * either HLQTY token contract is deployed, and therefore HLQTY tokens are minted to Unipool contract,
+ * either HLQT token contract is deployed, and therefore HLQT tokens are minted to Unipool contract,
  * or first liquidity provider stakes UNIv2 LP tokens into it.
  */
 contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
@@ -75,7 +75,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     uint256 public duration;
-    IHLQTYToken public hlqtyToken;
+    IHLQTToken public hlqtToken;
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
@@ -84,20 +84,20 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
-    event HLQTYTokenAddressChanged(address _hlqtyTokenAddress);
+    event HLQTTokenAddressChanged(address _hlqtTokenAddress);
     event UniTokenAddressChanged(address _uniTokenAddress);
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
 
-    constructor(address _hlqtyTokenAddress) public {
-        checkContract(_hlqtyTokenAddress);
-        hlqtyToken = IHLQTYToken(_hlqtyTokenAddress);
+    constructor(address _hlqtTokenAddress) public {
+        checkContract(_hlqtTokenAddress);
+        hlqtToken = IHLQTToken(_hlqtTokenAddress);
 
-        _associateToken(address(this),hlqtyToken.getTokenAddress());
+        _associateToken(address(this),hlqtToken.getTokenAddress());
 
-        emit HLQTYTokenAddressChanged(_hlqtyTokenAddress);
+        emit HLQTTokenAddressChanged(_hlqtTokenAddress);
     }
 
     // initialization function
@@ -116,7 +116,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
 
         duration = _duration;
 
-        _notifyRewardAmount(hlqtyToken.getLpRewardsEntitlement(), _duration);
+        _notifyRewardAmount(hlqtToken.getLpRewardsEntitlement(), _duration);
 
 
         emit UniTokenAddressChanged(_uniTokenAddress);
@@ -195,7 +195,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
 
         rewards[msg.sender] = 0;
 
-        _transfer(hlqtyToken.getTokenAddress(), address(this), msg.sender, reward);
+        _transfer(hlqtToken.getTokenAddress(), address(this), msg.sender, reward);
 
         emit RewardPaid(msg.sender, reward);
     }
@@ -203,7 +203,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     // Used only on initialization, sets the reward rate and the end time for the program
     function _notifyRewardAmount(uint256 _reward, uint256 _duration) internal {
         assert(_reward > 0);
-        assert(_reward == hlqtyToken.balanceOf(address(this)));
+        assert(_reward == hlqtToken.balanceOf(address(this)));
         assert(periodFinish == 0);
 
         _updateReward();

@@ -20,13 +20,13 @@ export class _CachedReadableLiquity<T extends unknown[]> implements _ReadableLiq
     // (undocumented)
     getHCHFTokenAddress(...extraParams: T): Promise<string>;
     // (undocumented)
-    getHLQTYBalance(address?: string, ...extraParams: T): Promise<Decimal>;
+    getHLQTBalance(address?: string, ...extraParams: T): Promise<Decimal>;
     // (undocumented)
-    getHLQTYStake(address?: string, ...extraParams: T): Promise<HLQTYStake>;
+    getHLQTStake(address?: string, ...extraParams: T): Promise<HLQTStake>;
     // (undocumented)
-    getHLQTYTokenAddress(...extraParams: T): Promise<string>;
+    getHLQTTokenAddress(...extraParams: T): Promise<string>;
     // (undocumented)
-    getLiquidityMiningHLQTYReward(address?: string, ...extraParams: T): Promise<Decimal>;
+    getLiquidityMiningHLQTReward(address?: string, ...extraParams: T): Promise<Decimal>;
     // (undocumented)
     getLiquidityMiningStake(address?: string, ...extraParams: T): Promise<Decimal>;
     // (undocumented)
@@ -34,9 +34,9 @@ export class _CachedReadableLiquity<T extends unknown[]> implements _ReadableLiq
     // (undocumented)
     getPrice(...extraParams: T): Promise<Decimal>;
     // (undocumented)
-    getRemainingLiquidityMiningHLQTYReward(...extraParams: T): Promise<Decimal>;
+    getRemainingLiquidityMiningHLQTReward(...extraParams: T): Promise<Decimal>;
     // (undocumented)
-    getRemainingStabilityPoolHLQTYReward(...extraParams: T): Promise<Decimal>;
+    getRemainingStabilityPoolHLQTReward(...extraParams: T): Promise<Decimal>;
     // (undocumented)
     getStabilityDeposit(address?: string, ...extraParams: T): Promise<StabilityDeposit>;
     // (undocumented)
@@ -44,7 +44,7 @@ export class _CachedReadableLiquity<T extends unknown[]> implements _ReadableLiq
     // (undocumented)
     getTotalRedistributed(...extraParams: T): Promise<Trove>;
     // (undocumented)
-    getTotalStakedHLQTY(...extraParams: T): Promise<Decimal>;
+    getTotalStakedHLQT(...extraParams: T): Promise<Decimal>;
     // (undocumented)
     getTotalStakedUniTokens(...extraParams: T): Promise<Decimal>;
     // (undocumented)
@@ -254,29 +254,29 @@ export abstract class HLiquityStore<T = unknown> {
     }
 
 // @public
-export class HLQTYStake {
+export class HLQTStake {
     // @internal
-    constructor(stakedHLQTY?: Decimal, collateralGain?: Decimal, hchfGain?: Decimal);
-    apply(change: HLQTYStakeChange<Decimalish> | undefined): Decimal;
+    constructor(stakedHLQT?: Decimal, collateralGain?: Decimal, hchfGain?: Decimal);
+    apply(change: HLQTStakeChange<Decimalish> | undefined): Decimal;
     readonly collateralGain: Decimal;
-    equals(that: HLQTYStake): boolean;
+    equals(that: HLQTStake): boolean;
+    readonly hchfGain: Decimal;
     // (undocumented)
     get isEmpty(): boolean;
-    readonly hchfGain: Decimal;
-    readonly stakedHLQTY: Decimal;
+    readonly stakedHLQT: Decimal;
     // @internal (undocumented)
     toString(): string;
-    whatChanged(thatStakedHLQTY: Decimalish): HLQTYStakeChange<Decimal> | undefined;
+    whatChanged(thatStakedHLQT: Decimalish): HLQTStakeChange<Decimal> | undefined;
 }
 
 // @public
-export type HLQTYStakeChange<T> = {
-    stakeHLQTY: T;
-    unstakeHLQTY?: undefined;
+export type HLQTStakeChange<T> = {
+    stakeHLQT: T;
+    unstakeHLQT?: undefined;
 } | {
-    stakeHLQTY?: undefined;
-    unstakeHLQTY: T;
-    unstakeAllHLQTY: boolean;
+    stakeHLQT?: undefined;
+    unstakeHLQT: T;
+    unstakeAllHLQT: boolean;
 };
 
 // @public
@@ -315,22 +315,22 @@ export interface LiquityStoreBaseState {
     hchfBalance: Decimal;
     hchfInStabilityPool: Decimal;
     hchfTokenAddress: string;
-    hlqtyBalance: Decimal;
-    hlqtyStake: HLQTYStake;
-    hlqtyTokenAddress: string;
-    liquidityMiningHLQTYReward: Decimal;
+    hlqtBalance: Decimal;
+    hlqtStake: HLQTStake;
+    hlqtTokenAddress: string;
+    liquidityMiningHLQTReward: Decimal;
     liquidityMiningStake: Decimal;
     numberOfTroves: number;
     ownFrontend: FrontendStatus;
     price: Decimal;
-    remainingLiquidityMiningHLQTYReward: Decimal;
-    remainingStabilityPoolHLQTYReward: Decimal;
+    remainingLiquidityMiningHLQTReward: Decimal;
+    remainingStabilityPoolHLQTReward: Decimal;
     // @internal (undocumented)
     _riskiestTroveBeforeRedistribution: TroveWithPendingRedistribution;
     stabilityDeposit: StabilityDeposit;
     total: Trove;
     totalRedistributed: Trove;
-    totalStakedHLQTY: Decimal;
+    totalStakedHLQT: Decimal;
     totalStakedUniTokens: Decimal;
     troveBeforeRedistribution: TroveWithPendingRedistribution;
     uniTokenAllowance: Decimal;
@@ -466,16 +466,16 @@ export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown> exten
     repayHCHF(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>>;
     // @internal (undocumented)
     setPrice(price: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
-    stakeHLQTY(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
+    stakeHLQT(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
     stakeUniTokens(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
     transferCollateralGainToTrove(): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, CollateralGainTransferDetails>>>>;
-    unstakeHLQTY(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
+    unstakeHLQT(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
     unstakeUniTokens(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
     withdrawCollateral(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>>;
     withdrawGainsFromStabilityPool(): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, StabilityPoolGainsWithdrawalDetails>>>>;
     withdrawGainsFromStaking(): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
     withdrawHCHFFromStabilityPool(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, StabilityDepositChangeDetails>>>>;
-    withdrawHLQTYRewardFromLiquidityMining(): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
+    withdrawHLQTRewardFromLiquidityMining(): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
 }
 
 // @public
@@ -500,19 +500,19 @@ export interface ReadableLiquity {
     getHCHFBalance(address?: string): Promise<Decimal>;
     getHCHFInStabilityPool(): Promise<Decimal>;
     getHCHFTokenAddress(): Promise<string>;
-    getHLQTYBalance(address?: string): Promise<Decimal>;
-    getHLQTYStake(address?: string): Promise<HLQTYStake>;
-    getHLQTYTokenAddress(): Promise<string>;
-    getLiquidityMiningHLQTYReward(address?: string): Promise<Decimal>;
+    getHLQTBalance(address?: string): Promise<Decimal>;
+    getHLQTStake(address?: string): Promise<HLQTStake>;
+    getHLQTTokenAddress(): Promise<string>;
+    getLiquidityMiningHLQTReward(address?: string): Promise<Decimal>;
     getLiquidityMiningStake(address?: string): Promise<Decimal>;
     getNumberOfTroves(): Promise<number>;
     getPrice(): Promise<Decimal>;
-    getRemainingLiquidityMiningHLQTYReward(): Promise<Decimal>;
-    getRemainingStabilityPoolHLQTYReward(): Promise<Decimal>;
+    getRemainingLiquidityMiningHLQTReward(): Promise<Decimal>;
+    getRemainingStabilityPoolHLQTReward(): Promise<Decimal>;
     getStabilityDeposit(address?: string): Promise<StabilityDeposit>;
     getTotal(): Promise<Trove>;
     getTotalRedistributed(): Promise<Trove>;
-    getTotalStakedHLQTY(): Promise<Decimal>;
+    getTotalStakedHLQT(): Promise<Decimal>;
     getTotalStakedUniTokens(): Promise<Decimal>;
     getTrove(address?: string): Promise<UserTrove>;
     getTroveBeforeRedistribution(address?: string): Promise<TroveWithPendingRedistribution>;
@@ -573,16 +573,16 @@ export interface SendableLiquity<R = unknown, S = unknown> extends _SendableFrom
     repayHCHF(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
     // @internal (undocumented)
     setPrice(price: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
-    stakeHLQTY(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
+    stakeHLQT(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
     stakeUniTokens(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
     transferCollateralGainToTrove(): Promise<SentLiquityTransaction<S, LiquityReceipt<R, CollateralGainTransferDetails>>>;
-    unstakeHLQTY(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
+    unstakeHLQT(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
     unstakeUniTokens(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
     withdrawCollateral(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
     withdrawGainsFromStabilityPool(): Promise<SentLiquityTransaction<S, LiquityReceipt<R, StabilityPoolGainsWithdrawalDetails>>>;
     withdrawGainsFromStaking(): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
     withdrawHCHFFromStabilityPool(amount: Decimalish): Promise<SentLiquityTransaction<S, LiquityReceipt<R, StabilityDepositChangeDetails>>>;
-    withdrawHLQTYRewardFromLiquidityMining(): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
+    withdrawHLQTRewardFromLiquidityMining(): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
 }
 
 // @public
@@ -595,13 +595,13 @@ export interface SentLiquityTransaction<S = unknown, T extends LiquityReceipt = 
 // @public
 export class StabilityDeposit {
     // @internal
-    constructor(initialHCHF: Decimal, currentHCHF: Decimal, collateralGain: Decimal, hlqtyReward: Decimal, frontendTag: string);
+    constructor(initialHCHF: Decimal, currentHCHF: Decimal, collateralGain: Decimal, hlqtReward: Decimal, frontendTag: string);
     apply(change: StabilityDepositChange<Decimalish> | undefined): Decimal;
     readonly collateralGain: Decimal;
     readonly currentHCHF: Decimal;
     equals(that: StabilityDeposit): boolean;
     readonly frontendTag: string;
-    readonly hlqtyReward: Decimal;
+    readonly hlqtReward: Decimal;
     readonly initialHCHF: Decimal;
     // (undocumented)
     get isEmpty(): boolean;
@@ -629,7 +629,7 @@ export interface StabilityDepositChangeDetails extends StabilityPoolGainsWithdra
 export interface StabilityPoolGainsWithdrawalDetails {
     collateralGain: Decimal;
     hchfLoss: Decimal;
-    hlqtyReward: Decimal;
+    hlqtReward: Decimal;
     newHCHFDeposit: Decimal;
 }
 
@@ -661,16 +661,16 @@ export interface TransactableLiquity {
     repayHCHF(amount: Decimalish): Promise<TroveAdjustmentDetails>;
     // @internal (undocumented)
     setPrice(price: Decimalish): Promise<void>;
-    stakeHLQTY(amount: Decimalish): Promise<void>;
+    stakeHLQT(amount: Decimalish): Promise<void>;
     stakeUniTokens(amount: Decimalish): Promise<void>;
     transferCollateralGainToTrove(): Promise<CollateralGainTransferDetails>;
-    unstakeHLQTY(amount: Decimalish): Promise<void>;
+    unstakeHLQT(amount: Decimalish): Promise<void>;
     unstakeUniTokens(amount: Decimalish): Promise<void>;
     withdrawCollateral(amount: Decimalish): Promise<TroveAdjustmentDetails>;
     withdrawGainsFromStabilityPool(): Promise<StabilityPoolGainsWithdrawalDetails>;
     withdrawGainsFromStaking(): Promise<void>;
     withdrawHCHFFromStabilityPool(amount: Decimalish): Promise<StabilityDepositChangeDetails>;
-    withdrawHLQTYRewardFromLiquidityMining(): Promise<void>;
+    withdrawHLQTRewardFromLiquidityMining(): Promise<void>;
 }
 
 // @public

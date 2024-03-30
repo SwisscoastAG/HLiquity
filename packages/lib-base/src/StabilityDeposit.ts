@@ -24,8 +24,8 @@ export class StabilityDeposit {
   /** Amount of native currency (e.g. Ether) received in exchange for the used-up HCHF. */
   readonly collateralGain: Decimal;
 
-  /** Amount of HLQTY rewarded since the last modification of the Stability Deposit. */
-  readonly hlqtyReward: Decimal;
+  /** Amount of HLQT rewarded since the last modification of the Stability Deposit. */
+  readonly hlqtReward: Decimal;
 
   /**
    * Address of frontend through which this Stability Deposit was made.
@@ -41,13 +41,13 @@ export class StabilityDeposit {
     initialHCHF: Decimal,
     currentHCHF: Decimal,
     collateralGain: Decimal,
-    hlqtyReward: Decimal,
+    hlqtReward: Decimal,
     frontendTag: string
   ) {
     this.initialHCHF = initialHCHF;
     this.currentHCHF = currentHCHF;
     this.collateralGain = collateralGain;
-    this.hlqtyReward = hlqtyReward;
+    this.hlqtReward = hlqtReward;
     this.frontendTag = frontendTag;
 
     if (this.currentHCHF.gt(this.initialHCHF)) {
@@ -60,7 +60,7 @@ export class StabilityDeposit {
       this.initialHCHF.isZero &&
       this.currentHCHF.isZero &&
       this.collateralGain.isZero &&
-      this.hlqtyReward.isZero
+      this.hlqtReward.isZero
     );
   }
 
@@ -70,7 +70,7 @@ export class StabilityDeposit {
       `{ initialHCHF: ${this.initialHCHF}` +
       `, currentHCHF: ${this.currentHCHF}` +
       `, collateralGain: ${this.collateralGain}` +
-      `, hlqtyReward: ${this.hlqtyReward}` +
+      `, hlqtReward: ${this.hlqtReward}` +
       `, frontendTag: "${this.frontendTag}" }`
     );
   }
@@ -83,7 +83,7 @@ export class StabilityDeposit {
       this.initialHCHF.eq(that.initialHCHF) &&
       this.currentHCHF.eq(that.currentHCHF) &&
       this.collateralGain.eq(that.collateralGain) &&
-      this.hlqtyReward.eq(that.hlqtyReward) &&
+      this.hlqtReward.eq(that.hlqtReward) &&
       this.frontendTag === that.frontendTag
     );
   }

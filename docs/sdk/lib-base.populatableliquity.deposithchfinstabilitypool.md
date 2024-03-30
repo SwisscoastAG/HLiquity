@@ -17,7 +17,7 @@ depositHCHFInStabilityPool(amount: Decimalish, frontendTag?: string): Promise<Po
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  amount | [Decimalish](./lib-base.decimalish.md) | Amount of HCHF to add to new or existing deposit. |
-|  frontendTag | string | Address that should receive a share of this deposit's HLQTY rewards. |
+|  frontendTag | string | Address that should receive a share of this deposit's HLQT rewards. |
 
 <b>Returns:</b>
 
@@ -27,5 +27,5 @@ Promise&lt;[PopulatedLiquityTransaction](./lib-base.populatedliquitytransaction.
 
 The `frontendTag` parameter is only effective when making a new deposit.
 
-As a side-effect, the transaction will also pay out an existing Stability Deposit's [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQTY reward](./lib-base.stabilitydeposit.hlqtyreward.md)<!-- -->.
+As a side-effect, the transaction will also pay out an existing Stability Deposit's [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) and [HLQT reward](./lib-base.stabilitydeposit.hlqtreward.md)<!-- -->.
 

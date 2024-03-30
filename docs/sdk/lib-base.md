@@ -11,7 +11,7 @@
 |  [Decimal](./lib-base.decimal.md) | Fixed-point decimal bignumber with 18 digits of precision. |
 |  [Fees](./lib-base.fees.md) | Calculator for fees. |
 |  [HLiquityStore](./lib-base.hliquitystore.md) | Abstract base class of Liquity data store implementations. |
-|  [HLQTYStake](./lib-base.hlqtystake.md) | Represents a user's HLQTY stake and accrued gains. |
+|  [HLQTStake](./lib-base.hlqtstake.md) | Represents a user's HLQT stake and accrued gains. |
 |  [StabilityDeposit](./lib-base.stabilitydeposit.md) | A Stability Deposit and its accrued gains. |
 |  [TransactionFailedError](./lib-base.transactionfailederror.md) | Thrown by [TransactableLiquity](./lib-base.transactableliquity.md) functions in case of transaction failure. |
 |  [Trove](./lib-base.trove.md) | A combination of collateral and debt. |
@@ -62,7 +62,7 @@
 |  [Decimalish](./lib-base.decimalish.md) | Types that can be converted into a Decimal. |
 |  [FailedReceipt](./lib-base.failedreceipt.md) | Indicates that the transaction has been mined, but it failed. |
 |  [FrontendStatus](./lib-base.frontendstatus.md) | Represents whether an address has been registered as a Liquity frontend. |
-|  [HLQTYStakeChange](./lib-base.hlqtystakechange.md) | Represents the change between two states of an HLQTY Stake. |
+|  [HLQTStakeChange](./lib-base.hlqtstakechange.md) | Represents the change between two states of an HLQT Stake. |
 |  [LiquityReceipt](./lib-base.liquityreceipt.md) | One of either a [PendingReceipt](./lib-base.pendingreceipt.md)<!-- -->, a [FailedReceipt](./lib-base.failedreceipt.md) or a [SuccessfulReceipt](./lib-base.successfulreceipt.md)<!-- -->. |
 |  [LiquityStoreState](./lib-base.liquitystorestate.md) | Type of [HLiquityStore](./lib-base.hliquitystore.md)<!-- -->'s [state](./lib-base.hliquitystore.state.md)<!-- -->. |
 |  [MinedReceipt](./lib-base.minedreceipt.md) | Either a [FailedReceipt](./lib-base.failedreceipt.md) or a [SuccessfulReceipt](./lib-base.successfulreceipt.md)<!-- -->. |

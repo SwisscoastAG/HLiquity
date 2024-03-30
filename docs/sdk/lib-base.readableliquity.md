@@ -26,19 +26,19 @@ Implemented by [EthersLiquity](./lib-ethers.ethersliquity.md)<!-- -->.
 |  [getHCHFBalance(address)](./lib-base.readableliquity.gethchfbalance.md) | Get the amount of HCHF held by an address. |
 |  [getHCHFInStabilityPool()](./lib-base.readableliquity.gethchfinstabilitypool.md) | Get the total amount of HCHF currently deposited in the Stability Pool. |
 |  [getHCHFTokenAddress()](./lib-base.readableliquity.gethchftokenaddress.md) | Get the address of the HST Token of HCHF (HCHF) |
-|  [getHLQTYBalance(address)](./lib-base.readableliquity.gethlqtybalance.md) | Get the amount of HLQTY held by an address. |
-|  [getHLQTYStake(address)](./lib-base.readableliquity.gethlqtystake.md) | Get the current state of an HLQTY Stake. |
-|  [getHLQTYTokenAddress()](./lib-base.readableliquity.gethlqtytokenaddress.md) | Get the address of the HST Token of HLQTY |
-|  [getLiquidityMiningHLQTYReward(address)](./lib-base.readableliquity.getliquiditymininghlqtyreward.md) | Get the amount of HLQTY earned by an address through mining liquidity. |
+|  [getHLQTBalance(address)](./lib-base.readableliquity.gethlqtbalance.md) | Get the amount of HLQT held by an address. |
+|  [getHLQTStake(address)](./lib-base.readableliquity.gethlqtstake.md) | Get the current state of an HLQT Stake. |
+|  [getHLQTTokenAddress()](./lib-base.readableliquity.gethlqttokenaddress.md) | Get the address of the HST Token of HLQT |
+|  [getLiquidityMiningHLQTReward(address)](./lib-base.readableliquity.getliquiditymininghlqtreward.md) | Get the amount of HLQT earned by an address through mining liquidity. |
 |  [getLiquidityMiningStake(address)](./lib-base.readableliquity.getliquidityminingstake.md) | Get the amount of Uniswap ETH/HCHF LP tokens currently staked by an address in liquidity mining. |
 |  [getNumberOfTroves()](./lib-base.readableliquity.getnumberoftroves.md) | Get number of Troves that are currently open. |
 |  [getPrice()](./lib-base.readableliquity.getprice.md) | Get the current price of the native currency (e.g. Ether) in USD. |
-|  [getRemainingLiquidityMiningHLQTYReward()](./lib-base.readableliquity.getremainingliquiditymininghlqtyreward.md) | Get the remaining HLQTY that will be collectively rewarded to liquidity miners. |
-|  [getRemainingStabilityPoolHLQTYReward()](./lib-base.readableliquity.getremainingstabilitypoolhlqtyreward.md) | Get the remaining HLQTY that will be collectively rewarded to stability depositors. |
+|  [getRemainingLiquidityMiningHLQTReward()](./lib-base.readableliquity.getremainingliquiditymininghlqtreward.md) | Get the remaining HLQT that will be collectively rewarded to liquidity miners. |
+|  [getRemainingStabilityPoolHLQTReward()](./lib-base.readableliquity.getremainingstabilitypoolhlqtreward.md) | Get the remaining HLQT that will be collectively rewarded to stability depositors. |
 |  [getStabilityDeposit(address)](./lib-base.readableliquity.getstabilitydeposit.md) | Get the current state of a Stability Deposit. |
 |  [getTotal()](./lib-base.readableliquity.gettotal.md) | Get the total amount of collateral and debt in the Liquity system. |
 |  [getTotalRedistributed()](./lib-base.readableliquity.gettotalredistributed.md) | Get the total collateral and debt per stake that has been liquidated through redistribution. |
-|  [getTotalStakedHLQTY()](./lib-base.readableliquity.gettotalstakedhlqty.md) | Get the total amount of HLQTY currently staked. |
+|  [getTotalStakedHLQT()](./lib-base.readableliquity.gettotalstakedhlqt.md) | Get the total amount of HLQT currently staked. |
 |  [getTotalStakedUniTokens()](./lib-base.readableliquity.gettotalstakedunitokens.md) | Get the total amount of Uniswap ETH/HCHF LP tokens currently staked in liquidity mining. |
 |  [getTrove(address)](./lib-base.readableliquity.gettrove.md) | Get the current state of a Trove. |
 |  [getTroveBeforeRedistribution(address)](./lib-base.readableliquity.gettrovebeforeredistribution.md) | Get a Trove in its state after the last direct modification. |

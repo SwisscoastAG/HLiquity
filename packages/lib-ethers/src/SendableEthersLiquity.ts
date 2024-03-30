@@ -173,20 +173,20 @@ export class SendableEthersLiquity
     return this._populate.claimCollateralSurplus(overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.stakeHLQTY} */
-  stakeHLQTY(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.stakeHLQT} */
+  stakeHLQT(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<void>> {
-    return this._populate.stakeHLQTY(amount, overrides).then(sendTransaction);
+    return this._populate.stakeHLQT(amount, overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.unstakeHLQTY} */
-  unstakeHLQTY(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.unstakeHLQT} */
+  unstakeHLQT(
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<void>> {
-    return this._populate.unstakeHLQTY(amount, overrides).then(sendTransaction);
+    return this._populate.unstakeHLQT(amount, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawGainsFromStaking} */
@@ -237,11 +237,11 @@ export class SendableEthersLiquity
     return this._populate.unstakeUniTokens(amount, overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawHLQTYRewardFromLiquidityMining} */
-  withdrawHLQTYRewardFromLiquidityMining(
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.withdrawHLQTRewardFromLiquidityMining} */
+  withdrawHLQTRewardFromLiquidityMining(
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<void>> {
-    return this._populate.withdrawHLQTYRewardFromLiquidityMining(overrides).then(sendTransaction);
+    return this._populate.withdrawHLQTRewardFromLiquidityMining(overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.exitLiquidityMining} */
