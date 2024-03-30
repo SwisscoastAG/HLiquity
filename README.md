@@ -43,7 +43,7 @@ multiple front ends, enhancing decentralization.
   - [Launch sequence and vesting process](#launch-sequence-and-vesting-process)
     - [Deploy HLQT Contracts](#deploy-lqty-contracts)
     - [Deploy and fund Lockup Contracts](#deploy-and-fund-lockup-contracts)
-    - [Deploy Liquity Core](#deploy-liquity-core)
+    - [Deploy HLiquity Core](#deploy-liquity-core)
     - [During one year lockup period](#during-one-year-lockup-period)
     - [Upon end of one year lockup period](#upon-end-of-one-year-lockup-period)
     - [Post-lockup period](#post-lockup-period)
@@ -292,7 +292,7 @@ The HLQT contracts consist of:
 
 `CommunityIssuance.sol` - This contract handles the issuance of HLQT tokens to Stability Providers as a function of time. It is controlled by the `StabilityPool`. Upon system launch, the `CommunityIssuance` automatically receives 32 million HLQT - the “community issuance” supply. The contract steadily issues these HLQT tokens to the Stability Providers over time.
 
-`HLQTToken.sol` - This is the HLQT ERC20 contract. It has a hard cap supply of 100 million, and during the first year, restricts transfers from the HLiquity admin address, a regular Hedera address controlled by the project company Liquity AG. **Note that the HLiquity admin address has no extra privileges and does not retain any control over the HLiquity protocol once deployed.**
+`HLQTToken.sol` - This is the HLQT ERC20 contract. It has a hard cap supply of 100 million, and during the first year, restricts transfers from the HLiquity admin address, a regular Hedera address controlled by the project company Swisscoast AG. **Note that the HLiquity admin address has no extra privileges and does not retain any control over the HLiquity protocol once deployed.**
 
 ### HLQT Lockup contracts and token vesting
 
@@ -1739,18 +1739,18 @@ Finally, this DoS could be avoided if the initial transaction avoids the public 
 
 ## Disclaimer
 
-The content of this readme document (“Readme”) is of purely informational nature. In particular, none of the content of the Readme shall be understood as advice provided by Liquity AG, any Liquity Project Team member or other contributor to the Readme, nor does any of these persons warrant the actuality and accuracy of the Readme.
+The content of this readme document (“Readme”) is of purely informational nature. In particular, none of the content of the Readme shall be understood as advice provided by Swisscoast AG, any HLiquity Project Team member or other contributor to the Readme, nor does any of these persons warrant the actuality and accuracy of the Readme.
 
-Please read this Disclaimer carefully before accessing, interacting with, or using the Liquity Protocol software, consisting of the Liquity Protocol technology stack (in particular its smart contracts) as well as any other Liquity technology such as e.g., the launch kit for frontend operators (together the “Liquity Protocol Software”). 
+Please read this Disclaimer carefully before accessing, interacting with, or using the HLiquity Protocol software, consisting of the HLiquity Protocol technology stack (in particular its smart contracts) as well as any other HLiquity technology such as e.g., the launch kit for frontend operators (together the “HLiquity Protocol Software”). 
 
-While Liquity AG developed the Liquity Protocol Software, the Liquity Protocol Software runs in a fully decentralized and autonomous manner on the Hedera network. Liquity AG is not involved in the operation of the Liquity Protocol Software nor has it any control over transactions made using its smart contracts. Further, Liquity AG does neither enter into any relationship with users of the Liquity Protocol Software and/or frontend operators, nor does it operate an own frontend. Any and all functionalities of the Liquity Protocol Software, including the HCHF and the HLQT, are of purely technical nature and there is no claim towards any private individual or legal entity in this regard.
+While Swisscoast AG developed the HLiquity Protocol Software, the HLiquity Protocol Software runs in a fully decentralized and autonomous manner on the Hedera network. Swisscoast AG is not involved in the operation of the HLiquity Protocol Software nor has it any control over transactions made using its smart contracts. Further, Swisscoast AG does neither enter into any relationship with users of the HLiquity Protocol Software and/or frontend operators, nor does it operate an own frontend. Any and all functionalities of the HLiquity Protocol Software, including the HCHF and the HLQT, are of purely technical nature and there is no claim towards any private individual or legal entity in this regard.
 
-LIQUITY AG IS NOT LIABLE TO ANY USER FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, IN CONNECTION WITH THE USE OR INABILITY TO USE THE LIQUITY PROTOCOL SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF HBAR, HCHF OR HLQT, NON-ALLOCATION OF TECHNICAL FEES TO HLQT HOLDERS, LOSS OF DATA, BUSINESS INTERRUPTION, DATA BEING RENDERED INACCURATE OR OTHER LOSSES SUSTAINED BY A USER OR THIRD PARTIES AS A RESULT OF THE LIQUITY PROTOCOL SOFTWARE AND/OR ANY ACTIVITY OF A FRONTEND OPERATOR OR A FAILURE OF THE LIQUITY PROTOCOL SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE).
+Swisscoast AG IS NOT LIABLE TO ANY USER FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, IN CONNECTION WITH THE USE OR INABILITY TO USE THE HLiquity PROTOCOL SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF HBAR, HCHF OR HLQT, NON-ALLOCATION OF TECHNICAL FEES TO HLQT HOLDERS, LOSS OF DATA, BUSINESS INTERRUPTION, DATA BEING RENDERED INACCURATE OR OTHER LOSSES SUSTAINED BY A USER OR THIRD PARTIES AS A RESULT OF THE HLIQUITY PROTOCOL SOFTWARE AND/OR ANY ACTIVITY OF A FRONTEND OPERATOR OR A FAILURE OF THE HLIQUITY PROTOCOL SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE).
 
-The Liquity Protocol Software has been developed and published under the GNU GPL v3 open-source license, which forms an integral part of this disclaimer. 
+The HLiquity Protocol Software has been developed and published under the GNU GPL v3 open-source license, which forms an integral part of this disclaimer. 
 
-THE LIQUITY PROTOCOL SOFTWARE HAS BEEN PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THE LIQUITY PROTOCOL SOFTWARE IS HIGHLY EXPERIMENTAL AND ANY REAL HBAR AND/OR HCHF AND/OR HLQT SENT, STAKED OR DEPOSITED TO THE LIQUITY PROTOCOL SOFTWARE ARE AT RISK OF BEING LOST INDEFINITELY, WITHOUT ANY KIND OF CONSIDERATION.
+THE HLIQUITY PROTOCOL SOFTWARE HAS BEEN PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THE HLIQUITY PROTOCOL SOFTWARE IS HIGHLY EXPERIMENTAL AND ANY REAL HBAR AND/OR HCHF AND/OR HLQT SENT, STAKED OR DEPOSITED TO THE HLIQUITY PROTOCOL SOFTWARE ARE AT RISK OF BEING LOST INDEFINITELY, WITHOUT ANY KIND OF CONSIDERATION.
 
 There are no official frontend operators, and the use of any frontend is made by users at their own risk. To assess the trustworthiness of a frontend operator lies in the sole responsibility of the users and must be made carefully.
 
-User is solely responsible for complying with applicable law when interacting (in particular, when using HBAR, HCHF, HLQT or other Token) with the Liquity Protocol Software whatsoever. 
+User is solely responsible for complying with applicable law when interacting (in particular, when using HBAR, HCHF, HLQT or other Token) with the HLiquity Protocol Software whatsoever. 
