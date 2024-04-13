@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@pythnetwork/pyth-evm-js": "^1.39.0",
     "decimal.js": "^10.2.0",
     "eth-mutants": "^0.1.1",
     "ethereumjs-util": "^7.0.9",

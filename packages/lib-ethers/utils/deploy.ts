@@ -1,23 +1,27 @@
 import {Signer} from "@ethersproject/abstract-signer";
-import {ContractTransaction, ContractFactory, Overrides} from "@ethersproject/contracts";
-import {Wallet} from "@ethersproject/wallet";
-import {setNonce} from "@nomicfoundation/hardhat-network-helpers";
+import {ContractFactory, ContractTransaction, Overrides} from "@ethersproject/contracts";
 
 
 import {Decimal} from "@liquity/lib-base";
 
 import {
+    _connectToContracts,
     _LiquityContractAddresses,
     _LiquityContracts,
-    _LiquityDeploymentJSON,
-    _connectToContracts
+    _LiquityDeploymentJSON
 } from "../src/contracts";
 
-import {createUniswapV2Pair} from "./UniswapV2Factory";
 import {ethers} from "ethers";
-import {AccountId, Client, PrivateKey, TokenAssociateTransaction, TokenId} from "@hashgraph/sdk";
+import {
+    AccountId,
+    Client,
+    Hbar,
+    PrivateKey,
+    TokenAssociateTransaction,
+    TokenCreateTransaction,
+    TokenId
+} from "@hashgraph/sdk";
 import dotenv from "dotenv";
-import {fromSolidityAddress} from "@hashgraph/sdk/lib/EntityIdHelper";
 
 let silent = false;
 
@@ -112,7 +116,7 @@ const deployContracts = async (
             gasLimit: 3000000
         }
     );
-    const hlqtyStaking = await deployContract(deployer, getContractFactory, "HLQTYStaking", {
+    const hlqtStaking = await deployContract(deployer, getContractFactory, "HLQTStaking", {
         ...overrides,
         gasLimit: 3000000
     });
@@ -140,18 +144,21 @@ const deployContracts = async (
         {...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20")}
     );
 
-    const hlqtyToken = await deployContract(
+    const hlqtToken = await deployContract(
         deployer,
         getContractFactory,
-        "HLQTYToken",
+        "HLQTToken",
         communityIssuance,
-        hlqtyStaking,
+        hlqtStaking,
         lockupContractFactory,
         await deployer.getAddress(), // _multisigAddress (TODO: parameterize this)
         {...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20")}
     )
 
-    const unipool = await deployContract(deployer, getContractFactory, "Unipool", hlqtyToken, {...overrides, gasLimit: 3000000})
+    const unipool = await deployContract(deployer, getContractFactory, "Unipool", hlqtToken, {
+        ...overrides,
+        gasLimit: 3000000
+    })
 
     const gasPool = await deployContract(
         deployer,
@@ -180,26 +187,33 @@ const deployContracts = async (
         communityIssuance,
         hintHelpers,
         lockupContractFactory,
-        hlqtyStaking,
+        hlqtStaking,
         priceFeed,
         sortedTroves,
         stabilityPool,
         unipool,
         hchfToken,
-        hlqtyToken,
+        hlqtToken,
         multiTroveGetter,
         gasPool
     };
 };
 
-export const deployTellorCaller = (
+export const deployPythCaller = (
     deployer: Signer,
     getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
-    tellorAddress: string,
+    pythAddress: string,
     overrides?: Overrides
 ): Promise<string> =>
-    deployContract(deployer, getContractFactory, "TellorCaller", tellorAddress, {...overrides, gasLimit: 3000000});
+    deployContract(deployer, getContractFactory, "PythCaller", pythAddress, {...overrides, gasLimit: 3000000});
 
+export const deploySupraCaller = (
+    deployer: Signer,
+    getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
+    supraAddress: string,
+    overrides?: Overrides
+): Promise<string> =>
+    deployContract(deployer, getContractFactory, "SupraCaller", supraAddress, {...overrides, gasLimit: 3000000});
 /**
  * Send a transaction, retrying if the nonce is too high.
  *
@@ -246,17 +260,17 @@ const connectContracts = async (
         collSurplusPool,
         communityIssuance,
         defaultPool,
-        hlqtyToken,
+        hlqtToken,
         hintHelpers,
         lockupContractFactory,
-        hlqtyStaking,
+        hlqtStaking,
         priceFeed,
         sortedTroves,
         stabilityPool,
         gasPool,
         unipool,
-        uniToken
     }: _LiquityContracts,
+    uniTokenHTS: string,
     deployer: Signer,
     overrides?: Overrides
 ) => {
@@ -283,8 +297,8 @@ const connectContracts = async (
                 priceFeed.address,
                 hchfToken.address,
                 sortedTroves.address,
-                hlqtyToken.address,
-                hlqtyStaking.address,
+                hlqtToken.address,
+                hlqtStaking.address,
                 {...overrides, gasLimit: 3000000, nonce}
             ),
 
@@ -299,7 +313,7 @@ const connectContracts = async (
                 priceFeed.address,
                 sortedTroves.address,
                 hchfToken.address,
-                hlqtyStaking.address,
+                hlqtStaking.address,
                 {...overrides, gasLimit: 3000000, nonce}
             ),
 
@@ -347,8 +361,8 @@ const connectContracts = async (
             }),
 
         nonce =>
-            hlqtyStaking.setAddresses(
-                hlqtyToken.address,
+            hlqtStaking.setAddresses(
+                hlqtToken.address,
                 hchfToken.address,
                 troveManager.address,
                 borrowerOperations.address,
@@ -357,14 +371,14 @@ const connectContracts = async (
             ),
 
         nonce =>
-            lockupContractFactory.setHLQTYTokenAddress(hlqtyToken.address, {
+            lockupContractFactory.setHLQTTokenAddress(hlqtToken.address, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce
             }),
 
         nonce =>
-            communityIssuance.setAddresses(hlqtyToken.address, stabilityPool.address, {
+            communityIssuance.setAddresses(hlqtToken.address, stabilityPool.address, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce
@@ -372,7 +386,7 @@ const connectContracts = async (
 
         nonce => {
             return deployer.getAddress().then((address) => {
-                return hlqtyToken.initialize(address, unipool.address, {
+                return hlqtToken.initialize(address, unipool.address, {
                     ...overrides,
                     gasLimit: 3000000,
                     nonce
@@ -382,7 +396,7 @@ const connectContracts = async (
 
 
         nonce =>
-            unipool.setParams(uniToken.address, 2 * 30 * 24 * 60 * 60, {
+            unipool.setParams(uniTokenHTS, 2 * 30 * 24 * 60 * 60, {
                 ...overrides,
                 gasLimit: 3000000,
                 nonce
@@ -399,7 +413,7 @@ const connectContracts = async (
     const accountKey = PrivateKey.fromStringECDSA(process.env.ACCOUNT_PRIVATE_KEY);
     const client = Client.forTestnet().setOperator(accountId, accountKey);
 
-    const tokenId = await hlqtyToken.getTokenAddress();
+    const tokenId = await hlqtToken.getTokenAddress();
     console.log(tokenId);
     const associateTx = await new TokenAssociateTransaction()
         .setAccountId(accountId)
@@ -419,21 +433,642 @@ const connectContracts = async (
     }
 };
 
-const deployMockUniToken = (
-    deployer: Signer,
-    getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
-    overrides?: Overrides
-) =>
-    deployContract(
+const deployMockUniTokenHTS = async () => {
+    const accountId = AccountId.fromString(process.env.ACCOUNT_ID!);
+    const accountKey = PrivateKey.fromStringECDSA(process.env.ACCOUNT_PRIVATE_KEY!);
+    const client = Client.forTestnet().setOperator(accountId, accountKey);
+    const transaction = await new TokenCreateTransaction()
+        .setTokenName("Uniswap V2 Pool LP")
+        .setTokenSymbol("UniLP")
+        .setTreasuryAccountId(accountId)
+        .setInitialSupply(10000)
+        .setDecimals(8)
+        .setAutoRenewAccountId(accountId)
+        .setAutoRenewPeriod(7000000)
+        .setMaxTransactionFee(new Hbar(30))
+        .freezeWith(client);
+
+    const signTx = await transaction.sign(accountKey);
+    const txResponse = await signTx.execute(client);
+    const receipt = await txResponse.getReceipt(client);
+    return receipt.tokenId!;
+}
+
+const deployUniTokenHTS = async (deployer: Signer, whbar: string | undefined, hchf: string) => {
+    const abiFactory = {
+        "abi": [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "token0",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "token1",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "pair",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "PairCreated",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "allPairs",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "pair",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "allPairsLength",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "tokenA",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "tokenB",
+                        "type": "address"
+                    }
+                ],
+                "name": "createPair",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "pair",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "feeTo",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "feeToSetter",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "tokenA",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "tokenB",
+                        "type": "address"
+                    }
+                ],
+                "name": "getPair",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "pair",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "pairCreateFee",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "rentPayer",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "setFeeTo",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "setFeeToSetter",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "setPairCreateFee",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "setRentPayer",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "setTokenCreateFee",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ]
+    }
+    console.log(whbar)
+    console.log(hchf)
+    const uniswapV2Factory = new ethers.Contract(
+        "0x00000000000000000000000000000000000026e7",
+        abiFactory.abi,
         deployer,
-        getContractFactory,
-        "ERC20Mock",
-        "Mock Uniswap V2",
-        "UNI-V2",
-        Wallet.createRandom().address, // initialAccount
-        0, // initialBalance
-        {...overrides, gasLimit: 3000000}
-    );
+    )
+
+    await uniswapV2Factory.createPair(
+        whbar,
+        hchf,
+        {gasLimit: 3000000, value: ethers.utils.parseUnits("30")}
+    )
+
+    const poolAddress = await uniswapV2Factory.getPair(whbar, hchf);
+
+    const abiPool = {
+        "abi": [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount0",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount1",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "Burn",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount0",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount1",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Mint",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount0In",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount1In",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount0Out",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount1Out",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "Swap",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "uint112",
+                        "name": "reserve0",
+                        "type": "uint112"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint112",
+                        "name": "reserve1",
+                        "type": "uint112"
+                    }
+                ],
+                "name": "Sync",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "MINIMUM_LIQUIDITY",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "pure",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "burn",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "amount0",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount1",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "createFungible",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "factory",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getReserves",
+                "outputs": [
+                    {
+                        "internalType": "uint112",
+                        "name": "reserve0",
+                        "type": "uint112"
+                    },
+                    {
+                        "internalType": "uint112",
+                        "name": "reserve1",
+                        "type": "uint112"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "blockTimestampLast",
+                        "type": "uint32"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "initialize",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lpToken",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "mint",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "liquidity",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "price0CumulativeLast",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "price1CumulativeLast",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "skim",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "amount0Out",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount1Out",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "data",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "swap",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "sync",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "token0",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "token1",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+    }
+    const uniswapV2Pool = new ethers.Contract(
+        poolAddress,
+        abiPool.abi,
+        deployer,
+    )
+
+    return await uniswapV2Pool.lpToken();
+}
 
 export const deployAndSetupContracts = async (
     deployer: Signer,
@@ -456,8 +1091,8 @@ export const deployAndSetupContracts = async (
         version: "unknown",
         deploymentDate: new Date().getTime(),
         bootstrapPeriod: 0,
-        totalStabilityPoolHLQTYReward: "0",
-        liquidityMiningHLQTYRewardRate: "0",
+        totalStabilityPoolHLQTReward: "0",
+        liquidityMiningHLQTRewardRate: "0",
         _priceFeedIsTestnet,
         _uniTokenIsMock: !wethAddress,
         _isDev,
@@ -469,31 +1104,40 @@ export const deployAndSetupContracts = async (
             overrides
         ).then(async addresses => ({
             ...addresses,
-
-            uniToken: await (wethAddress
-                ? createUniswapV2Pair(deployer, wethAddress, addresses.hchfToken, overrides)
-                : deployMockUniToken(deployer, getContractFactory, overrides))
         }))
     };
 
     const contracts = _connectToContracts(deployer, deployment);
 
     log("Connecting contracts...");
-    await connectContracts(contracts, deployer, overrides);
+    let uniTokenHTS;
+    let uniTokenHTSSolidity;
 
-    const lqtyTokenDeploymentTime = await contracts.hlqtyToken.getDeploymentStartTime();
+    console.log("Is Dev: ", _isDev)
+    if (_isDev) {
+        uniTokenHTS = await deployMockUniTokenHTS();
+        uniTokenHTSSolidity = uniTokenHTS.toSolidityAddress();
+    } else {
+        uniTokenHTS = await deployUniTokenHTS(deployer, wethAddress, await contracts.hchfToken.getTokenAddress());
+        uniTokenHTSSolidity = uniTokenHTS;
+    }
+    console.log(uniTokenHTS);
+    console.log(uniTokenHTSSolidity);
+    await connectContracts(contracts, uniTokenHTSSolidity, deployer, overrides);
+
+    const lqtyTokenDeploymentTime = await contracts.hlqtToken.getDeploymentStartTime();
     const bootstrapPeriod = await contracts.troveManager.BOOTSTRAP_PERIOD();
-    const totalStabilityPoolLQTYReward = await contracts.communityIssuance.HLQTYSupplyCap();
+    const totalStabilityPoolLQTYReward = await contracts.communityIssuance.HLQTSupplyCap();
     const liquidityMiningLQTYRewardRate = await contracts.unipool.rewardRate();
 
     return {
         ...deployment,
         deploymentDate: lqtyTokenDeploymentTime.toNumber() * 1000,
         bootstrapPeriod: bootstrapPeriod.toNumber(),
-        totalStabilityPoolHLQTYReward: `${Decimal.fromBigNumberString(
+        totalStabilityPoolHLQTReward: `${Decimal.fromBigNumberString(
             totalStabilityPoolLQTYReward.toHexString()
         )}`,
-        liquidityMiningHLQTYRewardRate: `${Decimal.fromBigNumberString(
+        liquidityMiningHLQTRewardRate: `${Decimal.fromBigNumberString(
             liquidityMiningLQTYRewardRate.toHexString()
         )}`
     };

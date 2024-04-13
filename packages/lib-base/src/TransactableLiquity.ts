@@ -437,22 +437,6 @@ export interface TransactableLiquity {
   withdrawGainsFromStaking(): Promise<void>;
 
   /**
-   * Allow the liquidity mining contract to use Uniswap ETH/HCHF LP tokens for
-   * {@link @liquity/lib-base#TransactableLiquity.stakeUniTokens | staking}.
-   *
-   * @param allowance - Maximum amount of LP tokens that will be transferrable to liquidity mining
-   *                    (`2^256 - 1` by default).
-   *
-   * @remarks
-   * Must be performed before calling
-   * {@link @liquity/lib-base#TransactableLiquity.stakeUniTokens | stakeUniTokens()}.
-   *
-   * @throws
-   * Throws {@link TransactionFailedError} in case of transaction failure.
-   */
-  approveUniTokens(allowance?: Decimalish): Promise<void>;
-
-  /**
    * Stake Uniswap ETH/HCHF LP tokens to participate in liquidity mining and earn HLQT.
    *
    * @param amount - Amount of LP tokens to add to new or existing stake.

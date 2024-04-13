@@ -20,13 +20,6 @@ const getSecret = (secretKey, defaultValue = '') => {
 
     return secret
 }
-const alchemyUrl = () => {
-    return `https://eth-mainnet.alchemyapi.io/v2/${getSecret('alchemyAPIKey')}`
-}
-
-const alchemyUrlRinkeby = () => {
-    return `https://eth-rinkeby.alchemyapi.io/v2/${getSecret('alchemyAPIKeyRinkeby')}`
-}
 
 module.exports = {
     paths: {
@@ -72,18 +65,14 @@ module.exports = {
             gasPrice: 20000000000,
             initialBaseFeePerGas: 0,
         },
-        mainnet: {
-            url: alchemyUrl(),
-            gasPrice: process.env.GAS_PRICE ? parseInt(process.env.GAS_PRICE) : 20000000000,
-            accounts: [
-                getSecret('DEPLOYER_PRIVATEKEY', '0x60ddfe7f579ab6867cbe7a2dc03853dc141d7a4ab6dbefc0dae2d2b1bd4e487f'),
-                getSecret('ACCOUNT2_PRIVATEKEY', '0x3ec7cedbafd0cb9ec05bf9f7ccfa1e8b42b3e3a02c75addfccbfeb328d1b383b')
-            ]
-        },
-        rinkeby: {
-            url: alchemyUrlRinkeby(),
-            gas: 10000000,  // tx gas limit
-            accounts: [getSecret('RINKEBY_DEPLOYER_PRIVATEKEY', '0x60ddfe7f579ab6867cbe7a2dc03853dc141d7a4ab6dbefc0dae2d2b1bd4e487f')]
+        hederaMainnet: {
+            url: "https://mainnet.hashio.io/api",
+            gas: 14.5e6,
+            blockGasLimit: 34e6,
+            gasPrice: 1490000000000,
+            chainId: 295,
+            timeout: 1000000,
+            accounts: ['']
         },
         hederaTestnet: {
             url: "https://testnet.hashio.io/api",
