@@ -108,7 +108,7 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         token.symbol = _SYMBOL;
         token.treasury = address(this);
 
-        token.expiry = createAutoRenewExpiry(address(this), 8000000);
+        token.expiry = createAutoRenewExpiry(address(this), 7_776_000);
 
         IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
         keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.INHERIT_ACCOUNT_KEY, bytes(""));

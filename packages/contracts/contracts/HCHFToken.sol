@@ -10,6 +10,7 @@ import "./Dependencies/HederaResponseCodes.sol";
 import "./Dependencies/IERC20.sol";
 import "./Dependencies/SafeCast.sol";
 import "./Dependencies/HederaTokenService.sol";
+import "./Dependencies/SafeMath.sol";
 
 
 contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, CheckContract
@@ -55,7 +56,7 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         token.symbol = _SYMBOL;
         token.treasury = address(this);
 
-        token.expiry = createAutoRenewExpiry(address(this), 8000000);
+        token.expiry = createAutoRenewExpiry(address(this), 7_776_000);
 
         IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
         keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.INHERIT_ACCOUNT_KEY, bytes(""));
@@ -166,7 +167,7 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         bool success = _checkResponse(responseCode);
 
         if (
-            !((_balanceOf(address(this)) - balance) ==
+            !((SafeMath.sub(_balanceOf(address(this)), balance)) ==
             amount)
         ) revert('The smart contract is not the treasury account');
 
