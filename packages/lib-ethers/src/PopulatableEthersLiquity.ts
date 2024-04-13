@@ -994,23 +994,6 @@ export class PopulatableEthersLiquity
     );
   }
 
-  /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.approveUniTokens} */
-  async approveUniTokens(
-    allowance?: Decimalish,
-    overrides?: EthersTransactionOverrides
-  ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { uniToken, unipool } = _getContracts(this._readable.connection);
-
-    return this._wrapSimpleTransaction(
-      await uniToken.estimateAndPopulate.approve(
-        { gasLimit: 3000000 },
-        id,
-        unipool.address,
-        Decimal.from(allowance ?? Decimal.INFINITY).hex
-      )
-    );
-  }
-
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeUniTokens} */
   async stakeUniTokens(
     amount: Decimalish,

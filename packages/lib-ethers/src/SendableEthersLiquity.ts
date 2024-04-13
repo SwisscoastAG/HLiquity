@@ -213,14 +213,6 @@ export class SendableEthersLiquity
     return this._populate._mintUniToken(amount, address, overrides).then(sendTransaction);
   }
 
-  /** {@inheritDoc @liquity/lib-base#SendableLiquity.approveUniTokens} */
-  approveUniTokens(
-    allowance?: Decimalish,
-    overrides?: EthersTransactionOverrides
-  ): Promise<SentEthersLiquityTransaction<void>> {
-    return this._populate.approveUniTokens(allowance, overrides).then(sendTransaction);
-  }
-
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.stakeUniTokens} */
   stakeUniTokens(
     amount: Decimalish,

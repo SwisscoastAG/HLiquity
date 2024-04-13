@@ -330,22 +330,6 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     return hlqtToken.balanceOf(address, { ...overrides }).then(decimalify);
   }
 
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getUniTokenBalance} */
-  getUniTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
-    address ??= _requireAddress(this.connection);
-    const { uniToken } = _getContracts(this.connection);
-
-    return uniToken.balanceOf(address, { ...overrides }).then(decimalify);
-  }
-
-  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getUniTokenAllowance} */
-  getUniTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
-    address ??= _requireAddress(this.connection);
-    const { uniToken, unipool } = _getContracts(this.connection);
-
-    return uniToken.allowance(address, unipool.address, { ...overrides }).then(decimalify);
-  }
-
   /** @internal */
   async _getRemainingLiquidityMiningHLQTRewardCalculator(
     overrides?: EthersCallOverrides

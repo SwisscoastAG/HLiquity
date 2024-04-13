@@ -15,7 +15,12 @@ import "@nomiclabs/hardhat-ethers";
 
 import {Decimal} from "@liquity/lib-base";
 
-import {deployAndSetupContracts, deployTellorCaller, setSilent} from "./utils/deploy";
+import {
+    deployAndSetupContracts,
+    deployPythCaller,
+    deploySupraCaller,
+    setSilent
+} from "./utils/deploy";
 import {_connectToContracts, _LiquityDeploymentJSON, _priceFeedIsTestnet} from "./src/contracts";
 
 import accounts from "./accounts.json";
@@ -66,34 +71,22 @@ const infuraNetwork = (name: string): { [name: string]: NetworkUserConfig } => (
 // https://docs.tellor.io/tellor/integration/reference-page
 
 const oracleAddresses = {
-    mainnet: {
-        chainlink: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-        tellor: "0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0"
+    hederaMainnet: {
+        pyth: "0xA2aa501b19aff244D90cc15a4Cf739D2725B5729",
+        supra: "0xD02cc7a670047b6b012556A88e275c685d25e0c9"
     },
-    rinkeby: {
-        chainlink: "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
-        tellor: "0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0" // Core
-    },
-    kovan: {
-        chainlink: "0x9326BFA02ADD2366b30bacB125260Af641031331",
-        tellor: "0x20374E579832859f180536A69093A126Db1c8aE9" // Playground
-    },
-    /*   hedera: {
-        chainlink: "",
-        tellor: ""
-      } */
+    hederaTestnet: {
+        pyth: "0xa2aa501b19aff244d90cc15a4cf739d2725b5729",
+        supra: "0x6Cd59830AAD978446e6cc7f6cc173aF7656Fb917"
+    }
 };
 
 const hasOracles = (network: string): network is keyof typeof oracleAddresses =>
     network in oracleAddresses;
 
 const wethAddresses = {
-    mainnet: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    ropsten: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-    rinkeby: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-    goerli: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-    kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
-    //hedera: "0x585F8a942C29A3F1eC2f50A493C5911B8a69f765",
+    hederaMainnet: "0x0000000000000000000000000000000000163b5a",
+    hederaTestnet: "0x0000000000000000000000000000000000003ad2",
 };
 
 const hasWETH = (network: string): network is keyof typeof wethAddresses => network in wethAddresses;
@@ -113,13 +106,23 @@ const config: HardhatUserConfig = {
         },
 
         hederaTestnet: {
-            url: "https://testnet.hashio.io/api",
+            url: "https://pool.arkhia.io/hedera/testnet/json-rpc/v1/1u6ercu94y4u20eeeZ417e72w2990ad7",
             gas: 16e6,
             blockGasLimit: 34e6,
             gasPrice: 1490000000000,
             chainId: 296,
             timeout: 1000000,
             accounts: ['3d5410259092c2fd609239cababe3ef4690f48057aba853c0da7ed6cedae835a', '4c01eff6764673ab79a4cbfb954801f7d4ae8538a6496896ce72b73e6b63b0d4', 'aaf63f1eac2a78e34cee46e7ee90bb51fe7dbf36e6e4da7edb6c952e24abe484', '3b6f552386dc800cef28e2a02e1aff4774480e718a2d30b092d011eb6e0d4418']
+        },
+
+        hederaMainnet: {
+            url: "https://mainnet.hashio.io/api",
+            gas: 14.5e6,
+            blockGasLimit: 34e6,
+            gasPrice: 1490000000000,
+            chainId: 295,
+            timeout: 1000000,
+            accounts: ['']
         },
 
         hederaPreviewnet: {
@@ -223,19 +226,18 @@ task("deploy", "Deploys the contracts to the network")
             const overrides = {gasPrice: gasPrice && Decimal.from(gasPrice).div(1000000000).hex};
             const [deployer] = await env.ethers.getSigners();
 
-            useRealPriceFeed ??= env.network.name === "mainnet";
+            useRealPriceFeed ??= env.network.name === "hederaMainnet" || env.network.name === "hederaTestnet";
 
             if (useRealPriceFeed && !hasOracles(env.network.name)) {
                 throw new Error(`PriceFeed not supported on ${env.network.name}`);
             }
 
             let wethAddress: string | undefined = undefined;
-            if (createUniswapPair) {
-                if (!hasWETH(env.network.name)) {
-                    throw new Error(`WETH not deployed on ${env.network.name}`);
-                }
-                wethAddress = wethAddresses[env.network.name];
+            if (!hasWETH(env.network.name)) {
+                throw new Error(`WETH not deployed on ${env.network.name}`);
             }
+            wethAddress = wethAddresses[env.network.name];
+
 
             setSilent(false);
 
@@ -247,18 +249,27 @@ task("deploy", "Deploys the contracts to the network")
                 assert(!_priceFeedIsTestnet(contracts.priceFeed));
 
                 if (hasOracles(env.network.name)) {
-                    const tellorCallerAddress = await deployTellorCaller(
+                    console.log(`Hooking up PriceFeed with oracles ...`);
+
+                    const pythCallerAddress = await deployPythCaller(
                         deployer,
                         getContractFactory(env),
-                        oracleAddresses[env.network.name].tellor,
+                        oracleAddresses[env.network.name].pyth,
                         overrides
                     );
 
-                    console.log(`Hooking up PriceFeed with oracles ...`);
+                    const supraCallerAddress = await deploySupraCaller(
+                        deployer,
+                        getContractFactory(env),
+                        oracleAddresses[env.network.name].supra,
+                        overrides
+                    );
+
+                    console.log(oracleAddresses[env.network.name].pyth)
 
                     const tx = await contracts.priceFeed.setAddresses(
-                        oracleAddresses[env.network.name].chainlink,
-                        tellorCallerAddress,
+                        pythCallerAddress,
+                        supraCallerAddress,
                         overrides
                     );
 

@@ -280,7 +280,9 @@ export interface ERC20Mock
 }
 
 interface GasPoolCalls {
+  borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
   hchfToken(_overrides?: CallOverrides): Promise<string>;
+  troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface GasPoolTransactions {
@@ -573,12 +575,14 @@ interface PriceFeedCalls {
   TIMEOUT(_overrides?: CallOverrides): Promise<BigNumber>;
   USD_CHF_PYTH(_overrides?: CallOverrides): Promise<string>;
   USD_CHF_SUPRA(_overrides?: CallOverrides): Promise<BigNumber>;
+  borrowerOperationsAddress(_overrides?: CallOverrides): Promise<string>;
   isOwner(_overrides?: CallOverrides): Promise<boolean>;
   lastGoodPrice(_overrides?: CallOverrides): Promise<BigNumber>;
   owner(_overrides?: CallOverrides): Promise<string>;
   pythCaller(_overrides?: CallOverrides): Promise<string>;
   status(_overrides?: CallOverrides): Promise<number>;
   supraCaller(_overrides?: CallOverrides): Promise<string>;
+  troveManagerAddress(_overrides?: CallOverrides): Promise<string>;
 }
 
 interface PriceFeedTransactions {
