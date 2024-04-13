@@ -20,8 +20,8 @@ import "./Interfaces/IHCHFToken.sol";
 contract GasPool is HederaTokenService {
     IHCHFToken public hchfToken;
 
-    address troveManagerAddress;
-    address borrowerOperationsAddress;
+    address public troveManagerAddress;
+    address public borrowerOperationsAddress;
 
     constructor(address _hchfTokenAddress, address _troveManagerAddress, address _borrowerOperationsAddress) public {
         troveManagerAddress = _troveManagerAddress;

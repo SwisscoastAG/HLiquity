@@ -30,8 +30,8 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
     ISupraCaller public supraCaller;
 
     // Core Liquity contracts
-    address borrowerOperationsAddress;
-    address troveManagerAddress;
+    address public borrowerOperationsAddress;
+    address public troveManagerAddress;
 
     bytes32 constant public HBAR_USD_PYTH = 0x3728e591097635310e6341af53db8b7ee42da9b3a8d918f9463ce9cca886dfbd;
     bytes32 constant public USD_CHF_PYTH = 0x0b1e3297e69f162877b577b0d6a47a0d63b2392bc8499e6540da4187a63e28f8;
@@ -39,7 +39,7 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
     uint256 constant public USD_CHF_SUPRA = 5012;
 
     // Maximum time period allowed since latest round data timestamp, beyond which considered frozen.
-    uint constant public TIMEOUT = 14400;  // 4 hours: 60 * 60 * 4
+    uint constant public TIMEOUT = 14_400;  // 4 hours: 60 * 60 * 4
 
     // Maximum deviation allowed between two consecutive oracle prices. 8-digit precision.
     uint constant public MAX_PRICE_DEVIATION_FROM_PREVIOUS_ROUND = 5e7; // 50%
