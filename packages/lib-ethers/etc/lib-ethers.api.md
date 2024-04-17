@@ -89,8 +89,6 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     // (undocumented)
     adjustTrove(params: TroveAdjustmentParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<TroveAdjustmentDetails>;
     // (undocumented)
-    approveUniTokens(allowance?: Decimalish, overrides?: EthersTransactionOverrides): Promise<void>;
-    // (undocumented)
     borrowHCHF(amount: Decimalish, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<TroveAdjustmentDetails>;
     // (undocumented)
     claimCollateralSurplus(overrides?: EthersTransactionOverrides): Promise<void>;
@@ -172,18 +170,12 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     }, overrides?: EthersCallOverrides): Promise<TroveWithPendingRedistribution[]>;
     // (undocumented)
     getTroves(params: TroveListingParams, overrides?: EthersCallOverrides): Promise<UserTrove[]>;
-    // (undocumented)
-    getUniTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
-    // (undocumented)
-    getUniTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     hasStore(): this is EthersLiquityWithStore;
     hasStore(store: "blockPolled"): this is EthersLiquityWithStore<BlockPolledLiquityStore>;
     // (undocumented)
     liquidate(address: string | string[], overrides?: EthersTransactionOverrides): Promise<LiquidationDetails>;
     // (undocumented)
     liquidateUpTo(maximumNumberOfTrovesToLiquidate: number, overrides?: EthersTransactionOverrides): Promise<LiquidationDetails>;
-    // @internal (undocumented)
-    _mintUniToken(amount: Decimalish, address?: string, overrides?: EthersTransactionOverrides): Promise<void>;
     // (undocumented)
     openTrove(params: TroveCreationParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<TroveCreationDetails>;
     readonly populate: PopulatableEthersLiquity;
@@ -311,8 +303,6 @@ export class PopulatableEthersLiquity implements PopulatableLiquity<EthersTransa
     // (undocumented)
     adjustTrove(params: TroveAdjustmentParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<TroveAdjustmentDetails>>;
     // (undocumented)
-    approveUniTokens(allowance?: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
-    // (undocumented)
     borrowHCHF(amount: Decimalish, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<TroveAdjustmentDetails>>;
     // (undocumented)
     claimCollateralSurplus(overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
@@ -328,8 +318,6 @@ export class PopulatableEthersLiquity implements PopulatableLiquity<EthersTransa
     liquidate(address: string | string[], overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<LiquidationDetails>>;
     // (undocumented)
     liquidateUpTo(maximumNumberOfTrovesToLiquidate: number, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<LiquidationDetails>>;
-    // @internal (undocumented)
-    _mintUniToken(amount: Decimalish, address?: string, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<void>>;
     // (undocumented)
     openTrove(params: TroveCreationParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersLiquityTransaction<TroveCreationDetails>>;
     // (undocumented)
@@ -461,10 +449,6 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     }, overrides?: EthersCallOverrides): Promise<TroveWithPendingRedistribution[]>;
     // (undocumented)
     getTroves(params: TroveListingParams, overrides?: EthersCallOverrides): Promise<UserTrove[]>;
-    // (undocumented)
-    getUniTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
-    // (undocumented)
-    getUniTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     hasStore(): this is ReadableEthersLiquityWithStore;
     hasStore(store: "blockPolled"): this is ReadableEthersLiquityWithStore<BlockPolledLiquityStore>;
 }
@@ -483,8 +467,6 @@ export class SendableEthersLiquity implements SendableLiquity<EthersTransactionR
     // (undocumented)
     adjustTrove(params: TroveAdjustmentParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<TroveAdjustmentDetails>>;
     // (undocumented)
-    approveUniTokens(allowance?: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
-    // (undocumented)
     borrowHCHF(amount: Decimalish, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<TroveAdjustmentDetails>>;
     // (undocumented)
     claimCollateralSurplus(overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
@@ -500,8 +482,6 @@ export class SendableEthersLiquity implements SendableLiquity<EthersTransactionR
     liquidate(address: string | string[], overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<LiquidationDetails>>;
     // (undocumented)
     liquidateUpTo(maximumNumberOfTrovesToLiquidate: number, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<LiquidationDetails>>;
-    // @internal (undocumented)
-    _mintUniToken(amount: Decimalish, address?: string, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<void>>;
     // (undocumented)
     openTrove(params: TroveCreationParams<Decimalish>, maxBorrowingRate?: Decimalish, overrides?: EthersTransactionOverrides): Promise<SentEthersLiquityTransaction<TroveCreationDetails>>;
     // (undocumented)

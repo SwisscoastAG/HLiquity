@@ -648,18 +648,6 @@ class BlockPolledLiquityStoreBasedCache
     }
   }
 
-  getUniTokenBalance(address?: string, overrides?: EthersCallOverrides): Decimal | undefined {
-    if (this._userHit(address, overrides)) {
-      return this._store.state.uniTokenBalance;
-    }
-  }
-
-  getUniTokenAllowance(address?: string, overrides?: EthersCallOverrides): Decimal | undefined {
-    if (this._userHit(address, overrides)) {
-      return this._store.state.uniTokenAllowance;
-    }
-  }
-
   getRemainingLiquidityMiningHLQTReward(overrides?: EthersCallOverrides): Decimal | undefined {
     if (this._blockHit(overrides)) {
       return this._store.state.remainingLiquidityMiningHLQTReward;

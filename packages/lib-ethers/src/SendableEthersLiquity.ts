@@ -204,15 +204,6 @@ export class SendableEthersLiquity
     return this._populate.registerFrontend(kickbackRate, overrides).then(sendTransaction);
   }
 
-  /** @internal */
-  _mintUniToken(
-    amount: Decimalish,
-    address?: string,
-    overrides?: EthersTransactionOverrides
-  ): Promise<SentEthersLiquityTransaction<void>> {
-    return this._populate._mintUniToken(amount, address, overrides).then(sendTransaction);
-  }
-
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.stakeUniTokens} */
   stakeUniTokens(
     amount: Decimalish,

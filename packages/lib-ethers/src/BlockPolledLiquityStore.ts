@@ -136,8 +136,6 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
             hchfTokenAddress: this._readable.getHCHFTokenAddress({ blockTag }),
             hlqtTokenAddress: this._readable.getHLQTTokenAddress({ blockTag }),
             hlqtBalance: this._readable.getHLQTBalance(userAddress, { blockTag }),
-            uniTokenBalance: this._readable.getUniTokenBalance(userAddress, { blockTag }),
-            uniTokenAllowance: this._readable.getUniTokenAllowance(userAddress, { blockTag }),
             liquidityMiningStake: this._readable.getLiquidityMiningStake(userAddress, { blockTag }),
             liquidityMiningHLQTReward: this._readable.getLiquidityMiningHLQTReward(userAddress, {
               blockTag
@@ -158,8 +156,6 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
             hlqtBalance: Decimal.ZERO,
             hchfTokenAddress: "0x",
             hlqtTokenAddress: "0x",
-            uniTokenBalance: Decimal.ZERO,
-            uniTokenAllowance: Decimal.ZERO,
             liquidityMiningStake: Decimal.ZERO,
             liquidityMiningHLQTReward: Decimal.ZERO,
             collateralSurplusBalance: Decimal.ZERO,

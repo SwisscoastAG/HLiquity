@@ -43,6 +43,4 @@ Implemented by [EthersLiquity](./lib-ethers.ethersliquity.md)<!-- -->.
 |  [getTrove(address)](./lib-base.readableliquity.gettrove.md) | Get the current state of a Trove. |
 |  [getTroveBeforeRedistribution(address)](./lib-base.readableliquity.gettrovebeforeredistribution.md) | Get a Trove in its state after the last direct modification. |
 |  [getTroves(params)](./lib-base.readableliquity.gettroves_1.md) | Get a slice from the list of Troves. |
-|  [getUniTokenAllowance(address)](./lib-base.readableliquity.getunitokenallowance.md) | Get the liquidity mining contract's allowance of a holder's Uniswap ETH/HCHF LP tokens. |
-|  [getUniTokenBalance(address)](./lib-base.readableliquity.getunitokenbalance.md) | Get the amount of Uniswap ETH/HCHF LP tokens held by an address. |
 

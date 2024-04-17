@@ -971,29 +971,6 @@ export class PopulatableEthersLiquity
     );
   }
 
-  /** @internal */
-  async _mintUniToken(
-    amount: Decimalish,
-    address?: string,
-    overrides?: EthersTransactionOverrides
-  ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    address ??= _requireAddress(this._readable.connection, overrides);
-    const { uniToken } = _getContracts(this._readable.connection);
-
-    if (!_uniTokenIsMock(uniToken)) {
-      throw new Error("_mintUniToken() unavailable on this deployment of Liquity");
-    }
-
-    return this._wrapSimpleTransaction(
-      await uniToken.estimateAndPopulate.mint(
-        { gasLimit: 3000000 },
-        id,
-        address,
-        Decimal.from(amount).hex
-      )
-    );
-  }
-
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.stakeUniTokens} */
   async stakeUniTokens(
     amount: Decimalish,

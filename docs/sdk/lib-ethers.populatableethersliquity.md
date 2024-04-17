@@ -24,7 +24,6 @@ export declare class PopulatableEthersLiquity implements PopulatableLiquity<Ethe
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [adjustTrove(params, maxBorrowingRate, overrides)](./lib-ethers.populatableethersliquity.adjusttrove.md) |  | Adjust existing Trove by changing its collateral, debt, or both. |
-|  [approveUniTokens(allowance, overrides)](./lib-ethers.populatableethersliquity.approveunitokens.md) |  | Allow the liquidity mining contract to use Uniswap ETH/HCHF LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
 |  [borrowHCHF(amount, maxBorrowingRate, overrides)](./lib-ethers.populatableethersliquity.borrowhchf.md) |  | Adjust existing Trove by borrowing more HCHF. |
 |  [claimCollateralSurplus(overrides)](./lib-ethers.populatableethersliquity.claimcollateralsurplus.md) |  | Claim leftover collateral after a liquidation or redemption. |
 |  [closeTrove(overrides)](./lib-ethers.populatableethersliquity.closetrove.md) |  | Close existing Trove by repaying all debt and withdrawing all collateral. |
