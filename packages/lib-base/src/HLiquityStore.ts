@@ -37,12 +37,6 @@ export interface LiquityStoreBaseState {
   /** User's HLQT token balance. */
   hlqtBalance: Decimal;
 
-  /** User's Uniswap ETH/HCHF LP token balance. */
-  uniTokenBalance: Decimal;
-
-  /** The liquidity mining contract's allowance of user's Uniswap ETH/HCHF LP tokens. */
-  uniTokenAllowance: Decimal;
-
   /** Remaining HLQT that will be collectively rewarded to liquidity miners. */
   remainingLiquidityMiningHLQTReward: Decimal;
 
@@ -385,21 +379,6 @@ export abstract class HLiquityStore<T = unknown> {
         baseState.hlqtBalance,
         baseStateUpdate.hlqtBalance
       ),
-
-      uniTokenBalance: this._updateIfChanged(
-        eq,
-        "uniTokenBalance",
-        baseState.uniTokenBalance,
-        baseStateUpdate.uniTokenBalance
-      ),
-
-      uniTokenAllowance: this._updateIfChanged(
-        eq,
-        "uniTokenAllowance",
-        baseState.uniTokenAllowance,
-        baseStateUpdate.uniTokenAllowance
-      ),
-
       remainingLiquidityMiningHLQTReward: this._silentlyUpdateIfChanged(
         eq,
         baseState.remainingLiquidityMiningHLQTReward,

@@ -141,20 +141,6 @@ export interface ReadableLiquity {
   getHLQTBalance(address?: string): Promise<Decimal>;
 
   /**
-   * Get the amount of Uniswap ETH/HCHF LP tokens held by an address.
-   *
-   * @param address - Address whose balance should be retrieved.
-   */
-  getUniTokenBalance(address?: string): Promise<Decimal>;
-
-  /**
-   * Get the liquidity mining contract's allowance of a holder's Uniswap ETH/HCHF LP tokens.
-   *
-   * @param address - Address holding the Uniswap ETH/HCHF LP tokens.
-   */
-  getUniTokenAllowance(address?: string): Promise<Decimal>;
-
-  /**
    * Get the remaining HLQT that will be collectively rewarded to liquidity miners.
    */
   getRemainingLiquidityMiningHLQTReward(): Promise<Decimal>;
