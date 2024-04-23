@@ -46,7 +46,7 @@ import "../Dependencies/HederaTokenService.sol";
 
 contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, HederaTokenService, Ownable {
     using SafeMath for uint256;
-    address public tokenAddress;
+    address public immutable tokenAddress;
     // --- ERC20 Data ---
 
     string constant internal _NAME = "HLQT";
@@ -191,19 +191,17 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
 
         int64 safeAmount = int64(amount);
 
-        address currentTokenAddress = _getTokenAddress();
-
-        int responseCode = HederaTokenService.transferToken(currentTokenAddress, sender, recipient, safeAmount);
+        int responseCode = HederaTokenService.transferToken(tokenAddress, sender, recipient, safeAmount);
 
         _checkResponse(responseCode);
 
-        emit TokenTransfer(currentTokenAddress, sender, recipient, safeAmount);
+        emit TokenTransfer(tokenAddress, sender, recipient, safeAmount);
     }
 
     function _balanceOf(
         address account
     ) internal view returns (uint256) {
-        return IERC20(_getTokenAddress()).balanceOf(account);
+        return IERC20(tokenAddress).balanceOf(account);
     }
 
     function _mint(
@@ -218,34 +216,24 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
 
         int64 safeAmount = int64(amount);
 
-        address currentTokenAddress = _getTokenAddress();
-
         uint256 balance = _balanceOf(address(this));
 
-        (int responseCode, ,) = HederaTokenService.mintToken(currentTokenAddress, safeAmount, new bytes[](0));
+        (int responseCode, ,) = HederaTokenService.mintToken(tokenAddress, safeAmount, new bytes[](0));
 
-        bool success = _checkResponse(responseCode);
+        _checkResponse(responseCode);
 
-        if (
-            !((_balanceOf(address(this)) - balance) ==
-            amount)
-        ) revert('The smart contract is not the treasury account');
+        require(SafeMath.sub(_balanceOf(address(this)), balance) == amount, 'The smart contract is not the treasury account');
 
         _transfer(address(this), account, amount);
 
-        emit TokensMinted(msg.sender, currentTokenAddress, safeAmount, account);
+        emit TokensMinted(msg.sender, tokenAddress, safeAmount, account);
 
-        return success;
+        return true;
     }
 
-    function _getTokenAddress() internal view returns (address) {
-        return tokenAddress;
-    }
-
-    function _checkResponse(int responseCode) internal pure returns (bool) {
+    function _checkResponse(int responseCode) internal pure {
         // Using require to check the condition, and provide a custom error message if it fails.
         require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
-        return true;
     }
 
     

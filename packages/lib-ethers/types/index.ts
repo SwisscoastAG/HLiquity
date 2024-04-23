@@ -417,7 +417,6 @@ export interface HCHFToken
     MintedToken(newTotalSupply?: null, serialNumbers?: null): EventFilter;
     ResponseCode(responseCode?: null): EventFilter;
     StabilityPoolAddressChanged(_newStabilityPoolAddress?: null): EventFilter;
-    TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
     TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
     TokensMinted(minter?: string | null, token?: string | null, amount?: null, account?: string | null): EventFilter;
     Transfer(token?: string | null, from?: string | null, to?: string | null, value?: null): EventFilter;
@@ -428,7 +427,6 @@ export interface HCHFToken
   extractEvents(logs: Log[], name: "MintedToken"): _TypedLogDescription<{ newTotalSupply: BigNumber; serialNumbers: BigNumber[] }>[];
   extractEvents(logs: Log[], name: "ResponseCode"): _TypedLogDescription<{ responseCode: BigNumber }>[];
   extractEvents(logs: Log[], name: "StabilityPoolAddressChanged"): _TypedLogDescription<{ _newStabilityPoolAddress: string }>[];
-  extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
   extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "TokensMinted"): _TypedLogDescription<{ minter: string; token: string; amount: BigNumber; account: string }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ token: string; from: string; to: string; value: BigNumber }>[];
@@ -533,7 +531,6 @@ export interface HLQTToken
     MetadataSet(admin?: string | null, metadata?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     TokenTransfer(token?: string | null, sender?: string | null, receiver?: string | null, amount?: null): EventFilter;
-    TokenUpdated(token?: string | null, updateTokenStruct?: null): EventFilter;
     TokensBurned(burner?: string | null, token?: string | null, amount?: null): EventFilter;
     TokensMinted(minter?: string | null, token?: string | null, amount?: null, account?: string | null): EventFilter;
     Transfer(from?: string | null, to?: string | null, value?: null): EventFilter;
@@ -544,7 +541,6 @@ export interface HLQTToken
   extractEvents(logs: Log[], name: "MetadataSet"): _TypedLogDescription<{ admin: string; metadata: string }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "TokenTransfer"): _TypedLogDescription<{ token: string; sender: string; receiver: string; amount: BigNumber }>[];
-  extractEvents(logs: Log[], name: "TokenUpdated"): _TypedLogDescription<{ token: string; updateTokenStruct: { tokenName: string; tokenSymbol: string; keys: { keyType: BigNumber; publicKey: string; isED25519: boolean }[]; second: BigNumber; autoRenewPeriod: BigNumber; tokenMetadataURI: string } }>[];
   extractEvents(logs: Log[], name: "TokensBurned"): _TypedLogDescription<{ burner: string; token: string; amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "TokensMinted"): _TypedLogDescription<{ minter: string; token: string; amount: BigNumber; account: string }>[];
   extractEvents(logs: Log[], name: "Transfer"): _TypedLogDescription<{ from: string; to: string; value: BigNumber }>[];
@@ -743,6 +739,7 @@ export interface StabilityPool
     HCHFTokenAddressChanged(_newHCHFTokenAddress?: null): EventFilter;
     HLQTPaidToDepositor(_depositor?: string | null, _HLQT?: null): EventFilter;
     HLQTPaidToFrontEnd(_frontEnd?: string | null, _HLQT?: null): EventFilter;
+    HLQTPaidToFrontEndFailed(_frontEnd?: string | null, _HLQT?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;
     P_Updated(_P?: null): EventFilter;
     PriceFeedAddressChanged(_newPriceFeedAddress?: null): EventFilter;
@@ -771,6 +768,7 @@ export interface StabilityPool
   extractEvents(logs: Log[], name: "HCHFTokenAddressChanged"): _TypedLogDescription<{ _newHCHFTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "HLQTPaidToDepositor"): _TypedLogDescription<{ _depositor: string; _HLQT: BigNumber }>[];
   extractEvents(logs: Log[], name: "HLQTPaidToFrontEnd"): _TypedLogDescription<{ _frontEnd: string; _HLQT: BigNumber }>[];
+  extractEvents(logs: Log[], name: "HLQTPaidToFrontEndFailed"): _TypedLogDescription<{ _frontEnd: string; _HLQT: BigNumber }>[];
   extractEvents(logs: Log[], name: "OwnershipTransferred"): _TypedLogDescription<{ previousOwner: string; newOwner: string }>[];
   extractEvents(logs: Log[], name: "P_Updated"): _TypedLogDescription<{ _P: BigNumber }>[];
   extractEvents(logs: Log[], name: "PriceFeedAddressChanged"): _TypedLogDescription<{ _newPriceFeedAddress: string }>[];
@@ -920,7 +918,7 @@ export interface TroveManager
   extractEvents(logs: Log[], name: "TroveUpdated"): _TypedLogDescription<{ _borrower: string; _debt: BigNumber; _coll: BigNumber; _stake: BigNumber; _operation: number }>[];
 }
 
-interface UnipoolCalls {
+interface SaucerSwapPoolCalls {
   NAME(_overrides?: CallOverrides): Promise<string>;
   balanceOf(account: string, _overrides?: CallOverrides): Promise<BigNumber>;
   duration(_overrides?: CallOverrides): Promise<BigNumber>;
@@ -940,7 +938,7 @@ interface UnipoolCalls {
   userRewardPerTokenPaid(arg0: string, _overrides?: CallOverrides): Promise<BigNumber>;
 }
 
-interface UnipoolTransactions {
+interface SaucerSwapPoolTransactions {
   claimReward(_overrides?: Overrides): Promise<void>;
   setParams(_uniTokenAddress: string, _duration: BigNumberish, _overrides?: Overrides): Promise<void>;
   stake(amount: BigNumberish, _overrides?: Overrides): Promise<void>;
@@ -950,8 +948,8 @@ interface UnipoolTransactions {
   withdrawAndClaim(_overrides?: Overrides): Promise<void>;
 }
 
-export interface Unipool
-  extends _TypedLiquityContract<UnipoolCalls, UnipoolTransactions> {
+export interface SaucerSwapPool
+  extends _TypedLiquityContract<SaucerSwapPoolCalls, SaucerSwapPoolTransactions> {
   readonly filters: {
     HLQTTokenAddressChanged(_hlqtTokenAddress?: null): EventFilter;
     OwnershipTransferred(previousOwner?: string | null, newOwner?: string | null): EventFilter;

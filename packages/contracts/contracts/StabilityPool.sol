@@ -266,6 +266,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
     event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _HCHFLoss);
     event HLQTPaidToDepositor(address indexed _depositor, uint _HLQT);
     event HLQTPaidToFrontEnd(address indexed _frontEnd, uint _HLQT);
+    event HLQTPaidToFrontEndFailed(address indexed _frontEnd, uint _HLQT);
     event EtherSent(address _to, uint _amount);
 
     // --- Contract setters ---
@@ -932,8 +933,11 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
         // Pay out front end's HLQT gain
         if (_frontEnd != address(0)) {
             uint frontEndHLQTGain = getFrontEndHLQTGain(_frontEnd);
-            _communityIssuance.sendHLQT(_frontEnd, frontEndHLQTGain);
-            emit HLQTPaidToFrontEnd(_frontEnd, frontEndHLQTGain);
+            try _communityIssuance.sendHLQT(_frontEnd, frontEndHLQTGain) {
+                emit HLQTPaidToFrontEnd(_frontEnd, frontEndHLQTGain);
+            } catch {
+                emit HLQTPaidToFrontEndFailed(_frontEnd, frontEndHLQTGain);
+            }
         }
 
         // Pay out depositor's HLQT gain

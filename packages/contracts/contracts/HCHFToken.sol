@@ -8,14 +8,13 @@ import "./Dependencies/KeyHelper.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/HederaResponseCodes.sol";
 import "./Dependencies/IERC20.sol";
-import "./Dependencies/SafeCast.sol";
 import "./Dependencies/HederaTokenService.sol";
 import "./Dependencies/SafeMath.sol";
 
 
 contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, CheckContract
 {
-    address public tokenAddress;
+    address public immutable tokenAddress;
 
 
     address public immutable troveManagerAddress;
@@ -96,7 +95,7 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
      * @return string The the name of the token
      */
     function name() external view override returns (string memory) {
-        return IERC20(_getTokenAddress()).name();
+        return IERC20(tokenAddress).name();
     }
 
     /**
@@ -105,7 +104,7 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
      * @return string The the symbol of the token
      */
     function symbol() external view override returns (string memory) {
-        return IERC20(_getTokenAddress()).symbol();
+        return IERC20(tokenAddress).symbol();
     }
 
     /**
@@ -158,25 +157,20 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
         int64 safeAmount = int64(amount);
 
-        address currentTokenAddress = _getTokenAddress();
-
         uint256 balance = _balanceOf(address(this));
 
-        (int responseCode, ,) = HederaTokenService.mintToken(currentTokenAddress, safeAmount, new bytes[](0));
+        (int responseCode, ,) = HederaTokenService.mintToken(tokenAddress, safeAmount, new bytes[](0));
 
-        bool success = _checkResponse(responseCode);
+        _checkResponse(responseCode);
 
-        if (
-            !((SafeMath.sub(_balanceOf(address(this)), balance)) ==
-            amount)
-        ) revert('The smart contract is not the treasury account');
+        require(SafeMath.sub(_balanceOf(address(this)), balance) == amount, 'The smart contract is not the treasury account');
 
         _transfer(address(this), account, amount);
 
-        emit TokensMinted(msg.sender, currentTokenAddress, safeAmount, account);
-        emit Transfer(currentTokenAddress, address(0), account, safeAmount);
+        emit TokensMinted(msg.sender, tokenAddress, safeAmount, account);
+        emit Transfer(tokenAddress, address(0), account, safeAmount);
 
-        return success;
+        return true;
     }
 
     function _burn(
@@ -190,22 +184,16 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
         int64 safeAmount = int64(amount);
 
-        address currentTokenAddress = _getTokenAddress();
-
         _transfer(account, address(this), amount);
 
-        (int responseCode,) = HederaTokenService.burnToken(currentTokenAddress, safeAmount, new int64[](0));
+        (int responseCode,) = HederaTokenService.burnToken(tokenAddress, safeAmount, new int64[](0));
 
-        bool success = _checkResponse(responseCode);
+        _checkResponse(responseCode);
 
-        emit TokensBurned(msg.sender, currentTokenAddress, safeAmount);
-        emit Transfer(currentTokenAddress, account, address(0), safeAmount);
+        emit TokensBurned(msg.sender, tokenAddress, safeAmount);
+        emit Transfer(tokenAddress, account, address(0), safeAmount);
 
-        return success;
-    }
-
-    function _getTokenAddress() internal view returns (address) {
-        return tokenAddress;
+        return true;
     }
 
     /**
@@ -218,7 +206,7 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
     function _balanceOf(
         address account
     ) internal view returns (uint256) {
-        return IERC20(_getTokenAddress()).balanceOf(account);
+        return IERC20(tokenAddress).balanceOf(account);
     }
 
 
@@ -236,13 +224,11 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
         int64 safeAmount = int64(amount);
 
-        address currentTokenAddress = _getTokenAddress();
-
-        int responseCode = HederaTokenService.transferToken(currentTokenAddress, sender, recipient, safeAmount);
+        int responseCode = HederaTokenService.transferToken(tokenAddress, sender, recipient, safeAmount);
 
         _checkResponse(responseCode);
 
-        emit Transfer(currentTokenAddress, sender, recipient, safeAmount);
+        emit Transfer(tokenAddress, sender, recipient, safeAmount);
     }
 
     /**
@@ -280,10 +266,9 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
         return IERC20(tokenAddress).totalSupply();
     }
 
-    function _checkResponse(int responseCode) internal pure returns (bool) {
+    function _checkResponse(int responseCode) internal pure {
         // Using require to check the condition, and provide a custom error message if it fails.
         require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
-        return true;
     }
 
     // --- 'require' functions ---

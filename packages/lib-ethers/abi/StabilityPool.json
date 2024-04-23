@@ -309,6 +309,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "_frontEnd",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_HLQT",
+        "type": "uint256"
+      }
+    ],
+    "name": "HLQTPaidToFrontEndFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
         "type": "address"
       },

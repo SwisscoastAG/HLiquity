@@ -48,7 +48,7 @@ async function mainnetDeploy(configParams) {
 
 
   if (LUSDWETHPairAddr == th.ZERO_ADDRESS) {
-    // Deploy Unipool for LUSD-WETH
+    // Deploy SaucerSwapPool.sol for LUSD-WETH
     await mdh.sendAndWaitForTransaction(uniswapV2Factory.createPair(
       configParams.externalAddrs.WETH_ERC20,
       liquityCore.lusdToken.address,
@@ -63,7 +63,7 @@ async function mainnetDeploy(configParams) {
     assert.equal(WETHLUSDPairAddr, LUSDWETHPairAddr)
   }
 
-  // Deploy Unipool
+  // Deploy SaucerSwapPool.sol
   const unipool = await mdh.deployUnipoolMainnet(deploymentState)
 
   // Deploy LQTY Contracts
@@ -82,11 +82,11 @@ async function mainnetDeploy(configParams) {
   // Deploy a read-only multi-trove getter
   const multiTroveGetter = await mdh.deployMultiTroveGetterMainnet(liquityCore, deploymentState)
 
-  // Connect Unipool to LQTYToken and the LUSD-WETH pair address, with a 6 week duration
+  // Connect SaucerSwapPool.sol to LQTYToken and the LUSD-WETH pair address, with a 6 week duration
   const LPRewardsDuration = timeVals.SECONDS_IN_SIX_WEEKS
   await mdh.connectUnipoolMainnet(unipool, LQTYContracts, LUSDWETHPairAddr, LPRewardsDuration)
 
-  // Log LQTY and Unipool addresses
+  // Log LQTY and SaucerSwapPool.sol addresses
   await mdh.logContractObjects(LQTYContracts)
   console.log(`Unipool address: ${unipool.address}`)
   
@@ -198,10 +198,10 @@ async function mainnetDeploy(configParams) {
 
   // // --- LQTY allowances of different addresses ---
   // console.log("INITIAL LQTY BALANCES")
-  // // Unipool
+  // // SaucerSwapPool.sol
   // const unipoolLQTYBal = await LQTYContracts.lqtyToken.balanceOf(unipool.address)
   // // assert.equal(unipoolLQTYBal.toString(), '1333333333333333333333333')
-  // th.logBN('Unipool LQTY balance       ', unipoolLQTYBal)
+  // th.logBN('SaucerSwapPool.sol LQTY balance       ', unipoolLQTYBal)
 
   // // LQTY Safe
   // const lqtySafeBal = await LQTYContracts.lqtyToken.balanceOf(configParams.liquityAddrs.LQTY_SAFE)
@@ -236,11 +236,11 @@ async function mainnetDeploy(configParams) {
   // const tellorCallerTellorMasterAddress = await liquityCore.tellorCaller.tellor()
   // assert.equal(tellorCallerTellorMasterAddress, configParams.externalAddrs.TELLOR_MASTER)
 
-  // // --- Unipool ---
+  // // --- SaucerSwapPool.sol ---
 
-  // // Check Unipool's LUSD-ETH Uniswap Pair address
+  // // Check SaucerSwapPool.sol's LUSD-ETH Uniswap Pair address
   // const unipoolUniswapPairAddr = await unipool.uniToken()
-  // console.log(`Unipool's stored LUSD-ETH Uniswap Pair address: ${unipoolUniswapPairAddr}`)
+  // console.log(`SaucerSwapPool.sol's stored LUSD-ETH Uniswap Pair address: ${unipoolUniswapPairAddr}`)
 
   // console.log("SYSTEM GLOBAL VARS CHECKS")
   // // --- Sorted Troves ---
@@ -376,31 +376,31 @@ async function mainnetDeploy(configParams) {
   // deployerLPTokenBal = await LUSDETHPair.balanceOf(deployerWallet.address)
   // th.logBN("deployer's LP token balance", deployerLPTokenBal)
 
-  // // Stake LP tokens in Unipool
+  // // Stake LP tokens in SaucerSwapPool.sol
   // console.log(`LUSDETHPair addr: ${LUSDETHPair.address}`)
-  // console.log(`Pair addr stored in Unipool: ${await unipool.uniToken()}`)
+  // console.log(`Pair addr stored in SaucerSwapPool.sol: ${await unipool.uniToken()}`)
 
   // earnedLQTY = await unipool.earned(deployerWallet.address)
   // th.logBN("deployer's farmed LQTY before staking LP tokens", earnedLQTY)
 
   // const deployerUnipoolStake = await unipool.balanceOf(deployerWallet.address)
   // if (deployerUnipoolStake.toString() == '0') {
-  //   console.log('Staking to Unipool...')
-  //   // Deployer approves Unipool
+  //   console.log('Staking to SaucerSwapPool.sol...')
+  //   // Deployer approves SaucerSwapPool.sol
   //   await mdh.sendAndWaitForTransaction(
   //     LUSDETHPair.approve(unipool.address, deployerLPTokenBal, { gasPrice })
   //   )
 
   //   await mdh.sendAndWaitForTransaction(unipool.stake(1, { gasPrice }))
   // } else {
-  //   console.log('Already staked in Unipool')
+  //   console.log('Already staked in SaucerSwapPool.sol')
   // }
 
   // console.log("wait 90 seconds before checking earnings... ")
   // await configParams.waitFunction()
 
   // earnedLQTY = await unipool.earned(deployerWallet.address)
-  // th.logBN("deployer's farmed LQTY from Unipool after waiting ~1.5mins", earnedLQTY)
+  // th.logBN("deployer's farmed LQTY from SaucerSwapPool.sol after waiting ~1.5mins", earnedLQTY)
 
   // let deployerLQTYBal = await LQTYContracts.lqtyToken.balanceOf(deployerWallet.address)
   // th.logBN("deployer LQTY Balance Before SP deposit", deployerLQTYBal)
@@ -565,7 +565,7 @@ async function mainnetDeploy(configParams) {
   const totalLQTYStaked = await LQTYContracts.lqtyStaking.totalLQTYStaked()
   th.logBN("Total LQTY staked", totalLQTYStaked)
 
-  // total LP tokens staked in Unipool
+  // total LP tokens staked in SaucerSwapPool.sol
   const totalLPTokensStaked = await unipool.totalSupply()
   th.logBN("Total LP (LUSD-ETH) tokens staked in unipool", totalLPTokensStaked)
 

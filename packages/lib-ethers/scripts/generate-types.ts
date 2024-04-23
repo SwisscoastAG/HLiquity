@@ -22,7 +22,7 @@ import PriceFeedTestnet from "../../contracts/artifacts/contracts/TestContracts/
 import SortedTroves from "../../contracts/artifacts/contracts/SortedTroves.sol/SortedTroves.json";
 import StabilityPool from "../../contracts/artifacts/contracts/StabilityPool.sol/StabilityPool.json";
 import TroveManager from "../../contracts/artifacts/contracts/TroveManager.sol/TroveManager.json";
-import Unipool from "../../contracts/artifacts/contracts/LPRewards/Unipool.sol/Unipool.json";
+import Unipool from "../../contracts/artifacts/contracts/LPRewards/SaucerSwapPool.sol/SaucerSwapPool.json";
 
 const getTupleType = (components: ParamType[], flexible: boolean) => {
   if (components.every(component => component.name)) {

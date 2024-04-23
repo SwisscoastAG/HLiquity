@@ -3,7 +3,7 @@
 pragma solidity 0.6.11;
 
 import "../Interfaces/ISupraCaller.sol";
-import "./ISupra.sol";
+import "../Interfaces/ISupra.sol";
 import "./SafeMath.sol";
 /*
 * This contract has a single external function that calls Supra: getSupraCurrentValue().
@@ -15,7 +15,7 @@ import "./SafeMath.sol";
 contract SupraCaller is ISupraCaller {
     using SafeMath for uint256;
 
-    ISupra public supra;
+    ISupra public immutable supra;
 
     constructor (address _supraMasterAddress) public {
         supra = ISupra(_supraMasterAddress);
@@ -48,14 +48,17 @@ contract SupraCaller is ISupraCaller {
 
         uint256 publishTime = _timeHBARUSD < _timeUSHCHF ? _timeHBARUSD : _timeUSHCHF;
 
-        if (hbarChfPrice > 0) {
-            uint256 positiveValue = hbarChfPrice;
-            return (true, positiveValue, publishTime);
-        }
-        return (false, 0, publishTime);
+        publishTime = publishTime / 1000;
+
+        return (hbarChfPrice > 0, hbarChfPrice, publishTime);
     }
 
     function _scalePriceByDigits(uint _price, uint decimals) internal pure returns (uint) {
-        return _price.div(10**(decimals - 8));
+        if (decimals < 8) {
+            return _price.mul(10**(8 - decimals));
+        } else if (decimals > 8) {
+            return _price.div(10**(decimals - 8));
+        }
+        return _price;
     }
 }
