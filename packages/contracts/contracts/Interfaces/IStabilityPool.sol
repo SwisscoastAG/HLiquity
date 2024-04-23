@@ -66,6 +66,7 @@ interface IStabilityPool {
     event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _HCHFLoss);
     event HLQTPaidToDepositor(address indexed _depositor, uint _HLQT);
     event HLQTPaidToFrontEnd(address indexed _frontEnd, uint _HLQT);
+    event HLQTPaidToFrontEndFailed(address indexed _frontEnd, uint _HLQT);
     event EtherSent(address _to, uint _amount);
 
     // --- Functions ---

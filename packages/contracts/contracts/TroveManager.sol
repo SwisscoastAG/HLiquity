@@ -25,8 +25,6 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
 
     IStabilityPool public override stabilityPool;
 
-    address gasPoolAddress;
-
     IGasPool gasPool;
 
     ICollSurplusPool collSurplusPool;
@@ -269,7 +267,6 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
         defaultPool = IDefaultPool(_defaultPoolAddress);
         stabilityPool = IStabilityPool(_stabilityPoolAddress);
         gasPool = IGasPool(_gasPoolAddress);
-        gasPoolAddress = _gasPoolAddress;
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         hchfToken = IHCHFToken(_hchfTokenAddress);
@@ -801,7 +798,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     function _sendGasCompensation(IActivePool _activePool, address _liquidator, uint _HCHF, uint _ETH) internal {
         if (_HCHF > 0) {
             gasPool.approveToken(hchfToken.getTokenAddress(), address(hchfToken), _HCHF);
-            hchfToken.returnFromPool(gasPoolAddress, _liquidator, _HCHF);
+            hchfToken.returnFromPool(address(gasPool), _liquidator, _HCHF);
         }
 
         if (_ETH > 0) {
@@ -887,7 +884,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     */
     function _redeemCloseTrove(ContractsCache memory _contractsCache, address _borrower, uint _HCHF, uint _ETH) internal {
         gasPool.approveToken(hchfToken.getTokenAddress(), address(hchfToken), _HCHF);
-        _contractsCache.hchfToken.burn(gasPoolAddress, _HCHF);
+        _contractsCache.hchfToken.burn(address(gasPool), _HCHF);
         // Update Active Pool HCHF, and send ETH to account
         _contractsCache.activePool.decreaseHCHFDebt(_HCHF);
 
@@ -948,7 +945,7 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
             hlqtStaking,
             sortedTroves,
             collSurplusPool,
-            gasPoolAddress
+            address(gasPool)
         );
         RedemptionTotals memory totals;
 

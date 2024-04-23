@@ -17,7 +17,7 @@ import "../Interfaces/IPyth.sol";
 contract PythCaller is IPythCaller {
     using SafeMath for uint256;
 
-    IPyth public pyth;
+    IPyth public immutable pyth;
 
     constructor (address _pythAddress) public {
         pyth = IPyth(_pythAddress);
@@ -45,37 +45,38 @@ contract PythCaller is IPythCaller {
         (int64 priceHBARUSD, , int32 expoHBARUSD, uint publishTimeHBARUSD) = pyth.getPriceUnsafe(HBARUSD);
         (int64 priceUSHCHF, , int32 expoUSHCHF, uint publishTimeUSHCHF ) = pyth.getPriceUnsafe(USHCHF);
 
-        uint256 basePriceHBARUSD = convertToUint(priceHBARUSD, expoHBARUSD, 8);
-        uint256 basePriceUSHCHF = convertToUint(priceUSHCHF, expoUSHCHF, 8);
+        (uint256 basePriceHBARUSD, bool successHBARUSD) = convertToUint(priceHBARUSD, expoHBARUSD, 8);
+        (uint256 basePriceUSHCHF, bool successUSHCHF) = convertToUint(priceUSHCHF, expoUSHCHF, 8);
+
+        if (!successHBARUSD || !successUSHCHF) {
+            return (false, 0, block.timestamp);
+        }
 
         uint256 hbarChfPrice = (basePriceHBARUSD * basePriceUSHCHF) / 1e8;
 
         // Using the smaller of the two timestamps as reference
         uint256 publishTime = publishTimeHBARUSD < publishTimeUSHCHF ? publishTimeHBARUSD : publishTimeUSHCHF;
 
-        if (hbarChfPrice > 0) return (true, hbarChfPrice, publishTime);
-        return (false, 0, publishTime);
+        return (hbarChfPrice > 0, hbarChfPrice, publishTime);
     }
 
     function convertToUint(
         int64 price,
         int32 expo,
         uint8 targetDecimals
-    ) private pure returns (uint256) {
+    ) private pure returns (uint256, bool) {
         if (price < 0 || expo > 0 || expo < -255) {
-            revert();
+            return (0, false);
         }
 
         uint8 priceDecimals = uint8(uint32(-1 * expo));
+        uint256 result;
 
         if (targetDecimals >= priceDecimals) {
-            return
-                uint(uint64(price)) *
-                10 ** uint32(targetDecimals - priceDecimals);
+            result = uint(uint64(price)) * 10 ** uint32(targetDecimals - priceDecimals);
         } else {
-            return
-                uint(uint64(price)) /
-                10 ** uint32(priceDecimals - targetDecimals);
+            result = uint(uint64(price)) / 10 ** uint32(priceDecimals - targetDecimals);
         }
+        return (result, true);
     }
 }

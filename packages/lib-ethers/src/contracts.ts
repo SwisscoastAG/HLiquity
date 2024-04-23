@@ -29,7 +29,7 @@ import priceFeedTestnetAbi from "../abi/PriceFeedTestnet.json";
 import sortedTrovesAbi from "../abi/SortedTroves.json";
 import stabilityPoolAbi from "../abi/StabilityPool.json";
 import gasPoolAbi from "../abi/GasPool.json";
-import unipoolAbi from "../abi/Unipool.json";
+import unipoolAbi from "../abi/SaucerSwapPool.json";
 
 import {
   ActivePool,
@@ -49,7 +49,7 @@ import {
   SortedTroves,
   StabilityPool,
   GasPool,
-  Unipool,
+  SaucerSwapPool,
   ERC20Mock,
   IERC20
 } from "../types";
@@ -167,7 +167,7 @@ export interface _LiquityContracts {
   sortedTroves: SortedTroves;
   stabilityPool: StabilityPool;
   gasPool: GasPool;
-  unipool: Unipool;
+  unipool: SaucerSwapPool;
 }
 
 /** @internal */

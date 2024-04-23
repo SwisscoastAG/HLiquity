@@ -24,7 +24,6 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     address stabilityPoolAddress;
 
-    address gasPoolAddress;
     IGasPool gasPool;
 
     ICollSurplusPool collSurplusPool;
@@ -132,7 +131,6 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         activePool = IActivePool(_activePoolAddress);
         defaultPool = IDefaultPool(_defaultPoolAddress);
         stabilityPoolAddress = _stabilityPoolAddress;
-        gasPoolAddress = _gasPoolAddress;
         gasPool = IGasPool(_gasPoolAddress);
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
@@ -207,7 +205,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _activePoolAddColl(contractsCache.activePool, msg.value);
         _withdrawHCHF(contractsCache.activePool, contractsCache.hchfToken, msg.sender, _HCHFAmount, vars.netDebt);
         // Move the HCHF gas compensation to the Gas Pool
-        _withdrawHCHF(contractsCache.activePool, contractsCache.hchfToken, gasPoolAddress, HCHF_GAS_COMPENSATION, HCHF_GAS_COMPENSATION);
+        _withdrawHCHF(contractsCache.activePool, contractsCache.hchfToken, address(gasPool), HCHF_GAS_COMPENSATION, HCHF_GAS_COMPENSATION);
 
         emit TroveUpdated(msg.sender, vars.compositeDebt, msg.value, vars.stake, BorrowerOperation.openTrove);
         emit HCHFBorrowingFeePaid(msg.sender, vars.HCHFFee);
@@ -348,7 +346,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         // Burn the repaid HCHF from the user's balance and the gas compensation from the Gas Pool
         _repayHCHF(activePoolCached, hchfTokenCached, msg.sender, debt.sub(HCHF_GAS_COMPENSATION));
-        _repayHCHF(activePoolCached, hchfTokenCached, gasPoolAddress, HCHF_GAS_COMPENSATION);
+        _repayHCHF(activePoolCached, hchfTokenCached, address(gasPool), HCHF_GAS_COMPENSATION);
 
         // Send the collateral back to the user
         activePoolCached.sendETH(msg.sender, coll);
@@ -461,7 +459,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // Burn the specified amount of HCHF from _account and decreases the total active debt
     function _repayHCHF(IActivePool _activePool, IHCHFToken _hchfToken, address _account, uint _HCHF) internal {
         _activePool.decreaseHCHFDebt(_HCHF);
-        if (_account == gasPoolAddress){
+        if (_account == address(gasPool)){
             gasPool.approveToken(hchfToken.getTokenAddress(), address(hchfToken), _HCHF);
         }
         _hchfToken.burn(_account, _HCHF);

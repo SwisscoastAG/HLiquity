@@ -4,7 +4,6 @@ pragma solidity 0.6.11;
 
 import "./Interfaces/IPriceFeed.sol";
 import "./Interfaces/ISupraCaller.sol";
-import "./Dependencies/AggregatorV3Interface.sol";
 import "./Dependencies/SafeMath.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
@@ -457,10 +456,10 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
             supraResponse.timestamp = _timestampRetrieved;
             supraResponse.success = true;
 
-            return (supraResponse);
+            return supraResponse;
         }catch {
             // If call to Supra reverts, return a zero response with success = false
-            return (supraResponse);
+            return supraResponse;
         }
     }
 

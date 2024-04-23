@@ -8,7 +8,6 @@ import "./KeyHelper.sol";
 import "./CheckContract.sol";
 import "./HederaResponseCodes.sol";
 import "./IERC20.sol";
-import "./SafeCast.sol";
 import "./HederaTokenService.sol";
 
 
@@ -23,12 +22,14 @@ contract BaseHST is HederaTokenService
 
     function _associateToken(address account, address token) internal returns (bool success) {
         int responseCode = HederaTokenService.associateToken(account, token);
-        return _checkResponse(responseCode);
+        _checkResponse(responseCode);
+        return true;
     }
 
     function _approve(address token, address spender, uint256 amount) internal returns (bool success) {
         int responseCode = HederaTokenService.approve(token, spender, amount);
-        return _checkResponse(responseCode);
+        _checkResponse(responseCode);
+        return true;
     }
 
     function _transfer(address token, address sender, address receiver, uint256 amount) internal returns (bool success) {
@@ -36,11 +37,11 @@ contract BaseHST is HederaTokenService
         int64 safeAmount = int64(amount);
         int responseCode = HederaTokenService.transferToken(token, sender, receiver, safeAmount);
         emit Transfer(token, sender, receiver, safeAmount);
-        return _checkResponse(responseCode);
+        _checkResponse(responseCode);
+        return true;
     }
 
-    function _checkResponse(int responseCode) internal pure returns (bool) {
+    function _checkResponse(int responseCode) internal pure {
         require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
-        return true;
     }
 }

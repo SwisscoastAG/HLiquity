@@ -16,7 +16,7 @@ const LQTYToken = artifacts.require("./HLQTToken.sol")
 const LockupContractFactory = artifacts.require("./LockupContractFactory.sol")
 const CommunityIssuance = artifacts.require("./CommunityIssuance.sol")
 
-const Unipool = artifacts.require("./Unipool.sol")
+const Unipool = artifacts.require("./SaucerSwapPool.sol.sol")
 
 const LQTYTokenTester = artifacts.require("./HLQTTokenTester.sol")
 const CommunityIssuanceTester = artifacts.require("./CommunityIssuanceTester.sol")

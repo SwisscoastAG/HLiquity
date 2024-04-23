@@ -426,7 +426,7 @@ contract('Unipool', function ([_, wallet1, wallet2, wallet3, wallet4, bountyAddr
     });
   });
 
-  describe('Unipool, before calling setAddresses', async function () {
+  describe('SaucerSwapPool.sol, before calling setAddresses', async function () {
     beforeEach(async function () {
       await deploy(this);
     });

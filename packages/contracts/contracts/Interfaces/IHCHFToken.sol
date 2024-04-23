@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 
 import "./IHederaTokenService.sol";
-import "../Dependencies/KeysLib.sol";
 
 interface IHCHFToken {
     struct InitializeStruct {
@@ -26,15 +25,6 @@ interface IHCHFToken {
     struct CashinRoleStruct {
         address account;
         uint256 allowance;
-    }
-
-    struct UpdateTokenStruct {
-        string tokenName;
-        string tokenSymbol;
-        KeysLib.KeysStruct[] keys;
-        int64 second;
-        int64 autoRenewPeriod;
-        string tokenMetadataURI;
     }
 
 
@@ -86,17 +76,6 @@ interface IHCHFToken {
         int64 value
     );
 
-
-    /**
-     * @dev Emitted when token updated
-     *
-     * @param token Token address
-     * @param updateTokenStruct Struct containing updated token data
-     */
-    event TokenUpdated(
-        address indexed token,
-        UpdateTokenStruct updateTokenStruct
-    );
 
     /**
      * @dev Emitted when a new metadata was set

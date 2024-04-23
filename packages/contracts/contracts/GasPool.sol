@@ -20,8 +20,8 @@ import "./Interfaces/IHCHFToken.sol";
 contract GasPool is HederaTokenService {
     IHCHFToken public hchfToken;
 
-    address public troveManagerAddress;
-    address public borrowerOperationsAddress;
+    address public immutable troveManagerAddress;
+    address public immutable borrowerOperationsAddress;
 
     constructor(address _hchfTokenAddress, address _troveManagerAddress, address _borrowerOperationsAddress) public {
         troveManagerAddress = _troveManagerAddress;
@@ -29,18 +29,14 @@ contract GasPool is HederaTokenService {
         hchfToken = IHCHFToken(_hchfTokenAddress);
         int responseCode = HederaTokenService.associateToken(address(this), hchfToken.getTokenAddress());
 
-        if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert ();
-        }
+        require(responseCode == HederaResponseCodes.SUCCESS, "Association with HCHF Token failed");
     }
 
     function approveToken(address token, address spender, uint256 amount) external returns (int responseCode) {
         _requireCallerIsBorrowerOperationsOrTroveManager();
         responseCode = HederaTokenService.approve(token, spender, amount);
 
-        if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert ();
-        }
+        require(responseCode == HederaResponseCodes.SUCCESS, "Token approval failed");
     }
 
     function _requireCallerIsBorrowerOperationsOrTroveManager() internal view {
