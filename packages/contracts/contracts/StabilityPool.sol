@@ -936,6 +936,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool, B
             try _communityIssuance.sendHLQT(_frontEnd, frontEndHLQTGain) {
                 emit HLQTPaidToFrontEnd(_frontEnd, frontEndHLQTGain);
             } catch {
+                // if transfer to frontend fails, send tokens to depositor
+                _communityIssuance.sendHLQT(_depositor, frontEndHLQTGain);
                 emit HLQTPaidToFrontEndFailed(_frontEnd, frontEndHLQTGain);
             }
         }
