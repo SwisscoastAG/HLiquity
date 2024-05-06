@@ -50,7 +50,7 @@ contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
 }
 
 /*
- * On deployment a new Uniswap pool will be created for the pair HCHF/HBAR and its token will be set here.
+ * On deployment a new SaucerSwap pool will be created for the pair HCHF/HBAR and its token will be set here.
 
  * Essentially the way it works is:
 
@@ -71,7 +71,7 @@ contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
  * or first liquidity provider stakes UNIv2 LP tokens into it.
  */
 contract SaucerSwapPool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
-    string constant public NAME = "Unipool";
+    string constant public NAME = "SaucerSwapPool";
     address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     uint256 public duration;
