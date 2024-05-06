@@ -47,7 +47,6 @@ import "../Dependencies/HederaTokenService.sol";
 contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, HederaTokenService, Ownable {
     using SafeMath for uint256;
     address public immutable tokenAddress;
-    // --- ERC20 Data ---
 
     string constant internal _NAME = "HLQT";
     string constant internal _SYMBOL = "HLQT";
@@ -121,7 +120,7 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         _checkResponse(responseCode);
         tokenAddress = createdTokenAddress;
 
-        uint _lpRewardsEntitlement = _1_MILLION.mul(4).div(3);  // Allocate 1.33 million for LP rewards
+        uint _lpRewardsEntitlement = _1_MILLION.mul(13).div(10);  // Allocate 1.3 million for LP rewards
         lpRewardsEntitlement = _lpRewardsEntitlement;
     }
 
@@ -133,7 +132,7 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         uint bountyEntitlement = _1_MILLION.mul(2); // Allocate 2 million for bounties/hackathons
         _mint(_bountyAddress, bountyEntitlement);
 
-        uint depositorsAndFrontEndsEntitlement = _1_MILLION.mul(32); // Allocate 32 million to the algorithmic issuance schedule
+        uint depositorsAndFrontEndsEntitlement =  _1_MILLION.mul(187).div(10); // Allocate 18.7 million to the algorithmic issuance schedule
         _mint(communityIssuanceAddress, depositorsAndFrontEndsEntitlement);
 
         _mint(_lpRewardsAddress, lpRewardsEntitlement);
