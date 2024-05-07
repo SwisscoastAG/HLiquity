@@ -12,8 +12,8 @@ import "./Dependencies/HederaTokenService.sol";
 import "./Dependencies/SafeMath.sol";
 
 
-contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, CheckContract
-{
+contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, CheckContract {
+    using SafeMath for uint256;
     address public immutable tokenAddress;
 
 
@@ -163,7 +163,9 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
         _checkResponse(responseCode);
 
-        require(SafeMath.sub(_balanceOf(address(this)), balance) == amount, 'The smart contract is not the treasury account');
+
+        uint256 contractBalance = _balanceOf(address(this));
+        require(contractBalance.sub(balance) == amount, 'The smart contract is not the treasury account');
 
         _transfer(address(this), account, amount);
 
