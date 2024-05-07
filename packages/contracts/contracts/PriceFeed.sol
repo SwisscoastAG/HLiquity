@@ -477,10 +477,10 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
             pythResponse.timestamp = _timestampRetrieved;
             pythResponse.success = true;
 
-            return (pythResponse);
+            return pythResponse;
         }catch {
             // If call to Pyth reverts, return a zero response with success = false
-            return (pythResponse);
+            return pythResponse;
         }
     }
 }

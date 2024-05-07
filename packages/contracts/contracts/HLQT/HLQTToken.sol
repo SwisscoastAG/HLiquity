@@ -221,7 +221,8 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
 
         _checkResponse(responseCode);
 
-        require(SafeMath.sub(_balanceOf(address(this)), balance) == amount, 'The smart contract is not the treasury account');
+        uint256 contractBalance = _balanceOf(address(this));
+        require(contractBalance.sub(balance) == amount, 'The smart contract is not the treasury account');
 
         _transfer(address(this), account, amount);
 
