@@ -21,23 +21,15 @@ import "../Dependencies/HederaTokenService.sol";
 *
 * 1) sendToHLQTStaking(): callable only by Liquity core contracts, which move HLQT tokens from user -> HLQTStaking contract.
 *
-* 2) Supply hard-capped at 100 million
-*
-* 3) CommunityIssuance and LockupContractFactory addresses are set at deployment
-*
-* 4) The bug bounties / hackathons allocation of 2 million tokens is minted at deployment to an EOA
-
-* 5) 32 million tokens are minted at deployment to the CommunityIssuance contract
-*
-* 6) The LP rewards allocation of (1 + 1/3) million tokens is minted at deployment to a Staking contract
-*
-* 7) (64 + 2/3) million tokens are minted at deployment to the Liquity multisig
+*    - 18.7 million tokens are minted to the Community Issuance address.
+*    - Tokens for LP rewards are minted to the specified LP rewards address.
+*    - 2 million tokens are minted to the Advisor Multisig.
+*    - 30 million tokens are minted to the Investor Multisig.
+*    - 5 million tokens are minted to the Community Reserve Multisig.
+*    - 3.8 million tokens are minted to the Service Providers Multisig.
+*    - 19.2 million tokens are evenly distributed among four team members.
 *
 * 8) Until one year from deployment:
-* -Liquity multisig may only transfer() tokens to LockupContracts that have been deployed via & registered in the 
-*  LockupContractFactory 
-* -approve(), increaseAllowance(), decreaseAllowance() revert when called by the multisig
-* -transferFrom() reverts when the multisig is the sender
 * -sendToHLQTStaking() reverts when the multisig is the sender, blocking the multisig from staking its HLQT.
 * 
 * After one year has passed since deployment of the HLQTToken, the restrictions on multisig operations are lifted
@@ -52,7 +44,6 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
     string constant internal _SYMBOL = "HLQT";
     uint8 constant internal  _DECIMALS = 8;
 
-
     // --- HLQTToken specific data ---
 
     uint public constant ONE_YEAR_IN_SECONDS = 31536000;  // 60 * 60 * 24 * 365
@@ -61,7 +52,12 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
     uint internal _1_MILLION = 1e14;    // 1e6 * 1e8 = 1e14
 
     uint internal immutable deploymentStartTime;
-    address public immutable multisigAddress;
+
+    address public immutable crMultisigAddress;
+    address public immutable advisorMultisigAddress;
+    address public immutable investorMultisigAddress;
+    address public immutable cresMultisigAddress;
+    address public immutable spMultisigAddress;
 
     address public immutable communityIssuanceAddress;
     address public immutable hlqtStakingAddress;
@@ -85,17 +81,26 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         address _communityIssuanceAddress,
         address _hlqtStakingAddress,
         address _lockupFactoryAddress,
-        address _multisigAddress
-    ) 
-        payable public
+        address _crMultisigAddress,
+        address _advisorMultisigAddress,
+        address _investorMultisigAddress,
+        address _cresMultisigAddress,
+        address _spMultisigAddress
+    )
+    payable public
     {
         checkContract(_communityIssuanceAddress);
         checkContract(_hlqtStakingAddress);
         checkContract(_lockupFactoryAddress);
 
-        multisigAddress = _multisigAddress;
-        deploymentStartTime  = block.timestamp;
-        
+        crMultisigAddress = _crMultisigAddress;
+        advisorMultisigAddress = _advisorMultisigAddress;
+        investorMultisigAddress = _investorMultisigAddress;
+        cresMultisigAddress = _cresMultisigAddress;
+        spMultisigAddress = _spMultisigAddress;
+
+        deploymentStartTime = block.timestamp;
+
         communityIssuanceAddress = _communityIssuanceAddress;
         hlqtStakingAddress = _hlqtStakingAddress;
         lockupContractFactory = ILockupContractFactory(_lockupFactoryAddress);
@@ -106,6 +111,8 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         token.name = _NAME;
         token.symbol = _SYMBOL;
         token.treasury = address(this);
+        token.maxSupply = int64(_1_MILLION.mul(100));
+        token.tokenSupplyType = true;
 
         token.expiry = createAutoRenewExpiry(address(this), 7_776_000);
 
@@ -115,7 +122,7 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         token.tokenKeys = keys;
 
         (int responseCode, address createdTokenAddress) =
-                                HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
+                            HederaTokenService.createFungibleToken(token, 0, _DECIMALS);
 
         _checkResponse(responseCode);
         tokenAddress = createdTokenAddress;
@@ -125,27 +132,45 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
     }
 
     // Hedera: We have to do the minting here because we need time to associate the beneficiaries with the token
-    function initialize(address _bountyAddress, address _lpRewardsAddress) external onlyOwner {
+    function initialize(address _teamMemberOne, address _teamMemberTwo, address _teamMemberThree, address _teamMemberFour, address _lpRewardsAddress) external onlyOwner {
         require(!initialized, "initialize: already initialized");
 
-        // --- Initial HLQT allocations ---
-        uint bountyEntitlement = _1_MILLION.mul(2); // Allocate 2 million for bounties/hackathons
-        _mint(_bountyAddress, bountyEntitlement);
-
-        uint depositorsAndFrontEndsEntitlement =  _1_MILLION.mul(187).div(10); // Allocate 18.7 million to the algorithmic issuance schedule
+        // Community Issuance StabilityPool
+        uint depositorsAndFrontEndsEntitlement = _1_MILLION.mul(187).div(10);
         _mint(communityIssuanceAddress, depositorsAndFrontEndsEntitlement);
 
+        // LP Token Staking
         _mint(_lpRewardsAddress, lpRewardsEntitlement);
 
-        // Allocate the remainder to the HLQT Multisig: (100 - 2 - 32 - 1.33) million = 64.66 million
-        uint multisigEntitlement = _1_MILLION.mul(100)
-            .sub(bountyEntitlement)
-            .sub(depositorsAndFrontEndsEntitlement)
-            .sub(lpRewardsEntitlement);
+        // Community Reward Multisig
+        uint crMultiSigEntitlement = _1_MILLION.mul(20);
+        _mint(crMultisigAddress, crMultiSigEntitlement);
 
-        _mint(multisigAddress, multisigEntitlement);
+        // Advisors Multisig
+        uint advisorMultiSigEntitlement = _1_MILLION.mul(2);
+        _mint(advisorMultisigAddress, advisorMultiSigEntitlement);
+
+        // Investors Multisig
+        uint investorMultiSigEntitlement = _1_MILLION.mul(30);
+        _mint(investorMultisigAddress, investorMultiSigEntitlement);
+
+        // Community Reserve Multisig
+        uint cresMultiSigEntitlement = _1_MILLION.mul(5);
+        _mint(cresMultisigAddress, cresMultiSigEntitlement);
+
+        // Service Providers Multisig
+        uint spMultiSigEntitlement = _1_MILLION.mul(38).div(10);
+        _mint(spMultisigAddress, spMultiSigEntitlement);
+
+        // Team members
+        uint teamMemberEntitlement = _1_MILLION.mul(192).div(10).div(4);
+        _mint(_teamMemberOne, teamMemberEntitlement);
+        _mint(_teamMemberTwo, teamMemberEntitlement);
+        _mint(_teamMemberThree, teamMemberEntitlement);
+        _mint(_teamMemberFour, teamMemberEntitlement);
 
         initialized = true;
+        _renounceOwnership();
     }
 
     // --- External functions ---
@@ -174,7 +199,7 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
 
     function sendToHLQTStaking(address _sender, uint256 _amount) external override {
         _requireCallerIsHLQTStaking();
-        if (_isFirstYear()) { _requireSenderIsNotMultisig(_sender); }  // Prevent the multisig from staking HLQT
+        if (_isFirstYear()) {_requireSenderIsNotMultisig(_sender);}  // Prevent the multisig from staking HLQT
         _transfer(_sender, hlqtStakingAddress, _amount);
     }
 
@@ -236,47 +261,26 @@ contract HLQTToken is CheckContract, IHLQTToken, ExpiryHelper, KeyHelper, Hedera
         require(responseCode == HederaResponseCodes.SUCCESS, "ResponseCodeInvalid: provided code is not success");
     }
 
-    
     // --- Helper functions ---
-
-    function _callerIsMultisig() internal view returns (bool) {
-        return (msg.sender == multisigAddress);
-    }
 
     function _isFirstYear() internal view returns (bool) {
         return (block.timestamp.sub(deploymentStartTime) < ONE_YEAR_IN_SECONDS);
     }
 
     // --- 'require' functions ---
-    
-    function _requireValidRecipient(address _recipient) internal view {
-        require(
-            _recipient != address(0) && 
-            _recipient != address(this),
-            "HLQT: Cannot transfer tokens directly to the HLQT token contract or the zero address"
-        );
-        require(
-            _recipient != communityIssuanceAddress &&
-            _recipient != hlqtStakingAddress,
-            "HLQT: Cannot transfer tokens directly to the community issuance or staking contract"
-        );
-    }
-
-    function _requireRecipientIsRegisteredLC(address _recipient) internal view {
-        require(lockupContractFactory.isRegisteredLockup(_recipient), 
-        "HLQTToken: recipient must be a LockupContract registered in the Factory");
-    }
 
     function _requireSenderIsNotMultisig(address _sender) internal view {
-        require(_sender != multisigAddress, "HLQTToken: sender must not be the multisig");
-    }
-
-    function _requireCallerIsNotMultisig() internal view {
-        require(!_callerIsMultisig(), "HLQTToken: caller must not be the multisig");
+        require(
+            _sender != crMultisigAddress &&
+            _sender != advisorMultisigAddress &&
+            _sender != investorMultisigAddress &&
+            _sender != cresMultisigAddress,
+            "HLQTToken: sender must not be multisig"
+        );
     }
 
     function _requireCallerIsHLQTStaking() internal view {
-         require(msg.sender == hlqtStakingAddress, "HLQTToken: caller must be the HLQTStaking contract");
+        require(msg.sender == hlqtStakingAddress, "HLQTToken: caller must be the HLQTStaking contract");
     }
 
     // --- Optional functions ---

@@ -275,20 +275,6 @@ contract HCHFToken is IHCHFToken, HederaTokenService, ExpiryHelper, KeyHelper, C
 
     // --- 'require' functions ---
 
-    function _requireValidRecipient(address _recipient) internal view {
-        require(
-            _recipient != address(0) &&
-            _recipient != address(this),
-            "HCHF: Cannot transfer tokens directly to the HCHF token contract or the zero address"
-        );
-        require(
-            _recipient != stabilityPoolAddress &&
-            _recipient != troveManagerAddress &&
-            _recipient != borrowerOperationsAddress,
-            "HCHF: Cannot transfer tokens directly to the StabilityPool, TroveManager or BorrowerOps"
-        );
-    }
-
     function _requireCallerIsBorrowerOperations() internal view {
         require(msg.sender == borrowerOperationsAddress, "HCHFToken: Caller is not BorrowerOperations");
     }

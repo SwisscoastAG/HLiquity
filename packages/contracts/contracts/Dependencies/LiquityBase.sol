@@ -25,11 +25,10 @@ contract LiquityBase is BaseMath, ILiquityBase {
     uint constant public CCR = 150_000000; // 150%
 
     // Amount of HCHF to be locked in gas pool on opening troves
-    uint constant public HCHF_GAS_COMPENSATION = 1e8;
+    uint constant public HCHF_GAS_COMPENSATION = 20e8;
 
     // Minimum amount of net HCHF debt a trove must have
-    //uint constant public MIN_NET_DEBT = 1780e8;
-    uint constant public MIN_NET_DEBT = 1e8;
+    uint constant public MIN_NET_DEBT = 1780e8;
 
     uint constant public PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
 

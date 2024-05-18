@@ -72,7 +72,6 @@ contract LPTokenWrapper is ILPTokenWrapper, BaseHST {
  */
 contract SaucerSwapPool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
     string constant public NAME = "SaucerSwapPool";
-    address internal constant _PRECOMPILED_ADDRESS = address(0x167);
 
     uint256 public duration;
     IHLQTToken public hlqtToken;

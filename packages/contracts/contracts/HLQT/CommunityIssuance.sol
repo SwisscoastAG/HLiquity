@@ -42,7 +42,7 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
     * The community HLQT supply cap is the starting balance of the Community Issuance contract.
     * It should be minted to this contract by HLQTToken, when the token is deployed.
     * 
-    * Set to 32M (slightly less than 1/3) of total HLQT supply.
+    * Set to 18.7M.
     */
     uint constant public HLQTSupplyCap = 1870000000000000; // 18.7 million
 
@@ -84,9 +84,9 @@ contract CommunityIssuance is ICommunityIssuance, Ownable, CheckContract, BaseMa
         _associateToken(address(this), hlqtToken.getTokenAddress());
 
         // When HLQTToken deployed, it should have transferred CommunityIssuance's HLQT entitlement.
-        // HEDERA: We can't checkt this here as we need to mint first, after the association.
-        //uint HLQTBalance = hlqtToken.balanceOf(address(this));
-        //assert(HLQTBalance >= HLQTSupplyCap);
+        // HEDERA: We can't check this here as we need to mint first, after the association.
+        // uint HLQTBalance = hlqtToken.balanceOf(address(this));
+        // assert(HLQTBalance >= HLQTSupplyCap);
 
         emit HLQTTokenAddressSet(_hlqtTokenAddress);
         emit StabilityPoolAddressSet(_stabilityPoolAddress);
