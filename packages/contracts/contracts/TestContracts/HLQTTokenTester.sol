@@ -8,10 +8,14 @@ import "../HLQT/HLQTToken.sol";
 contract HLQTTokenTester is HLQTToken {
     constructor
     (
-        address _communityIssuanceAddress, 
+        address _communityIssuanceAddress,
         address _hlqtStakingAddress,
         address _lockupFactoryAddress,
-        address _multisigAddress
+        address _crMultisigAddress,
+        address _advisorMultisigAddress,
+        address _investorMultisigAddress,
+        address _cresMultisigAddress,
+        address _spMultisigAddress
     ) 
         payable public
         HLQTToken
@@ -19,7 +23,11 @@ contract HLQTTokenTester is HLQTToken {
         _communityIssuanceAddress,
         _hlqtStakingAddress,
         _lockupFactoryAddress,
-        _multisigAddress
+        _crMultisigAddress,
+        _advisorMultisigAddress,
+        _investorMultisigAddress,
+        _cresMultisigAddress,
+        _spMultisigAddress
     )
     {} 
 
