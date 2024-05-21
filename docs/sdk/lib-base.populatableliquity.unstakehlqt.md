@@ -14,7 +14,9 @@ unstakeHLQT(amount: Decimalish): Promise<PopulatedLiquityTransaction<P, SentLiqu
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  amount | [Decimalish](./lib-base.decimalish.md) | Amount of HLQT to withdraw. |
 
 Parameter
 

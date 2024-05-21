@@ -144,7 +144,7 @@ export interface ReadableLiquity {
    */
   getUniTokenBalance(address?: string): Promise<Decimal>;
 
-  /**
+  /**_CachedReadableLiquity
    * Get the liquidity mining contract's allowance of a holder's Uniswap ETH/HCHF LP tokens.
    *
    * @param address - Address holding the Uniswap ETH/HCHF LP tokens.

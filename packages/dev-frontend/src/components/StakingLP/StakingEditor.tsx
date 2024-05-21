@@ -12,9 +12,9 @@ import { EditableRow, StaticRow } from "../Trove/Editor";
 import { useStakingView } from "./context/StakingViewContext";
 import { Step, Steps } from "../Steps";
 
-const select = ({ hlqtBalance, totalStakedHLQT }: LiquityStoreState) => ({
-  hlqtBalance,
-  totalStakedHLQT
+const select = ({ uniTokenBalance, totalStakedUniTokens }: LiquityStoreState) => ({
+  uniTokenBalance,
+  totalStakedUniTokens
 });
 
 type StakingEditorProps = {
@@ -33,18 +33,18 @@ export const StakingEditor: React.FC<StakingEditorProps> = ({
   transactionSteps,
   dispatch
 }) => {
-  const { hlqtBalance, totalStakedHLQT } = useLiquitySelector(select);
+  const { uniTokenBalance, totalStakedUniTokens } = useLiquitySelector(select);
   const { changePending } = useStakingView();
   const editingState = useState<string>();
 
   const edited = !editedLQTY.eq(originalStake.stakedHLQT);
 
-  const maxAmount = originalStake.stakedHLQT.add(hlqtBalance);
+  const maxAmount = originalStake.stakedHLQT.add(uniTokenBalance);
   const maxedOut = editedLQTY.eq(maxAmount);
 
-  const totalStakedLQTYAfterChange = totalStakedHLQT.sub(originalStake.stakedHLQT).add(editedLQTY);
+  const totalStakedLQTYAfterChange = totalStakedUniTokens.sub(originalStake.stakedHLQT).add(editedLQTY);
 
-  const originalPoolShare = originalStake.stakedHLQT.mulDiv(100, totalStakedHLQT);
+  const originalPoolShare = originalStake.stakedHLQT.mulDiv(100, totalStakedUniTokens);
   const newPoolShare = editedLQTY.mulDiv(100, totalStakedLQTYAfterChange);
   const poolShareChange =
     originalStake.stakedHLQT.nonZero && Difference.between(newPoolShare, originalPoolShare).nonZero;

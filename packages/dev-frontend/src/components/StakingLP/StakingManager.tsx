@@ -5,8 +5,8 @@ import {
   Decimal,
   Decimalish,
   LiquityStoreState,
-  HLQTStake,
-  HLQTStakeChange
+  LPTStake,
+  LPTStakeChange
 } from "@liquity/lib-base";
 
 import { LiquityStoreUpdate, useLiquityReducer, useLiquitySelector } from "@liquity/lib-react";
@@ -26,9 +26,9 @@ import { Step } from "../Steps";
 import { LoadingButton } from "../LoadingButton";
 import { useDeployment } from "../../configuration/deployments";
 
-const init = ({ hlqtStake }: LiquityStoreState) => ({
-  originalStake: hlqtStake,
-  editedLQTY: hlqtStake.stakedHLQT
+const init = ({ liquidityMiningStake }: LiquityStoreState) => ({
+  originalStake: lptStake,
+  editedLQTY: liquidityMiningStake.stakedLPT
 });
 
 type StakeManagerState = ReturnType<typeof init>;
@@ -48,11 +48,11 @@ const reduce = (state: StakeManagerState, action: StakeManagerAction): StakeMana
       return { ...state, editedLQTY: Decimal.from(action.newValue) };
 
     case "revert":
-      return { ...state, editedLQTY: originalStake.stakedHLQT };
+      return { ...state, editedLQTY: originalStake.stakedLPT };
 
     case "updateStore": {
       const {
-        stateChange: { hlqtStake: updatedStake }
+        stateChange: { lptStake: updatedStake }
       } = action;
 
       if (updatedStake) {
@@ -67,42 +67,42 @@ const reduce = (state: StakeManagerState, action: StakeManagerAction): StakeMana
   return state;
 };
 
-const selectLQTYBalance = ({ hlqtBalance }: LiquityStoreState) => hlqtBalance;
+const selectLPTBalance = ({ uniTokenBalance }: LiquityStoreState) => uniTokenBalance;
 
 type StakingManagerActionDescriptionProps = {
-  originalStake: HLQTStake;
-  change: HLQTStakeChange<Decimal>;
+  originalStake: LPTStake;
+  change: LPTStakeChange<Decimal>;
 };
 
 const StakingManagerActionDescription: React.FC<StakingManagerActionDescriptionProps> = ({
   originalStake,
   change
 }) => {
-  const stakeHLQT = change.stakeHLQT?.prettify().concat(" ", GT);
-  const unstakeHLQT = change.unstakeHLQT?.prettify().concat(" ", GT);
+  const stakeLPT = change.stakeLPT?.prettify().concat(" ", GT);
+  const unstakeLPT = change.unstakeLPT?.prettify().concat(" ", GT);
   const collateralGain = originalStake.collateralGain.nonZero
     ?.prettify(4)
     .concat(` ${COLLATERAL_COIN}`);
   const hchfGain = originalStake.hchfGain.nonZero?.prettify().concat(" ", COIN);
 
-  if (originalStake.isEmpty && stakeHLQT) {
+  if (originalStake.isEmpty && stakeLPT) {
     return (
       <ActionDescription>
-        You are staking <Amount>{stakeHLQT}</Amount>.
+        You are staking <Amount>{stakeLPT}</Amount>.
       </ActionDescription>
     );
   }
 
   return (
     <ActionDescription>
-      {stakeHLQT && (
+      {stakeLPT && (
         <>
-          You are adding <Amount>{stakeHLQT}</Amount> to your stake
+          You are adding <Amount>{stakeLPT}</Amount> to your stake
         </>
       )}
-      {unstakeHLQT && (
+      {unstakeLPT && (
         <>
-          You are withdrawing <Amount>{unstakeHLQT}</Amount> to your wallet
+          You are withdrawing <Amount>{unstakeLPT}</Amount> to your wallet
         </>
       )}
       {(collateralGain || hchfGain) && (
@@ -128,19 +128,19 @@ const StakingManagerActionDescription: React.FC<StakingManagerActionDescriptionP
 export const StakingManager: React.FC = () => {
   const { dispatch: dispatchStakingViewAction, changePending } = useStakingView();
   const [{ originalStake, editedLQTY }, dispatch] = useLiquityReducer(reduce, init);
-  const hlqtBalance = useLiquitySelector(selectLQTYBalance);
+  const LPTBalance = useLiquitySelector(selectLPTBalance);
 
   const change = originalStake.whatChanged(editedLQTY);
   console.log(change, 'change')
   const [validChange, description] = !change
     ? [undefined, undefined]
-    : change.stakeHLQT?.gt(hlqtBalance)
+    : change.stakeLPT?.gt(LPTBalance)
     ? [
         undefined,
         <ErrorDescription>
           The amount you're trying to stake exceeds your balance by{" "}
           <Amount>
-            {change.stakeHLQT.sub(hlqtBalance).prettify()} {GT}
+            {change.stakeLPT.sub(LPTBalance).prettify()} {GT}
           </Amount>
           .
         </ErrorDescription>
@@ -171,9 +171,9 @@ export const StakingManager: React.FC = () => {
     }
   );
   // hchf spender approval
-  const needsSpenderApproval = !validChange || validChange?.stakeHLQT;
+  const needsSpenderApproval = !validChange || validChange?.stakeLPT;
   const { call: approveHlqtSpender, state: hlqtApprovalLoadingState } = useLoadingState(async () => {
-    if (!validChange?.stakeHLQT) {
+    if (!validChange?.stakeLPT) {
       throw "cannot approve a withdrawal (negative spending/negative deposit) or deposit of 0";
     }
 
@@ -185,7 +185,7 @@ export const StakingManager: React.FC = () => {
 
     const contractAddress = addresses.unipool as `0x${string}`; // TODO change to SaucerSwapPool when ready
     const tokenAddress = deployment.hlqtTokenAddress;
-    const amount = BigNumber.from(validChange.stakeHLQT.bigNumber);
+    const amount = BigNumber.from(validChange.stakeLPT.bigNumber);
 
     await approveSpender({
       contractAddress,
@@ -215,7 +215,7 @@ export const StakingManager: React.FC = () => {
     });
   }
   transactionSteps.push({
-    title: !validChange || validChange?.stakeHLQT ? "Stake HLQT" : "Unstake HLQT",
+    title: !validChange || validChange?.stakeLPT ? "Stake HLQT" : "Unstake HLQT",
     status: changePending ? "pending" : "idle"
   });
 

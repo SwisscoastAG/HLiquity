@@ -30,6 +30,8 @@ import sortedTrovesAbi from "../abi/SortedTroves.json";
 import stabilityPoolAbi from "../abi/StabilityPool.json";
 import gasPoolAbi from "../abi/GasPool.json";
 import unipoolAbi from "../abi/Unipool.json";
+import iERC20Abi from "../abi/IERC20.json";
+import erc20MockAbi from "../abi/ERC20Mock.json";
 
 import {
   ActivePool,
@@ -70,8 +72,8 @@ export type _TypeSafeContract<T> = Pick<
   } extends {
     [_ in keyof T]: infer U;
   }
-    ? U
-    : never
+  ? U
+  : never
 >;
 
 type EstimatedContractFunction<R = unknown, A extends unknown[] = unknown[], O = Overrides> = (
@@ -86,19 +88,19 @@ type TypedContract<T extends Contract, U, V> = Contract &
   _TypeSafeContract<T> &
   U & {
     [P in keyof V]: V[P] extends (...args: infer A) => unknown
-      ? (...args: A) => Promise<ContractTransaction>
-      : never;
+    ? (...args: A) => Promise<ContractTransaction>
+    : never;
   } & {
     readonly callStatic: {
       [P in keyof V]: V[P] extends (...args: [...infer A, never]) => infer R
-        ? (...args: [...A, ...CallOverridesArg]) => R
-        : never;
+      ? (...args: [...A, ...CallOverridesArg]) => R
+      : never;
     };
 
     readonly estimateAndPopulate: {
       [P in keyof V]: V[P] extends (...args: [...infer A, infer O | undefined]) => unknown
-        ? EstimatedContractFunction<PopulatedTransaction, A, O>
-        : never;
+      ? EstimatedContractFunction<PopulatedTransaction, A, O>
+      : never;
     };
   };
 
@@ -171,6 +173,7 @@ export interface _LiquityContracts {
   pythCaller: PriceFeed;
   supraCaller: PriceFeed;
   // uniToken: IERC20 | ERC20Mock;
+  uniToken: IERC20 | ERC20Mock;
 }
 
 /** @internal */
@@ -208,8 +211,9 @@ const getAbi = (priceFeedIsTestnet: boolean, uniTokenIsMock: boolean): LiquityCo
   collSurplusPool: collSurplusPoolAbi,
   saucerSwapPool: unipoolAbi,
   pythCaller: priceFeedIsTestnet ? priceFeedTestnetAbi : priceFeedAbi,
-  supraCaller: priceFeedIsTestnet ? priceFeedTestnetAbi : priceFeedAbi
+  supraCaller: priceFeedIsTestnet ? priceFeedTestnetAbi : priceFeedAbi,
   // uniToken: uniTokenIsMock ? erc20MockAbi : iERC20Abi
+  uniToken: uniTokenIsMock ? erc20MockAbi : iERC20Abi
 });
 
 const mapLiquityContracts = <T, U>(

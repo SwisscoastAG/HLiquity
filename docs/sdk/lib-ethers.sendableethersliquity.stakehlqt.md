@@ -14,7 +14,10 @@ stakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise<S
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  amount | [Decimalish](./lib-base.decimalish.md) | Amount of HLQT to add to new or existing stake. |
+|  overrides | [EthersTransactionOverrides](./lib-ethers.etherstransactionoverrides.md) |  |
 
 Parameter
 

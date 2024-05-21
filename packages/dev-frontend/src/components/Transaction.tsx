@@ -132,9 +132,14 @@ export const useTransactionFunction = (
 
   const sendTransaction = useCallback(async () => {
     setTransactionState({ type: "waitingForApproval", id });
+    console.log('send 1')
 
     try {
+    console.log('send 2')
+
       const tx = await send();
+
+    console.log('send 3')
 
       setTransactionState({
         type: "waitingForConfirmation",

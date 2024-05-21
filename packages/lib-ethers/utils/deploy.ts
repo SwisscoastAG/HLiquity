@@ -156,7 +156,7 @@ const deployContracts = async (
     { ...overrides, gasLimit: 3000000, value: ethers.utils.parseEther("20") }
   );
 
-  const unipool = await deployContract(deployer, getContractFactory, "Unipool", hlqtToken, {
+  const saucerSwapPool = await deployContract(deployer, getContractFactory, "saucerSwapPool", hlqtToken, {
     ...overrides,
     gasLimit: 3000000
   });
@@ -192,9 +192,10 @@ const deployContracts = async (
     priceFeed,
     sortedTroves,
     stabilityPool,
-    unipool,
+    saucerSwapPool,
     hchfToken,
     hlqtToken,
+    uniToken,
     multiTroveGetter,
     gasPool
   };
@@ -265,7 +266,7 @@ const connectContracts = async (
     sortedTroves,
     stabilityPool,
     gasPool,
-    unipool,
+    saucerSwapPool,
     uniToken
   }: _LiquityContracts,
   deployer: Signer,
@@ -375,6 +376,13 @@ const connectContracts = async (
       }),
 
     nonce =>
+      lockupContractFactory.setUniTokenAddress(uniToken.address, {
+        ...overrides,
+        gasLimit: 3000000,
+        nonce
+      }),
+
+    nonce =>
       communityIssuance.setAddresses(hlqtToken.address, stabilityPool.address, {
         ...overrides,
         gasLimit: 3000000,
@@ -383,7 +391,7 @@ const connectContracts = async (
 
     nonce => {
       return deployer.getAddress().then(address => {
-        return hlqtToken.initialize(address, unipool.address, {
+        return hlqtToken.initialize(address, saucerSwapPool.address, {
           ...overrides,
           gasLimit: 3000000,
           nonce
@@ -392,7 +400,7 @@ const connectContracts = async (
     },
 
     nonce =>
-      unipool.setParams(uniToken.address, 2 * 30 * 24 * 60 * 60, {
+      saucerSwapPool.setParams(uniToken.address, 2 * 30 * 24 * 60 * 60, {
         ...overrides,
         gasLimit: 3000000,
         nonce
@@ -489,7 +497,7 @@ export const deployAndSetupContracts = async (
   const lqtyTokenDeploymentTime = await contracts.hlqtToken.getDeploymentStartTime();
   const bootstrapPeriod = await contracts.troveManager.BOOTSTRAP_PERIOD();
   const totalStabilityPoolLQTYReward = await contracts.communityIssuance.HLQTSupplyCap();
-  const liquidityMiningLQTYRewardRate = await contracts.unipool.rewardRate();
+  const liquidityMiningLQTYRewardRate = await contracts.saucerSwapPool.rewardRate();
 
   return {
     ...deployment,

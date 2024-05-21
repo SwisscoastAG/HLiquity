@@ -27,6 +27,7 @@ import {
   EthersLiquityStoreOption,
   _connect,
   _getBlockTimestamp,
+  _getBlockTimestampAsNumber,
   _getContracts,
   _requireAddress,
   _requireFrontendAddress
@@ -311,6 +312,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
 
     return hlqtToken.getTokenAddress({ ...overrides });
   }
+
   getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
     const { hchfToken } = _getContracts(this.connection);
 
@@ -327,29 +329,28 @@ export class ReadableEthersLiquity implements ReadableLiquity {
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getUniTokenBalance} */
   getUniTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
-    return new Promise(resolve => {
-      const decimal = Decimal.from(0);
-      resolve(decimal);
-    });
+    // return new Promise(resolve => {
+    //   const decimal = Decimal.from(0);
+    //   resolve(decimal);
+    // });
 
-    throw "unitoken";
-    // address ??= _requireAddress(this.connection);
-    // const { uniToken } = _getContracts(this.connection);
+    address ??= _requireAddress(this.connection);
+    const { saucerSwapPool } = _getContracts(this.connection);
 
-    // return uniToken.balanceOf(address, { ...overrides }).then(decimalify);
+    return saucerSwapPool.balanceOf(address, { ...overrides }).then(decimalify);
   }
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getUniTokenAllowance} */
   getUniTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
-    return new Promise(resolve => {
-      const decimal = Decimal.from(0);
-      resolve(decimal);
-    });
-    throw "unitoken";
-    // address ??= _requireAddress(this.connection);
-    // const { uniToken, unipool } = _getContracts(this.connection);
+    // return new Promise(resolve => {
+    //   const decimal = Decimal.from(0);
+    //   resolve(decimal);
+    // });
+    // throw "unitoken";
+    address ??= _requireAddress(this.connection);
+    const { uniToken, saucerSwapPool } = _getContracts(this.connection);
 
-    // return uniToken.allowance(address, unipool.address, { ...overrides }).then(decimalify);
+    return uniToken.allowance(address, saucerSwapPool.address, { ...overrides }).then(decimalify);
   }
 
   /** @internal */

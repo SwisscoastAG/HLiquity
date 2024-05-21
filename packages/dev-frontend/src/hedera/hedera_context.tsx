@@ -26,7 +26,7 @@ const hederaContext = createContext<HederaContext>({
   associateWithToken: noOp,
   dissociateFromToken: noOp,
   hasAssociatedWithHchf: false,
-  hasAssociatedWithHlqt: false
+  hasAssociatedWithHlqt: false,
 });
 
 export const useHedera = () => {
@@ -78,7 +78,7 @@ export const HederaTokensProvider: React.FC = ({ children }) => {
         dissociateFromToken: dissociateFromTokenWithContext,
         approveSpender: approveSpenderWithContext,
         hasAssociatedWithHchf,
-        hasAssociatedWithHlqt
+        hasAssociatedWithHlqt,
       }}
     >
       {children}

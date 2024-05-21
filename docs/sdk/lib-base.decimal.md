@@ -204,7 +204,27 @@ this \| undefined
 
 ## Methods
 
-<table><thead><tr><th>
+|  Method | Modifiers | Description |
+|  --- | --- | --- |
+|  [add(addend)](./lib-base.decimal.add.md) |  |  |
+|  [div(divider)](./lib-base.decimal.div.md) |  |  |
+|  [eq(that)](./lib-base.decimal.eq.md) |  |  |
+|  [from(decimalish)](./lib-base.decimal.from.md) | <code>static</code> |  |
+|  [fromBigNumberString(bigNumberString)](./lib-base.decimal.frombignumberstring.md) | <code>static</code> |  |
+|  [fromBigNumberStringWithPrecision(bigNumberString, precision)](./lib-base.decimal.frombignumberstringwithprecision.md) | <code>static</code> |  |
+|  [gt(that)](./lib-base.decimal.gt.md) |  |  |
+|  [gte(that)](./lib-base.decimal.gte.md) |  |  |
+|  [lt(that)](./lib-base.decimal.lt.md) |  |  |
+|  [lte(that)](./lib-base.decimal.lte.md) |  |  |
+|  [max(a, b)](./lib-base.decimal.max.md) | <code>static</code> |  |
+|  [min(a, b)](./lib-base.decimal.min.md) | <code>static</code> |  |
+|  [mul(multiplier)](./lib-base.decimal.mul.md) |  |  |
+|  [mulDiv(multiplier, divider)](./lib-base.decimal.muldiv.md) |  |  |
+|  [pow(exponent)](./lib-base.decimal.pow.md) |  |  |
+|  [prettify(precision)](./lib-base.decimal.prettify.md) |  |  |
+|  [shorten()](./lib-base.decimal.shorten.md) |  |  |
+|  [sub(subtrahend)](./lib-base.decimal.sub.md) |  |  |
+|  [toString(precision)](./lib-base.decimal.tostring.md) |  |  |
 
 Method
 

@@ -14,7 +14,9 @@ stakeHLQT(amount: Decimalish): Promise<void>;
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  amount | [Decimalish](./lib-base.decimalish.md) | Amount of HLQT to add to new or existing stake. |
 
 Parameter
 

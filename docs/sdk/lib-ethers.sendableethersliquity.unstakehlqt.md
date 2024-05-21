@@ -14,7 +14,10 @@ unstakeHLQT(amount: Decimalish, overrides?: EthersTransactionOverrides): Promise
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  amount | [Decimalish](./lib-base.decimalish.md) | Amount of HLQT to withdraw. |
+|  overrides | [EthersTransactionOverrides](./lib-ethers.etherstransactionoverrides.md) |  |
 
 Parameter
 

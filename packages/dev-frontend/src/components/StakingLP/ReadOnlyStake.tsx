@@ -12,16 +12,18 @@ import { Icon } from "../Icon";
 import { useStakingView } from "./context/StakingViewContext";
 import { StakingGainsAction } from "./StakingGainsAction";
 
-const select = ({ hlqtStake, totalStakedHLQT }: LiquityStoreState) => ({
-  hlqtStake,
-  totalStakedHLQT
+const select = ({ liquidityMiningStake, totalStakedUniTokens }: LiquityStoreState) => ({
+  lptStake: liquidityMiningStake,
+  totalStakedLPT: totalStakedUniTokens
 });
 
 export const ReadOnlyStake: React.FC = () => {
   const { changePending, dispatch } = useStakingView();
-  const { hlqtStake, totalStakedHLQT } = useLiquitySelector(select);
+  const { lptStake, totalStakedLPT } = useLiquitySelector(select);
 
-  const poolShare = hlqtStake.stakedHLQT.mulDiv(100, totalStakedHLQT);
+  console.log(lptStake, 'lptStake');
+
+  const poolShare = lptStake.mulDiv(100, totalStakedLPT);
 
   return (
     <Card>
@@ -31,7 +33,7 @@ export const ReadOnlyStake: React.FC = () => {
         <DisabledEditableRow
           label="Stake"
           inputId="stake-lqty"
-          amount={hlqtStake.stakedHLQT.prettify()}
+          amount={lptStake.prettify()}
           unit={GT}
         />
 
@@ -41,22 +43,22 @@ export const ReadOnlyStake: React.FC = () => {
           amount={poolShare.prettify(4)}
           unit="%"
         />
-
+        {/* 
         <StaticRow
           label="Redemption gain"
           inputId="stake-gain-eth"
-          amount={hlqtStake.collateralGain.prettify(4)}
-          color={hlqtStake.collateralGain.nonZero && "success"}
+          amount={lptStake.collateralGain.prettify(4)}
+          color={lptStake.collateralGain.nonZero && "success"}
           unit={COLLATERAL_COIN}
         />
 
         <StaticRow
           label="Issuance gain"
           inputId="stake-gain-lusd"
-          amount={hlqtStake.hchfGain.prettify()}
-          color={hlqtStake.hchfGain.nonZero && "success"}
+          amount={lptStake.hchfGain.prettify()}
+          color={lptStake.hchfGain.nonZero && "success"}
           unit={COIN}
-        />
+        /> */}
 
         <Flex variant="layout.actions">
           <Button variant="outline" onClick={() => dispatch({ type: "startAdjusting" })}>
