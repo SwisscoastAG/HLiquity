@@ -21,11 +21,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ amount }) => {
   const transactionState = useMyTransactionState(transactionId);
   const { isValid, isWithdrawing, amountChanged } = useValidationState(amount);
 
+  console.log('isWithdrawing', isWithdrawing);
+  console.log('isValid', isValid);
+  console.log('amountChanged', amountChanged.prettify(4));
+
   const transactionAction = isWithdrawing
     ? liquity.unstakeUniTokens.bind(liquity, amountChanged)
     : liquity.stakeUniTokens.bind(liquity, amountChanged);
 
-  const shouldDisable = amountChanged.isZero || !isValid;
+  const shouldDisable = false;
 
   useEffect(() => {
     if (transactionState.type === "confirmedOneShot") {

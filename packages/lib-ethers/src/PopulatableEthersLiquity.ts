@@ -1012,10 +1012,10 @@ export class PopulatableEthersLiquity
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
     console.log("approveUniTokens");
     // throw "unitoken";
-    console.log('connection', this._readable.connection);
     const { uniToken, saucerSwapPool } = _getContracts(this._readable.connection);
+    // const newToken = await saucerSwapPool.uniToken();
 
-    console.log('tokens', uniToken, saucerSwapPool);
+    console.log('tokens', uniToken, saucerSwapPool, allowance, Decimal.from(allowance ?? Decimal.INFINITY), Decimal.from(allowance ?? Decimal.INFINITY).hex);
 
     return this._wrapSimpleTransaction(
       await uniToken.estimateAndPopulate.approve(
@@ -1033,6 +1033,10 @@ export class PopulatableEthersLiquity
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
     const { saucerSwapPool } = _getContracts(this._readable.connection);
+
+    console.log('stake final', amount, Decimal.from(amount).prettify());
+    const newToken = await saucerSwapPool.uniToken;
+    console.log('saucerSwapPool', saucerSwapPool, newToken);
 
     return this._wrapSimpleTransaction(
       await saucerSwapPool.estimateAndPopulate.stake(

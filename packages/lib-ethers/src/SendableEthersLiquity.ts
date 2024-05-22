@@ -230,7 +230,7 @@ export class SendableEthersLiquity
     allowance?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<void>> {
-    console.log('stage 1')
+    console.log('stage 1', allowance)
     return this._populate.approveUniTokens(allowance, overrides).then(this.sendTransaction);
   }
 
@@ -239,6 +239,7 @@ export class SendableEthersLiquity
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersLiquityTransaction<void>> {
+    console.log('stakeUniTokens', amount, overrides);
     return this._populate.stakeUniTokens(amount, overrides).then(this.sendTransaction);
   }
 

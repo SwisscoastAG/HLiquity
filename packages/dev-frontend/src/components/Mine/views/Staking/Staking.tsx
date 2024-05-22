@@ -16,6 +16,8 @@ import { useValidationState } from "../../context/useValidationState";
 // import { useDeployment } from "../../../../configuration/deployments";
 // import { useLoadingState } from "../../../../loading_state";
 // import { LoadingButton } from "../../../LoadingButton";
+import { useHedera } from "../../../../hedera/hedera_context";
+import { useLoadingState } from "../../../../loading_state";
 
 const transactionId = "mine-stake";
 
@@ -25,6 +27,7 @@ export const Staking: React.FC = () => {
   const editingState = useState<string>();
   const isDirty = !amount.isZero;
   // const deployment = useDeployment();
+  const { approveSpender } = useHedera();
 
   const { maximumStake, hasSetMaximumStake } = useValidationState(amount);
 
@@ -56,7 +59,7 @@ export const Staking: React.FC = () => {
   return (
     <Card>
       <Heading>
-        Liquidity mine
+        SaucerSwap LP Staking
         {isDirty && (
           <Button
             variant="titleIcon"
@@ -72,10 +75,10 @@ export const Staking: React.FC = () => {
         <EditableRow
           label="Stake"
           inputId="amount-lp"
-          amount={amount.prettify(4)}
+          amount={amount.prettify()}
           unit={LP}
           editingState={editingState}
-          editedAmount={amount.toString(4)}
+          editedAmount={amount.toString()}
           setEditedAmount={amount => setAmount(Decimal.from(amount))}
           maxAmount={maximumStake.toString()}
           maxedOut={hasSetMaximumStake}
