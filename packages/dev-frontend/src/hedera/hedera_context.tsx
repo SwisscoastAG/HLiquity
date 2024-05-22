@@ -18,6 +18,7 @@ interface HederaContext {
   hasAssociatedWithHchf: boolean;
   /** @deprecated use liquity store state instead */
   hasAssociatedWithHlqt: boolean;
+  hasAssociatedWithLP: boolean;
 }
 
 const noOp = async () => undefined;
@@ -27,6 +28,7 @@ const hederaContext = createContext<HederaContext>({
   dissociateFromToken: noOp,
   hasAssociatedWithHchf: false,
   hasAssociatedWithHlqt: false,
+  hasAssociatedWithLP: false,
 });
 
 export const useHedera = () => {
@@ -56,6 +58,16 @@ export const HederaTokensProvider: React.FC = ({ children }) => {
     return isHlqt;
   });
 
+  const LPTokenId = deployment
+  ? deployment.addresses.uniToken
+  : undefined;
+
+  const hasAssociatedWithLP = tokens.some(token => {
+    // console.log('tokens', token, LPTokenId);
+    const isLP = token.id === LPTokenId;
+    return isLP;
+  });
+
   const associateWithTokenWithContext: HederaContext["associateWithToken"] = async options => {
     options;
     throw new Error("deprecated. use liquity methods instead");
@@ -79,6 +91,7 @@ export const HederaTokensProvider: React.FC = ({ children }) => {
         approveSpender: approveSpenderWithContext,
         hasAssociatedWithHchf,
         hasAssociatedWithHlqt,
+        hasAssociatedWithLP,
       }}
     >
       {children}

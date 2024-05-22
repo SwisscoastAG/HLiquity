@@ -138,6 +138,27 @@ export interface ReadableLiquity {
   getHLQTBalance(address?: string): Promise<Decimal>;
 
   /**
+   * Get the amount of LP held by an address.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getLPBalance(address?: string): Promise<Decimal>;
+
+  /**
+   * Get the reward of LP held by an address.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getLPReward(address?: string): Promise<Decimal>;
+
+  /**
+   * Get LP earnings.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getLPEarnings(address?: string): Promise<Decimal>;
+
+  /**
    * Get the amount of Uniswap ETH/HCHF LP tokens held by an address.
    *
    * @param address - Address whose balance should be retrieved.

@@ -16,8 +16,8 @@ import { useValidationState } from "../../context/useValidationState";
 // import { useDeployment } from "../../../../configuration/deployments";
 // import { useLoadingState } from "../../../../loading_state";
 // import { LoadingButton } from "../../../LoadingButton";
-import { useHedera } from "../../../../hedera/hedera_context";
-import { useLoadingState } from "../../../../loading_state";
+// import { useHedera } from "../../../../hedera/hedera_context";
+// import { useLoadingState } from "../../../../loading_state";
 
 const transactionId = "mine-stake";
 
@@ -27,7 +27,7 @@ export const Staking: React.FC = () => {
   const editingState = useState<string>();
   const isDirty = !amount.isZero;
   // const deployment = useDeployment();
-  const { approveSpender } = useHedera();
+  // const { approveSpender } = useHedera();
 
   const { maximumStake, hasSetMaximumStake } = useValidationState(amount);
 

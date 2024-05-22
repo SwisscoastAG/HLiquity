@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Button } from "theme-ui";
+// import { Button } from "theme-ui";
 import { Decimal } from "@liquity/lib-base";
 import { useLiquity } from "../../../hooks/LiquityContext";
-import { Transaction, useMyTransactionState } from "../../Transaction";
+import { useMyTransactionState } from "../../Transaction";
 import { useMineView } from "../context/MineViewContext";
 import { useValidationState } from "../context/useValidationState";
 import { useDeployment } from "../../../configuration/deployments";
@@ -24,7 +24,10 @@ const transactionId = "mine-approve";
 export const Approve: React.FC<ApproveProps> = ({ amount }) => {
   const { dispatchEvent } = useMineView();
   const {
-    liquity: { send: liquity }
+    liquity: { 
+      // send: liquity,
+      connection: { addresses } 
+    },
   } = useLiquity();
 
   const { hasApproved } = useValidationState(amount);
@@ -38,7 +41,23 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
     }
   }, [transactionState.type, dispatchEvent]);
 
-  console.log(amount, hasApproved);
+  // console.log(amount, hasApproved);
+
+  const { hasAssociatedWithLP, associateWithToken } = useHedera();
+  // LP token association
+  const { call: associateWithLP, state: LPAssociationLoadingState } = useLoadingState(
+    async () => {
+      if (!deployment) {
+        const errorMessage = `i cannot get the hchf token id if there is no deployment. please connect to a chain first.`;
+        console.error(errorMessage, "context:", { deployment });
+        throw new Error(errorMessage);
+      }
+
+      // console.log(deployment);
+
+      await associateWithToken({ tokenAddress: addresses.uniToken as `0x${string}` });
+    }
+  );
 
   const { call: approveLPSpender, state: LPApprovalLoadingState } = useLoadingState(async () => {
     if (!amount) {
@@ -51,13 +70,15 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
       throw new Error(errorMessage);
     }
 
-    const tokenAddress = "0x0000000000000000000000000000000000428968" as `0x${string}`;
-    const contractAddress = "0x0000000000000000000000000000000000428959";
+    const tokenAddress = deployment.addresses.uniToken as `0x${string}`;
+    const contractAddress = deployment.addresses.saucerSwapPool as `0x${string}`;
     const amnt = BigNumber.from(amount.hex);
+
+    // console.log('addresses', deployment.addresses.uniToken, tokenAddress);
 
     await approveSpender({
       contractAddress,
-      tokenAddress,
+      tokenAddress: tokenAddress,
       amount: amnt
     });
   });
@@ -65,25 +86,24 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
   if (hasApproved) {
     return null;
   }
-  console.log('approve')
+  // console.log('approve', amount, hasAssociatedWithLP, addresses.uniToken)
 
   return (
     <>
       <LoadingButton
-        disabled={!amount}
+        disabled={!amount || hasAssociatedWithLP}
         loading={LPApprovalLoadingState === "pending"}
+        onClick={associateWithLP}
+      >
+        Assoc. {amount.prettify()} LP
+      </LoadingButton>
+      <LoadingButton
+        disabled={!amount || hasAssociatedWithLP}
+        loading={LPAssociationLoadingState === "pending"}
         onClick={approveLPSpender}
       >
-        Consent to spending {amount.prettify()} LP
+        Approve {amount.prettify()} LP
       </LoadingButton>
-      <Transaction
-        id={transactionId}
-        send={liquity.approveUniTokens.bind(liquity, undefined)}
-        showFailure="asTooltip"
-        tooltipPlacement="bottom"
-      >
-        <Button sx={{ width: "60%" }}>Approve LP</Button>
-      </Transaction>
     </>
   );
 };

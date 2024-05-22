@@ -1032,7 +1032,7 @@ export class PopulatableEthersLiquity
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<PopulatedEthersLiquityTransaction<void>> {
-    const { saucerSwapPool } = _getContracts(this._readable.connection);
+    const { saucerSwapPool, uniToken } = _getContracts(this._readable.connection);
 
     console.log('stake final', amount, Decimal.from(amount).prettify());
     const newToken = await saucerSwapPool.uniToken;
@@ -1041,7 +1041,7 @@ export class PopulatableEthersLiquity
     return this._wrapSimpleTransaction(
       await saucerSwapPool.estimateAndPopulate.stake(
         { gasLimit: 3000000 },
-        addGasForUnipoolRewardUpdate,
+        id,
         Decimal.from(amount).hex
       )
     );
@@ -1057,7 +1057,7 @@ export class PopulatableEthersLiquity
     return this._wrapSimpleTransaction(
       await saucerSwapPool.estimateAndPopulate.withdraw(
         { gasLimit: 3000000 },
-        addGasForUnipoolRewardUpdate,
+        id,
         Decimal.from(amount).hex
       )
     );

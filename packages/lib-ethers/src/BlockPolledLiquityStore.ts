@@ -130,58 +130,63 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
 
         ...(userAddress
           ? {
-              accountBalance: this._provider
-                .getBalance(userAddress, blockTag)
-                .then(bigNumber =>
-                  Decimal.fromBigNumberStringWithPrecision(bigNumber.toHexString(), 18)
-                ),
-              hchfBalance: this._readable.getHCHFBalance(userAddress, { blockTag }),
-              hchfTokenAddress: this._readable.getHCHFTokenAddress({ blockTag }),
-              hlqtTokenAddress: this._readable.getHLQTTokenAddress({ blockTag }),
-              hlqtBalance: this._readable.getHLQTBalance(userAddress, { blockTag }),
-              uniTokenBalance: this._readable.getUniTokenBalance(userAddress, { blockTag }),
-              uniTokenAllowance: this._readable.getUniTokenAllowance(userAddress, { blockTag }),
-              liquidityMiningStake: this._readable.getLiquidityMiningStake(userAddress, {
-                blockTag
-              }),
-              liquidityMiningHLQTReward: this._readable.getLiquidityMiningHLQTReward(userAddress, {
-                blockTag
-              }),
-              collateralSurplusBalance: this._readable.getCollateralSurplusBalance(userAddress, {
-                blockTag
-              }),
-              troveBeforeRedistribution: this._readable.getTroveBeforeRedistribution(userAddress, {
-                blockTag
-              }),
-              stabilityDeposit: this._readable.getStabilityDeposit(userAddress, { blockTag }),
-              hlqtStake: this._readable.getHLQTStake(userAddress, { blockTag }),
-              ownFrontend: this._readable.getFrontendStatus(userAddress, { blockTag })
-            }
+            accountBalance: this._provider
+              .getBalance(userAddress, blockTag)
+              .then(bigNumber =>
+                Decimal.fromBigNumberStringWithPrecision(bigNumber.toHexString(), 18)
+              ),
+            hchfBalance: this._readable.getHCHFBalance(userAddress, { blockTag }), lpBalance: this._readable.getLPBalance(userAddress, { blockTag }),
+            lpReward: this._readable.getLPReward(userAddress, { blockTag }),
+            lpEarnings: this._readable.getLPEarnings(userAddress, { blockTag }),
+            hchfTokenAddress: this._readable.getHCHFTokenAddress({ blockTag }),
+            hlqtTokenAddress: this._readable.getHLQTTokenAddress({ blockTag }),
+            hlqtBalance: this._readable.getHLQTBalance(userAddress, { blockTag }),
+            uniTokenBalance: this._readable.getUniTokenBalance(userAddress, { blockTag }),
+            uniTokenAllowance: this._readable.getUniTokenAllowance(userAddress, { blockTag }),
+            liquidityMiningStake: this._readable.getLiquidityMiningStake(userAddress, {
+              blockTag
+            }),
+            liquidityMiningHLQTReward: this._readable.getLiquidityMiningHLQTReward(userAddress, {
+              blockTag
+            }),
+            collateralSurplusBalance: this._readable.getCollateralSurplusBalance(userAddress, {
+              blockTag
+            }),
+            troveBeforeRedistribution: this._readable.getTroveBeforeRedistribution(userAddress, {
+              blockTag
+            }),
+            stabilityDeposit: this._readable.getStabilityDeposit(userAddress, { blockTag }),
+            hlqtStake: this._readable.getHLQTStake(userAddress, { blockTag }),
+            ownFrontend: this._readable.getFrontendStatus(userAddress, { blockTag })
+          }
           : {
-              accountBalance: Decimal.ZERO,
-              hchfBalance: Decimal.ZERO,
-              hlqtBalance: Decimal.ZERO,
-              hchfTokenAddress: "0x",
-              hlqtTokenAddress: "0x",
-              uniTokenBalance: Decimal.ZERO,
-              uniTokenAllowance: Decimal.ZERO,
-              liquidityMiningStake: Decimal.ZERO,
-              liquidityMiningHLQTReward: Decimal.ZERO,
-              collateralSurplusBalance: Decimal.ZERO,
-              troveBeforeRedistribution: new TroveWithPendingRedistribution(
-                AddressZero,
-                "nonExistent"
-              ),
-              stabilityDeposit: new StabilityDeposit(
-                Decimal.ZERO,
-                Decimal.ZERO,
-                Decimal.ZERO,
-                Decimal.ZERO,
-                AddressZero
-              ),
-              hlqtStake: new HLQTStake(),
-              ownFrontend: { status: "unregistered" as const }
-            })
+            accountBalance: Decimal.ZERO,
+            hchfBalance: Decimal.ZERO,
+            hlqtBalance: Decimal.ZERO,
+            lpBalance: Decimal.ZERO,
+            lpReward: Decimal.ZERO,
+            lpEarnings: Decimal.ZERO,
+            hchfTokenAddress: "0x",
+            hlqtTokenAddress: "0x",
+            uniTokenBalance: Decimal.ZERO,
+            uniTokenAllowance: Decimal.ZERO,
+            liquidityMiningStake: Decimal.ZERO,
+            liquidityMiningHLQTReward: Decimal.ZERO,
+            collateralSurplusBalance: Decimal.ZERO,
+            troveBeforeRedistribution: new TroveWithPendingRedistribution(
+              AddressZero,
+              "nonExistent"
+            ),
+            stabilityDeposit: new StabilityDeposit(
+              Decimal.ZERO,
+              Decimal.ZERO,
+              Decimal.ZERO,
+              Decimal.ZERO,
+              AddressZero
+            ),
+            hlqtStake: new HLQTStake(),
+            ownFrontend: { status: "unregistered" as const }
+          })
       });
 
     return [

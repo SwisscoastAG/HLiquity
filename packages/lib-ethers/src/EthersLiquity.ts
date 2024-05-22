@@ -227,6 +227,21 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     return this._readable.getHCHFBalance(address, overrides);
   }
 
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getLPBalance} */
+  getLPBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
+    return this._readable.getLPBalance(address, overrides);
+  }
+
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getLPReward} */
+  getLPReward(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
+    return this._readable.getLPReward(address, overrides);
+  }
+
+  /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getLPEarnings} */
+  getLPEarnings(address?: string, overrides?: EthersCallOverrides): Promise<Decimal> {
+    return this._readable.getLPEarnings(address, overrides);
+  }
+
   getHCHFTokenAddress(overrides?: EthersCallOverrides): Promise<string> {
     return this._readable.getHCHFTokenAddress(overrides);
   }
