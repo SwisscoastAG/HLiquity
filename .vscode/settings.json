@@ -3,14 +3,5 @@
     "slither.hiddenDetectors": [],
     "solidity.compileUsingRemoteVersion": "v0.6.11+commit.5ef660b1",
     "typescript.tsdk": "node_modules/typescript/lib",
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-    "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "[typescriptreact]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "[scss]": {
-        "editor.defaultFormatter": "vscode.css-language-features"
-    }
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
 }
