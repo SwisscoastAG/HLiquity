@@ -28,13 +28,13 @@ export interface LiquityStoreBaseState {
   /** User's HCHF token balance. */
   hchfBalance: Decimal;
 
-  /** User's HCHF token balance. */
+  /** User's LP token balance. */
   lpBalance: Decimal;
 
-  /** User's HCHF token balance. */
+  /** User's LP reward. */
   lpReward: Decimal;
 
-  /** User's HCHF token balance. */
+  /** User's LP token earnings. */
   lpEarnings: Decimal;
 
   /** HCHF HST Token address */

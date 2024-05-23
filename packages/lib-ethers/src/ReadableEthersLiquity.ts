@@ -312,7 +312,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     address ??= _requireAddress(this.connection);
     const { saucerSwapPool, uniToken } = _getContracts(this.connection);
 
-    return saucerSwapPool.balanceOf(address, { ...overrides }).then(decimalify);
+    return uniToken.balanceOf(address, { ...overrides }).then(decimalify);
   }
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getLPReward} */
@@ -359,9 +359,9 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     // });
 
     address ??= _requireAddress(this.connection);
-    const { saucerSwapPool } = _getContracts(this.connection);
+    const { uniToken } = _getContracts(this.connection);
 
-    return saucerSwapPool.balanceOf(address, { ...overrides }).then(decimalify);
+    return uniToken.balanceOf(address, { ...overrides }).then(decimalify);
   }
 
   /** {@inheritDoc @liquity/lib-base#ReadableLiquity.getUniTokenAllowance} */

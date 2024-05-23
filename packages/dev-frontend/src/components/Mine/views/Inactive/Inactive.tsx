@@ -5,11 +5,12 @@ import { StaticRow } from "../../../Trove/Editor";
 import { useLiquitySelector } from "@liquity/lib-react";
 import { LiquityStoreState } from "@liquity/lib-base";
 
-const select = ({ lpBalance, lpEarnings, lpReward, liquidityMiningStake }: LiquityStoreState) => ({
+const select = ({ lpBalance, lpEarnings, lpReward, liquidityMiningStake, uniTokenAllowance }: LiquityStoreState) => ({
   lpBalance,
   lpEarnings,
   lpReward,
   liquidityMiningStake,
+  uniTokenAllowance,
 });
 
 export const Inactive: React.FC = () => {
@@ -19,9 +20,9 @@ export const Inactive: React.FC = () => {
     dispatchEvent("STAKE_PRESSED");
   }, [dispatchEvent]);
 
-  const { lpBalance, lpEarnings, lpReward, liquidityMiningStake } = useLiquitySelector(select);
+  const { lpBalance, lpEarnings, lpReward, liquidityMiningStake, uniTokenAllowance } = useLiquitySelector(select);
 
-  // console.log('lp stats', lpBalance.prettify(), lpEarnings.prettify(), lpReward.prettify());
+  // console.log('lp stats', lpBalance.prettify(), lpEarnings.prettify(), lpReward.prettify(), uniTokenAllowance.prettify());
 
   return (
     <Card>

@@ -26,7 +26,8 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
   const {
     liquity: { 
       // send: liquity,
-      connection: { addresses } 
+      connection: { addresses } ,
+      store
     },
   } = useLiquity();
 
@@ -55,7 +56,9 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
 
       // console.log(deployment);
 
-      await associateWithToken({ tokenAddress: addresses.uniToken as `0x${string}` });
+      await associateWithToken({ tokenAddress: addresses.uniToken as `0x${string}` }).then(() => {
+        store.refresh();
+      });;
     }
   );
 
@@ -80,26 +83,28 @@ export const Approve: React.FC<ApproveProps> = ({ amount }) => {
       contractAddress,
       tokenAddress: tokenAddress,
       amount: amnt
+    }).then(() => {
+      store.refresh();
     });
   });
 
   if (hasApproved) {
     return null;
   }
-  // console.log('approve', amount, hasAssociatedWithLP, addresses.uniToken)
+  // console.log('approve', amount, hasApproved, !amount || hasApproved || !hasAssociatedWithLP)
 
   return (
     <>
       <LoadingButton
-        disabled={!amount || hasAssociatedWithLP}
-        loading={LPApprovalLoadingState === "pending"}
+        disabled={!amount || hasApproved}
+        loading={LPAssociationLoadingState === "pending"}
         onClick={associateWithLP}
       >
         Assoc. {amount.prettify()} LP
       </LoadingButton>
       <LoadingButton
-        disabled={!amount || hasAssociatedWithLP}
-        loading={LPAssociationLoadingState === "pending"}
+        disabled={!amount || hasApproved || !hasAssociatedWithLP}
+        loading={LPApprovalLoadingState === "pending"}
         onClick={approveLPSpender}
       >
         Approve {amount.prettify()} LP

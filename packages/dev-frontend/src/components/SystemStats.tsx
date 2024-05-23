@@ -247,6 +247,16 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
             <>unknown</>
           )}
         </Box>
+        <Box sx={{ fontSize: 0 }}>
+          LP Token ID:{" "}
+          {deployment ? (
+            <Link sx={{ color: "info" }} href={getHederaLink(deployment.addresses.uniToken, chain?.id)}>
+              {TokenId.fromSolidityAddress(deployment.addresses.uniToken).toString()}
+            </Link>
+          ) : (
+            <>unknown</>
+          )}
+        </Box>
       </Box>
     </Card>
   );

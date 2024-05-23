@@ -63,9 +63,10 @@ export const HederaTokensProvider: React.FC = ({ children }) => {
   : undefined;
 
   const hasAssociatedWithLP = tokens.some(token => {
+    return true;
     // console.log('tokens', token, LPTokenId);
-    const isLP = token.id === LPTokenId;
-    return isLP;
+    // const isLP = token.id === LPTokenId;
+    // return isLP;
   });
 
   const associateWithTokenWithContext: HederaContext["associateWithToken"] = async options => {

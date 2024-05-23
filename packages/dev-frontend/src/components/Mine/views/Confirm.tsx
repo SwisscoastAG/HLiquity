@@ -29,7 +29,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ amount }) => {
     ? liquity.unstakeUniTokens.bind(liquity, amountChanged)
     : liquity.stakeUniTokens.bind(liquity, amountChanged);
 
-  const shouldDisable = false;
+  const shouldDisable = amountChanged.isZero || !isValid;
 
   useEffect(() => {
     if (transactionState.type === "confirmedOneShot") {

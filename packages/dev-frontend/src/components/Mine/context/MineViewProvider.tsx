@@ -5,6 +5,7 @@ import { MineViewContext } from "./MineViewContext";
 import { transitions } from "./transitions";
 import type { MineView, MineEvent } from "./transitions";
 import { useLiquitySelector } from "@liquity/lib-react";
+import { useLiquity } from "../../../hooks/LiquityContext";
 
 const transition = (view: MineView, event: MineEvent): MineView => {
   const nextView = transitions[view][event] ?? view;
@@ -28,6 +29,7 @@ const selector = ({
 export const MineViewProvider: React.FC = props => {
   const { children } = props;
   const { liquidityMiningStake, remainingLiquidityMiningHLQTReward } = useLiquitySelector(selector);
+  const { liquity } = useLiquity();
 
   const [view, setView] = useState<MineView>(
     getInitialView(liquidityMiningStake, remainingLiquidityMiningHLQTReward)
@@ -36,6 +38,7 @@ export const MineViewProvider: React.FC = props => {
 
   const dispatchEvent = useCallback((event: MineEvent) => {
     const nextView = transition(viewRef.current, event);
+    liquity.store.refresh();
 
     console.log(
       "dispatchEvent() [current-view, event, next-view]",

@@ -240,6 +240,7 @@ export class BlockPolledLiquityStore extends HLiquityStore<BlockPolledLiquitySto
 
   public async refresh(): Promise<LiquityStoreState<BlockPolledLiquityStoreExtraState>> {
     const state = await this._get();
+    // console.log('refresh store')
 
     if (this._loaded) {
       this._update(...state);
