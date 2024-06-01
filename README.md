@@ -144,7 +144,7 @@ HLiquity is a collateralized debt platform. Users can lock up HBAR, and issue st
 
 The stablecoin tokens are economically geared towards maintaining value of 1 HCHF = \$1 CHF, due to the following properties:
 
-1. The system is designed to always be over-collateralized - the dollar value of the locked HBAR exceeds the dollar value of the issued stablecoins
+1. The system is designed to always be over-collateralized - the Swiss Franc value of the locked HBAR exceeds the Swiss Franc value of the issued stablecoins
 
 2. The stablecoins are fully redeemable - users can always swap $x worth of HCHF for $x worth of HBAR (minus fees), directly with the system.
 
@@ -176,7 +176,7 @@ Anyone may call the public `liquidateTroves()` function, which will check for un
 
 ### Liquidation gas costs
 
-Currently, mass liquidations performed via the above functions cost 60-65k gas per trove. Thus the system can liquidate up to a maximum of 95-105 troves in a single transaction.
+The system can liquidate up to a maximum of 95-105 troves in a single transaction.
 
 ### Liquidation Logic
 
@@ -188,20 +188,21 @@ Here is the liquidation logic for a single Trove in Normal Mode and Recovery Mod
 
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Condition                      | Liquidation behavior                                                                                                                                                                                                                                                                                                |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ICR < MCR & SP.HCHF >= trove.debt | HCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral is shared between depositors.                                                                                                                                                                       |
+| ICR < MCR & SP.HCHF >= trove.debt | The Pool HCHF is offset with an equal amount of debt from the Trove. A fraction of HBAR collateral with Swiss Franc value equal to 1.1 * debt is shared between depositors. Nothing is redistributed to other active Troves. Since it's ICR was > 1.1, the Trove has a collateral remainder, which is sent to the CollSurplusPool and is claimable by the borrower. The Trove is closed.
+|
 | ICR < MCR & SP.HCHF < trove.debt | The total StabilityPool HCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active Troves |
 | ICR < MCR & SP.HCHF = 0          | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                 |
 | ICR  >= MCR                      | Do nothing.                                                                                                                                                                                                                                                                                                         |
 #### Liquidations in Recovery Mode: TCR < 150%
 
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Condition                                | Liquidation behavior                                                                                                                                                                                                                                                                                                                                                                                         |
-|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ICR <=100%                               | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                                                                                                          |
-| 100% < ICR < MCR & SP.HCHF > trove.debt  | HCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral (minus HBAR gas compensation) is shared between depsitors.                                                                                                                                                                                                                                    |
-| 100% < ICR < MCR & SP.HCHF < trove.debt  | The total StabilityPool HCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active troves                                                                                          |
-| MCR <= ICR < TCR & SP.HCHF >= trove.debt  |  The Pool HCHF is offset with an equal amount of debt from the Trove. A fraction of HBAR collateral with dollar value equal to `1.1 * debt` is shared between depositors. Nothing is redistributed to other active Troves. Since it's ICR was > 1.1, the Trove has a collateral remainder, which is sent to the `CollSurplusPool` and is claimable by the borrower. The Trove is closed. |
-| MCR <= ICR < TCR & SP.HCHF  < trove.debt | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ICR >= TCR                               | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Condition                                | Liquidation behavior                                                                                                                                                                                                                                                                                                                                                                         |
+|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ICR <=100%                               | Redistribute all debt and collateral (minus HBAR gas compensation) to active Troves.                                                                                                                                                                                                                                                                                                         |
+| 100% < ICR < MCR & SP.HCHF > trove.debt  | HCHF in the StabilityPool equal to the Trove's debt is offset with the Trove's debt. The Trove's HBAR collateral (minus HBAR gas compensation) is shared between depsitors.                                                                                                                                                                                                                  |
+| 100% < ICR < MCR & SP.HCHF < trove.debt  | The total StabilityPool HCHF is offset with an equal amount of debt from the Trove.  A fraction of the Trove's collateral (equal to the ratio of its offset debt to its entire debt) is shared between depositors. The remaining debt and collateral (minus HBAR gas compensation) is redistributed to active troves                                                                         |
+| MCR <= ICR < TCR & SP.HCHF >= trove.debt  | The Pool HCHF is offset with an equal amount of debt from the Trove. A fraction of HBAR collateral with Swiss Franc value equal to `1.1 * debt` is shared between depositors. Nothing is redistributed to other active Troves. Since it's ICR was > 1.1, the Trove has a collateral remainder, which is sent to the `CollSurplusPool` and is claimable by the borrower. The Trove is closed. |
+| MCR <= ICR < TCR & SP.HCHF  < trove.debt | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                  |
+| ICR >= TCR                               | Do nothing.                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ## Gains From Liquidations
 
@@ -231,7 +232,7 @@ The partially redeemed Trove is re-inserted into the sorted list of Troves, and 
 
 ### Full redemption
 
-A Trove is defined as “fully redeemed from” when the redemption has caused (debt-200) of its debt to absorb (debt-200) HCHF. Then, its 200 HCHF Liquidation Reserve is cancelled with its remaining 200 debt: the Liquidation Reserve is burned from the gas address, and the 200 debt is zero’d.
+A Trove is defined as “fully redeemed from” when the redemption has caused (debt-20) of its debt to absorb (debt-20) HCHF. Then, its 20 HCHF Liquidation Reserve is cancelled with its remaining 20 debt: the Liquidation Reserve is burned from the gas address, and the 20 debt is zero’d.
 
 Before closing, we must handle the Trove’s **collateral surplus**: that is, the excess HBAR collateral remaining after redemption, due to its initial over-collateralization.
 
@@ -276,7 +277,7 @@ Backend development is done in the Hardhat framework, and allows HLiquity to be 
 
 ### Branches
 
-As of 18/01/2021, the current working branch is `main`. `master` is out of date.
+As of 18/01/2021, the current working branch is `main`.
 
 ## HLQT Token Architecture
 
@@ -290,66 +291,38 @@ The HLQT contracts consist of:
 
 `HLQTStaking.sol` - the staking contract, containing stake and unstake functionality for HLQT holders. This contract receives HBAR fees from redemptions, and HCHF fees from new debt issuance.
 
-`CommunityIssuance.sol` - This contract handles the issuance of HLQT tokens to Stability Providers as a function of time. It is controlled by the `StabilityPool`. Upon system launch, the `CommunityIssuance` automatically receives 32 million HLQT - the “community issuance” supply. The contract steadily issues these HLQT tokens to the Stability Providers over time.
+`CommunityIssuance.sol` - This contract handles the issuance of HLQT tokens to Stability Providers as a function of time. It is controlled by the `StabilityPool`. Upon system launch, the `CommunityIssuance` automatically receives 18.7 million HLQT - the “community issuance” supply. The contract steadily issues these HLQT tokens to the Stability Providers over time.
 
-`HLQTToken.sol` - This is the HLQT ERC20 contract. It has a hard cap supply of 100 million, and during the first year, restricts transfers from the HLiquity admin address, a regular Hedera address controlled by the project company Swisscoast AG. **Note that the HLiquity admin address has no extra privileges and does not retain any control over the HLiquity protocol once deployed.**
+`HLQTToken.sol` - This is the HLQT contract. It has a hard cap supply of 100 million. **Note that the HLiquity admin address has no extra privileges and does not retain any control over the HLiquity protocol once deployed.**
 
 ### HLQT Lockup contracts and token vesting
 
-Some HLQT is reserved for team members and partners, and is locked up for one year upon system launch. Additionally, some team members receive HLQT vested on a monthly basis, which during the first year, is transferred directly to their lockup contract.
+Some HLQT is reserved for team members and advisors, These tokens are subject to a 1-year lockup, with a quarter vesting after the first year and the rest gradually vested monthly over 36 months, reinforcing their ongoing dedication to HLiquity's progress.
 
-In the first year after launch:
+Some tokens are reserved for investors, these tokens are locked up for one year upon system launch.
 
-- All team members and partners are unable to access their locked up HLQT tokens
+1. Some Tokens are reserved for INO/IDO Campaigns, with one half  vesting at the TGE and the rest gradually vested monthly over 12 months,
 
-- The HLiquity admin address may transfer tokens **only to verified lockup contracts with an unlock date at least one year after system deployment**
+Also, separate HLQT allocations are made at deployment to a multisig that will hold an amount of HLQT for bug bounties/hackathons and to a SaucerSwap LP reward contract. Aside from these allocations, the only HLQT made freely available in this first year is the HLQT that is publically issued to Stability Providers via the `CommunityIssuance` contract.
 
-Also, separate HLQT allocations are made at deployment to an EOA that will hold an amount of HLQT for bug bounties/hackathons and to a Uniswap LP reward contract. Aside from these allocations, the only HLQT made freely available in this first year is the HLQT that is publically issued to Stability Providers via the `CommunityIssuance` contract.
-
-### Lockup Implementation and admin transfer restriction
-
-A `LockupContractFactory` is used to deploy `LockupContracts` in the first year. During the first year, the `HLQTToken` checks that any transfer from the HLiquity admin address is to a valid `LockupContract` that is registered in and was deployed through the `LockupContractFactory`.
 
 ### Launch sequence and vesting process
 
 #### Deploy HLQT Contracts
-1. HLiquity admin deploys `LockupContractFactory`
-2. HLiquity admin deploys `CommunityIssuance`
-3. HLiquity admin deploys `HLQTStaking` 
-4. HLiquity admin creates a Pool in Uniswap for HCHF/HBAR and deploys `Unipool` (LP rewards contract), which knows the address of the Pool
+1. HLiquity admin deploys `CommunityIssuance`
+2. HLiquity admin deploys `HLQTStaking` 
+3. HLiquity admin creates a Pool in SaucerSwap for HCHF/HBAR and deploys `SaucerSwapPool` (LP rewards contract), which knows the address of the Pool
 5. HLiquity admin deploys `HLQTToken`, which upon deployment:
 - Stores the `CommunityIssuance` and `LockupContractFactory` addresses
-- Mints HLQT tokens to `CommunityIssuance`, the HLiquity admin address, the `Unipool` LP rewards address, and the bug bounty address
-6. HLiquity admin sets `LQTYToken` address in `LockupContractFactory`, `CommunityIssuance`, `HLQTStaking`, and `Unipool`
-
-#### Deploy and fund Lockup Contracts
-7. HLiquity admin tells `LockupContractFactory` to deploy a `LockupContract` for each beneficiary, with an `unlockTime` set to exactly one year after system deployment
-8. HLiquity admin transfers HLQT to each `LockupContract`, according to their entitlement
+- Mints HLQT tokens to `CommunityIssuance`, the HLiquity admin address, the `Unipool` LP rewards address, the bug bounty address (multisig), team members (multisig) and different multisigs to seperate the remaining token allocations.
+6. HLiquity admin sets `HLQTToken` address in `LockupContractFactory`, `CommunityIssuance`, `HLQTStaking`, and `SaucerSwapPool`
 
 #### Deploy HLiquity Core
-9. HLiquity admin deploys the HLiquity core system
-10. HLiquity admin connects HLiquity core system internally (with setters)
-11. HLiquity admin connects `HLQTStaking` to HLiquity core contracts and `HLQTToken`
-13. HLiquity admin connects `CommunityIssuance` to HLiquity core contracts and `HLQTToken`
+7. HLiquity admin deploys the HLiquity core system
+8. HLiquity admin connects HLiquity core system internally (with setters)
+9. HLiquity admin connects `HLQTStaking` to HLiquity core contracts and `HLQTToken`
+10. HLiquity admin connects `CommunityIssuance` to HLiquity core contracts and `HLQTToken`
 
-#### During one year lockup period
-- HLiquity admin periodically transfers newly vested tokens to team & partners’ `LockupContracts`, as per their vesting schedules
-- HLiquity admin may only transfer HLQT to `LockupContracts`
-- Anyone may deploy new `LockupContracts` via the Factory, setting any `unlockTime` that is >= 1 year from system deployment
-
-#### Upon end of one year lockup period
-- All beneficiaries may withdraw their entire entitlements
-- HLiquity admin address restriction on HLQT transfers is automatically lifted, and HLiquity admin may now transfer HLQT to any address
-- Anyone may deploy new `LockupContracts` via the Factory, setting any `unlockTime` in the future
-
-#### Post-lockup period
-- HLiquity admin periodically transfers newly vested tokens to team & partners, directly to their individual addresses, or to a fresh lockup contract if required.
-
-_NOTE: In the final architecture, a multi-sig contract will be used to move HLQT Tokens, rather than the single HLiquity admin EOA. It will be deployed at the start of the sequence, and have its address recorded in  `HLQTToken` in step 4, and receive HLQT tokens. It will be used to move HLQT in step 7, and during & after the lockup period. The HLiquity admin EOA will only be used for deployment of contracts in steps 1-4 and 9._
-
-_The current code does not utilize a multi-sig. It implements the launch architecture outlined above._
-
-_Additionally, a LP staking contract will receive the initial LP staking reward allowance, rather than an EOA. It will be used to hold and issue HLQT to users who stake LP tokens that correspond to certain pools on DEXs._
 
 ## Core System Architecture
 
@@ -397,29 +370,23 @@ Along with `StabilityPool.sol`, these contracts hold HBAR and/or tokens for thei
 
 ### PriceFeed and Oracle
 
-HLiquity functions that require the most current HBAR:CHF price data fetch the price dynamically, as needed, via the core `PriceFeed.sol` contract using the Chainlink HBAR:CHF reference contract as its primary and Tellor's HBAR:CHF price feed as its secondary (fallback) data source. PriceFeed is stateful, i.e. it records the last good price that may come from either of the two sources based on the contract's current state.
+HLiquity functions that require the most current HBAR:CHF price data fetch the price dynamically, as needed, via the core `PriceFeed.sol` contract using the Pyth USD/HBAR and USDT/CHF reference contract as its primary and Supra's HBAR/USD and USD/CHF price feed as its secondary (fallback) data source. PriceFeed is stateful, i.e. it records the last good price that may come from either of the two sources based on the contract's current state.
 
-The fallback logic distinguishes 3 different failure modes for Chainlink and 2 failure modes for Tellor:
+The fallback logic distinguishes 3 different failure modes for Pyth and 2 failure modes for Supra:
 
 - `Frozen` (for both oracles): last price update more than 4 hours ago
-- `Broken` (for both oracles): response call reverted, invalid timeStamp that is either 0 or in the future, or reported price is non-positive (Chainlink) or zero (Tellor). Chainlink is considered broken if either the response for the latest round _or_ the response for the round before the latest fails one of these conditions.
-- `PriceChangeAboveMax` (Chainlink only): higher than 50% deviation between two consecutive price updates
+- `Broken` (for both oracles): response call reverted, invalid timeStamp that is either 0 or in the future, or reported price is non-positive (Pyth) or zero (Supra). Pyth is considered broken if the response for the latest round does not meet these conditions.
+- `PriceChangeAboveMax` (Pyth only): higher than 50% deviation between two consecutive price updates
 
 There is also a return condition `bothOraclesLiveAndUnbrokenAndSimilarPrice` which is a function returning true if both oracles are live and not broken, and the percentual difference between the two reported prices is below 5%.
 
-The current `PriceFeed.sol` contract has an external `fetchPrice()` function that is called by core HLiquity functions which require a current HBAR:CHF price.  `fetchPrice()` calls each oracle's proxy, asserts on the responses, and converts returned prices to 18 digits.
-
-### Tellor price data lag
-
-HLiquity sees a Tellor HBAR-CHF price that is at least 15 minutes old. This is because Tellor operates via proof-of-stake, and some dispute period is needed in which fake prices can be disputed. When a Tellor price is disputed, it is removed from the list of prices that HLiquity sees. This dispute period ensures that, given at least one responsive disputer who disputes fake HBAR prices, HLiquity will never consume fake price data from Tellor.
-
-The choice of 15 minutes for the dispute period was based on careful analysis of the impact of a delayed HBAR price on a HLiquity system. We used historical HBAR price data and looked at the impact of different delay lengths. 15 minutes was chosen as a sweet spot that gives plenty of time for disputers to respond to fake prices, while keeping any adverse impacts on HLiquity to a minimum.
+The current `PriceFeed.sol` contract has an external `fetchPrice()` function that is called by core HLiquity functions which require a current HBAR:CHF price.  `fetchPrice()` calls each oracle's proxy, asserts on the responses, and converts returned prices to 8 digits.
 
 ### PriceFeed Logic
 
-The PriceFeed contract fetches the current price and previous price from Chainlink and changes its state (called `Status`) based on certain conditions.
+The PriceFeed contract fetches the current price and previous price from Pyth and changes its state (called `Status`) based on certain conditions.
 
-**Initial PriceFeed state:** `chainlinkWorking`. The initial system state that is maintained as long as Chainlink is working properly, i.e. neither broken nor frozen nor exceeding the maximum price change threshold between two consecutive rounds. PriceFeed then obeys the logic found in this table:
+**Initial PriceFeed state:** `pythWorking`. The initial system state that is maintained as long as Pyth is working properly, i.e. neither broken nor frozen nor exceeding the maximum price change threshold between two consecutive rounds. PriceFeed then obeys the logic found in this table:
 
   https://docs.google.com/spreadsheets/d/18fdtTUoqgmsK3Mb6LBO-6na0oK-Y9LWBqnPCJRp5Hsg/edit?usp=sharing
 
@@ -428,33 +395,15 @@ The PriceFeed contract fetches the current price and previous price from Chainli
 
 The `PriceFeedTestnet.sol` is a mock PriceFeed for testnet and general back end testing purposes, with no oracle connection. It contains a manual price setter, `setPrice()`, and a getter, `getPrice()`, which returns the latest stored price.
 
-The mainnet PriceFeed is tested in `test/PriceFeedTest.js`, using a mock Chainlink aggregator and a mock TellorMaster contract.
-
 ### PriceFeed limitations and known issues
 
-The purpose of the PriceFeed is to be at least as good as an immutable PriceFeed that relies purely on Chainlink, while also having some resilience in case of Chainlink failure / timeout, and chance of recovery.
+The purpose of the PriceFeed is to be at least as good as an immutable PriceFeed that relies purely on Pyth, while also having some resilience in case of Pyth failure / timeout, and chance of recovery.
 
-The PriceFeed logic consists of automatic on-chain decision-making for obtaining fallback price data from Tellor, and if possible, for returning to Chainlink if/when it recovers.
+The PriceFeed logic consists of automatic on-chain decision-making for obtaining fallback price data from Supra, and if possible, for returning to Pyth if/when it recovers.
 
-The PriceFeed logic is complex, and although we would prefer simplicity, it does allow the system a chance of switching to an accurate price source in case of a Chainlink failure or timeout, and also the possibility of returning to an honest Chainlink price after it has failed and recovered.
+The PriceFeed logic is complex, and although we would prefer simplicity, it does allow the system a chance of switching to an accurate price source in case of a Pyth failure or timeout, and also the possibility of returning to an honest Pyth price after it has failed and recovered.
 
-We believe the benefit of the fallback logic is worth the complexity, given that our system is entirely immutable - if we had no fallback logic and Chainlink were to be hacked or permanently fail, HLiquity would become permanently unusable anyway.
-
-
-
-**Chainlink Decimals**: the `PriceFeed` checks for and uses the latest `decimals` value reported by the Chainlink aggregator in order to calculate the Chainlink price at 18-digit precision, as needed by HLiquity.  `PriceFeed` does not assume a value for decimals and can handle the case where Chainlink change their decimal value. 
-
-However, the check `chainlinkIsBroken` uses both the current response from the latest round and the response previous round. Since `decimals` is not attached to round data, HLiquity has no way of knowing whether decimals has changed between the current round and the previous round, so we assume it is the same. HLiquity assumes the current return value of decimals() applies to both current round `i` and previous round `i-1`. 
-
-This means that a decimal change that coincides with a HLiquity price fetch could cause HLiquity to assert that the Chainlink price has deviated too much, and fall back to Tellor. There is nothing we can do about this. We hope/expect Chainlink to never change their `decimals()` return value (currently 8), and if a hack/technical error causes Chainlink's decimals to change, HLiquity may fall back to Tellor.
-
-To summarize the Chainlink decimals issue: 
-- HLiquity can handle the case where Chainlink decimals changes across _two consecutive rounds `i` and `i-1` which are not used in the same HLiquity price fetch_
-- If HLiquity fetches the price at round `i`, it will not know if Chainlink decimals changed across round `i-1` to round `i`, and the consequent price scaling distortion may cause HLiquity to fall back to Tellor
-- HLiquity will always calculate the correct current price at 18-digit precision assuming the current return value of `decimals()` is correct (i.e. is the value used by the nodes).
-
-**Tellor Decimals**: Tellor uses 6 decimal precision for their HBARCHF price as determined by a social consensus of Tellor miners/data providers, and shown on Tellor's price feed page. Their decimals value is not offered in their on-chain contracts.  We rely on the continued social consensus around 6 decimals for their HBARCHF price feed. Tellor have informed us that if there was demand for an HBARCHF price at different precision, they would simply create a new `requestId`, and make no attempt to alter the social consensus around the precision of the current HBARCHF `requestId` (1) used by HLiquity.
-
+We believe the benefit of the fallback logic is worth the complexity, given that our system is entirely immutable - if we had no fallback logic and Pyth were to be hacked or permanently fail, HLiquity would become permanently unusable anyway.
 
 ### Keeping a sorted list of Troves ordered by ICR
 
@@ -640,63 +589,6 @@ Run all tests with `npx hardhat test`, or run a specific test with `npx hardhat 
 
 Tests are run against the Hardhat EVM.
 
-### Brownie Tests
-There are some special tests that are using Brownie framework.
-
-To test, install brownie with:
-```
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-
-pipx install eth-brownie
-```
-
-and add numpy with:
-```
-pipx inject eth-brownie numpy
-```
-
-Add OpenZeppelin package:
-```
-brownie pm install OpenZeppelin/openzeppelin-contracts@3.3.0
-```
-
-Run, from `packages/contracts/`:
-```
-brownie test -s
-```
-
-### OpenEthereum
-
-Add the local node as a `live` network at `~/.brownie/network-config.yaml`:
-```
-(...)
-      - name: Local Openethereum
-        chainid: 17
-        id: openethereum
-        host: http://localhost:8545
-```
-
-Make sure state is cleaned up first:
-```
-rm -Rf build/deployments/*
-```
-
-Start Openthereum node from this repo’s root with:
-```
-yarn start-dev-chain:openethereum
-```
-
-Then, again from `packages/contracts/`, run it with:
-```
-brownie test -s --network openethereum
-```
-
-To stop the Openethereum node, you can do it with:
-```
-yarn stop-dev-chain
-```
-
 ### Coverage
 
 To check test coverage you can run:
@@ -715,17 +607,16 @@ There’s also a [pull request](https://github.com/liquity/dev/pull/515) to incr
 
 ### Integer representations of decimals
 
-Several ratios and the HBAR:CHF price are integer representations of decimals, to 18 digits of precision. For example:
+Several ratios and the HBAR:CHF price are integer representations of decimals, to 8 digits of precision. For example:
 
-| **uint representation of decimal** | **Number**    |
-| ---------------------------------- | ------------- |
-| 1100000000000000000                | 1.1           |
-| 200000000000000000000              | 200           |
-| 1000000000000000000                | 1             |
-| 5432100000000000000                | 5.4321        |
-| 34560000000                        | 0.00000003456 |
-| 370000000000000000000              | 370           |
-| 1                                  | 1e-18         |
+| **uint representation of decimal** | **Number**   |
+| - | ------------ |
+| 110000000 | 1.1          |
+| 20000000000 | 200          |
+| 100000000 | 1            |
+| 543210000 | 5.4321       |
+| 37000000000 | 370          |
+| 1 | 1e-8         |
 
 etc.
 
@@ -745,11 +636,11 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 `function withdrawHCHF(uint _maxFeePercentage, uint _HCHFAmount, address _upperHint, address _lowerHint)`: issues `_amount` of HCHF from the caller’s Trove to the caller. Executes only if the Trove's collateralization ratio would remain above the minimum, and the resulting total collateralization ratio is above 150%. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee.
 
-`repayHCHF(uint _amount, address _upperHint, address _lowerHint)`: repay `_amount` of HCHF to the caller’s Trove, subject to leaving 50 debt in the Trove (which corresponds to the 50 HCHF gas compensation).
+`repayHCHF(uint _amount, address _upperHint, address _lowerHint)`: repay `_amount` of HCHF to the caller’s Trove, subject to leaving 20 debt in the Trove (which corresponds to the 20 HCHF gas compensation).
 
 `_adjustTrove(address _borrower, uint _collWithdrawal, uint _debtChange, bool _isDebtIncrease, address _upperHint, address _lowerHint, uint _maxFeePercentage)`: enables a borrower to simultaneously change both their collateral and debt, subject to all the restrictions that apply to individual increases/decreases of each quantity with the following particularity: if the adjustment reduces the collateralization ratio of the Trove, the function only executes if the resulting total collateralization ratio is above 150%. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when a redemption transaction is processed first, driving up the issuance fee. The parameter is ignored if the debt is not increased with the transaction.
 
-`closeTrove()`: allows a borrower to repay all debt, withdraw all their collateral, and close their Trove. Requires the borrower have a HCHF balance sufficient to repay their trove's debt, excluding gas compensation - i.e. `(debt - 50)` HCHF.
+`closeTrove()`: allows a borrower to repay all debt, withdraw all their collateral, and close their Trove. Requires the borrower have a HCHF balance sufficient to repay their trove's debt, excluding gas compensation - i.e. `(debt - 20)` HCHF.
 
 `claimCollateral(address _user)`: when a borrower’s Trove has been fully redeemed from and closed, or liquidated in Recovery Mode with a collateralization ratio above 110%, this function allows the borrower to claim their HBAR collateral surplus that remains in the system (collateral - debt upon redemption; collateral - 110% of the debt upon liquidation).
 
@@ -757,11 +648,11 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 `liquidate(address _borrower)`: callable by anyone, attempts to liquidate the Trove of `_user`. Executes successfully if `_user`’s Trove meets the conditions for liquidation (e.g. in Normal Mode, it liquidates if the Trove's ICR < the system MCR).  
 
-`liquidateTroves(uint n)`: callable by anyone, checks for under-collateralized Troves below MCR and liquidates up to `n`, starting from the Trove with the lowest collateralization ratio; subject to gas constraints and the actual number of under-collateralized Troves. The gas costs of `liquidateTroves(uint n)` mainly depend on the number of Troves that are liquidated, and whether the Troves are offset against the Stability Pool or redistributed. For n=1, the gas costs per liquidated Trove are roughly between 215K-400K, for n=5 between 80K-115K, for n=10 between 70K-82K, and for n=50 between 60K-65K.
+`liquidateTroves(uint n)`: callable by anyone, checks for under-collateralized Troves below MCR and liquidates up to `n`, starting from the Trove with the lowest collateralization ratio; subject to gas constraints and the actual number of under-collateralized Troves. The gas costs of `liquidateTroves(uint n)` mainly depend on the number of Troves that are liquidated, and whether the Troves are offset against the Stability Pool or redistributed.
 
-`batchLiquidateTroves(address[] calldata _troveArray)`: callable by anyone, accepts a custom list of Troves addresses as an argument. Steps through the provided list and attempts to liquidate every Trove, until it reaches the end or it runs out of gas. A Trove is liquidated only if it meets the conditions for liquidation. For a batch of 10 Troves, the gas costs per liquidated Trove are roughly between 75K-83K, for a batch of 50 Troves between 54K-69K.
+`batchLiquidateTroves(address[] calldata _troveArray)`: callable by anyone, accepts a custom list of Troves addresses as an argument. Steps through the provided list and attempts to liquidate every Trove, until it reaches the end or it runs out of gas. A Trove is liquidated only if it meets the conditions for liquidation.
 
-`redeemCollateral(uint _HCHFAmount, address _firstRedemptionHint, address _upperPartialRedemptionHint, address _lowerPartialRedemptionHint, uint _partialRedemptionHintNICR, uint _maxIterations, uint _maxFeePercentage)`: redeems `_HCHFamount` of stablecoins for ether from the system. Decreases the caller’s HCHF balance, and sends them the corresponding amount of HBAR. Executes successfully if the caller has sufficient HCHF to redeem. The number of Troves redeemed from is capped by `_maxIterations`. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when another redemption transaction is processed first, driving up the redemption fee.
+`redeemCollateral(uint _HCHFAmount, address _firstRedemptionHint, address _upperPartialRedemptionHint, address _lowerPartialRedemptionHint, uint _partialRedemptionHintNICR, uint _maxIterations, uint _maxFeePercentage)`: redeems `_HCHFamount` of stablecoins for HBAR from the system. Decreases the caller’s HCHF balance, and sends them the corresponding amount of HBAR. Executes successfully if the caller has sufficient HCHF to redeem. The number of Troves redeemed from is capped by `_maxIterations`. The borrower has to provide a `_maxFeePercentage` that he/she is willing to accept in case of a fee slippage, i.e. when another redemption transaction is processed first, driving up the redemption fee.
 
 `getCurrentICR(address _user, uint _price)`: computes the user’s individual collateralization ratio (ICR) based on their total collateral and total HCHF debt. Returns 2^256 -1 if they have 0 debt.
 
@@ -829,17 +720,7 @@ The number of Troves to consider for redemption can be capped by passing a non-z
 
 ### HCHF token `HCHFToken.sol` and HLQT token `HLQTToken.sol`
 
-Standard ERC20 and EIP2612 (`permit()` ) functionality.
-
-**Note**: `permit()` can be front-run, as it does not require that the permitted spender be the `msg.sender`.
-
-This allows flexibility, as it means that _anyone_ can submit a Permit signed by A that allows B to spend a portion of A's tokens.
-
-The end result is the same for the signer A and spender B, but does mean that a `permit` transaction
-could be front-run and revert - which may hamper the execution flow of a contract that is intended to handle the submission of a Permit on-chain.
-
-For more details please see the original proposal EIP-2612:
-https://eips.ethereum.org/EIPS/eip-2612
+Hold similar functionality like ERC-20 contract but are extended for HTS (Hedera Token Service) native functionality, like transfer, mint, burn etc.
 
 ## Supplying Hints to Trove operations
 
@@ -876,66 +757,6 @@ Gas cost of steps 2-4 will be free, and step 5 will be `O(1)`.
 
 Hints allow cheaper Trove operations for the user, at the expense of a slightly longer time to completion, due to the need to await the result of the two read calls in steps 1 and 2 - which may be sent as JSON-RPC requests to Infura, unless the Frontend Operator is running a full Hedera node.
 
-### Example Borrower Operations with Hints
-
-#### Opening a trove
-```
-  const toWei = web3.utils.toWei
-  const toBN = web3.utils.toBN
-
-  const HCHFAmount = toBN(toWei('2500')) // borrower wants to withdraw 2500 HCHF
-  const HBARColl = toBN(toWei('5')) // borrower wants to lock 5 HBAR collateral
-
-  // Call deployed TroveManager contract to read the liquidation reserve and latest borrowing fee
-  const liquidationReserve = await troveManager.HCHF_GAS_COMPENSATION()
-  const expectedFee = await troveManager.getBorrowingFeeWithDecay(HCHFAmount)
-  
-  // Total debt of the new trove = HCHF amount drawn, plus fee, plus the liquidation reserve
-  const expectedDebt = HCHFAmount.add(expectedFee).add(liquidationReserve)
-
-  // Get the nominal NICR of the new trove
-  const _1e20 = toBN(toWei('100'))
-  let NICR = HBARColl.mul(_1e20).div(expectedDebt)
-
-  // Get an approximate address hint from the deployed HintHelper contract. Use (15 * number of troves) trials 
-  // to get an approx. hint that is close to the right position.
-  let numTroves = await sortedTroves.getSize()
-  let numTrials = numTroves.mul(toBN('15'))
-  let { 0: approxHint } = await hintHelpers.getApproxHint(NICR, numTrials, 42)  // random seed of 42
-
-  // Use the approximate hint to get the exact upper and lower hints from the deployed SortedTroves contract
-  let { 0: upperHint, 1: lowerHint } = await sortedTroves.findInsertPosition(NICR, approxHint, approxHint)
-
-  // Finally, call openTrove with the exact upperHint and lowerHint
-  const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
-  await borrowerOperations.openTrove(maxFee, HCHFAmount, upperHint, lowerHint, { value: HBARColl })
-```
-
-#### Adjusting a Trove
-```
-  const collIncrease = toBN(toWei('1'))  // borrower wants to add 1 HBAR
-  const HCHFRepayment = toBN(toWei('230')) // borrower wants to repay 230 HCHF
-
-  // Get trove's current debt and coll
-  const {0: debt, 1: coll} = await troveManager.getEntireDebtAndColl(borrower)
-  
-  const newDebt = debt.sub(HCHFRepayment)
-  const newColl = coll.add(collIncrease)
-
-  NICR = newColl.mul(_1e20).div(newDebt)
-
-  // Get an approximate address hint from the deployed HintHelper contract. Use (15 * number of troves) trials 
-  // to get an approx. hint that is close to the right position.
-  numTroves = await sortedTroves.getSize()
-  numTrials = numTroves.mul(toBN('15'))
-  ({0: approxHint} = await hintHelpers.getApproxHint(NICR, numTrials, 42))
-
-  // Use the approximate hint to get the exact upper and lower hints from the deployed SortedTroves contract
-  ({ 0: upperHint, 1: lowerHint } = await sortedTroves.findInsertPosition(NICR, approxHint, approxHint))
-
-  // Call adjustTrove with the exact upperHint and lowerHint
-  await borrowerOperations.adjustTrove(maxFee, 0, HCHFRepayment, false, upperHint, lowerHint, {value: collIncrease})
-```
 
 ### Hints for `redeemCollateral`
 
@@ -999,7 +820,7 @@ If not, the redemption sequence doesn’t perform the final partial redemption, 
 
 In HLiquity, we want to maximize liquidation throughput, and ensure that undercollateralized Troves are liquidated promptly by “liquidators” - agents who may also hold Stability Pool deposits, and who expect to profit from liquidations.
 
-However, gas costs in Hedera are substantial. If the gas costs of our public liquidation functions are too high, this may discourage liquidators from calling them, and leave the system holding too many undercollateralized Troves for too long.
+If the gas costs of our public liquidation functions are too high, this may discourage liquidators from calling them, and leave the system holding too many undercollateralized Troves for too long.
 
 The protocol thus directly compensates liquidators for their gas costs, to incentivize prompt liquidations in both normal and extreme periods of high gas prices. Liquidators should be confident that they will at least break even by making liquidation transactions.
 
@@ -1009,7 +830,7 @@ When a liquidation transaction liquidates multiple Troves, each Trove contribute
 
 Gas compensation per liquidated Trove is given by the formula:
 
-Gas compensation = `200 HCHF + 0.5% of trove’s collateral (HBAR)`
+Gas compensation = `20 HCHF + 0.5% of trove’s collateral (HBAR)`
 
 The intentions behind this formula are:
 - To ensure that smaller Troves are liquidated promptly in normal times, at least
@@ -1017,21 +838,21 @@ The intentions behind this formula are:
 
 ### Gas compensation schedule
 
-When a borrower opens a Trove, an additional 200 HCHF debt is issued, and 200 HCHF is minted and sent to a dedicated contract (`GasPool`) for gas compensation - the "gas pool".
+When a borrower opens a Trove, an additional 20 HCHF debt is issued, and 20 HCHF is minted and sent to a dedicated contract (`GasPool`) for gas compensation - the "gas pool".
 
-When a borrower closes their active Trove, this gas compensation is refunded: 200 HCHF is burned from the gas pool's balance, and the corresponding 200 HCHF debt on the Trove is cancelled.
+When a borrower closes their active Trove, this gas compensation is refunded: 20 HCHF is burned from the gas pool's balance, and the corresponding 20 HCHF debt on the Trove is cancelled.
 
-The purpose of the 200 HCHF Liquidation Reserve is to provide a minimum level of gas compensation, regardless of the Trove's collateral size or the current HBAR price.
+The purpose of the 20 HCHF Liquidation Reserve is to provide a minimum level of gas compensation, regardless of the Trove's collateral size or the current HBAR price.
 
 ### Liquidation
 
-When a Trove is liquidated, 0.5% of its collateral is sent to the liquidator, along with the 200 HCHF Liquidation Reserve. Thus, a liquidator always receives `{200 HCHF + 0.5% collateral}` per Trove that they liquidate. The collateral remainder of the Trove is then either offset, redistributed or a combination of both, depending on the amount of HCHF in the Stability Pool.
+When a Trove is liquidated, 0.5% of its collateral is sent to the liquidator, along with the 200 HCHF Liquidation Reserve. Thus, a liquidator always receives `{20 HCHF + 0.5% collateral}` per Trove that they liquidate. The collateral remainder of the Trove is then either offset, redistributed or a combination of both, depending on the amount of HCHF in the Stability Pool.
 
 ### Gas compensation and redemptions
 
-When a Trove is redeemed from, the redemption is made only against (debt - 200), not the entire debt.
+When a Trove is redeemed from, the redemption is made only against (debt - 20), not the entire debt.
 
-But if the redemption causes an amount (debt - 200) to be cancelled, the Trove is then closed: the 200 HCHF Liquidation Reserve is cancelled with its remaining 200 debt. That is, the gas compensation is burned from the gas pool, and the 200 debt is zero’d. The HBAR collateral surplus from the Trove remains in the system, to be later claimed by its owner.
+But if the redemption causes an amount (debt - 20) to be cancelled, the Trove is then closed: the 20 HCHF Liquidation Reserve is cancelled with its remaining 20 debt. That is, the gas compensation is burned from the gas pool, and the 20 debt is zero’d. The HBAR collateral surplus from the Trove remains in the system, to be later claimed by its owner.
 
 ### Gas compensation helper functions
 
@@ -1045,17 +866,17 @@ Gas compensation functions are found in the parent _LiquityBase.sol_ contract:
 
 Any HCHF holder may deposit HCHF to the Stability Pool. It is designed to absorb debt from liquidations, and reward depositors with the liquidated collateral, shared between depositors in proportion to their deposit size.
 
-Since liquidations are expected to occur at an ICR of just below 110%, and even in most extreme cases, still above 100%, a depositor can expect to receive a net gain from most liquidations. When that holds, the dollar value of the HBAR gain from a liquidation exceeds the dollar value of the HCHF loss (assuming the price of HCHF is $1).  
+Since liquidations are expected to occur at an ICR of just below 110%, and even in most extreme cases, still above 100%, a depositor can expect to receive a net gain from most liquidations. When that holds, the Swiss Franc value of the HBAR gain from a liquidation exceeds the Swiss Franc value of the HCHF loss (assuming the price of HCHF is $1).  
 
-We define the **collateral surplus** in a liquidation as `$(HBAR) - debt`, where `$(...)` represents the dollar value.
+We define the **collateral surplus** in a liquidation as `$(HBAR) - debt`, where `$(...)` represents the Swiss Franc value.
 
-At an HCHF price of $1, Troves with `ICR > 100%` have a positive collateral surplus.
+At an HCHF price of 1 Swiss Franc, Troves with `ICR > 100%` have a positive collateral surplus.
 
 After one or more liquidations, a deposit will have absorbed HCHF losses, and received HBAR gains. The remaining reduced deposit is the **compounded deposit**.
 
 Stability Providers expect a positive ROI on their initial deposit. That is:
 
-`$(HBAR Gain + compounded deposit) > $(initial deposit)`
+`$(HBAR Gain + compounded deposit) > Swiss Franc(initial deposit)`
 
 ### Mixed liquidations: offset and redistribution
 
@@ -1083,10 +904,10 @@ Here’s an example of the Stability Pool absorbing liquidations. The Stability 
 
 There are two Troves to be liquidated, T1 and T2:
 
-|   | Trove | Collateral (HBAR) | Debt (HCHF) | ICR         | $(HBAR) ($) | Collateral surplus ($) |
-|---|-------|------------------|-------------|-------------|------------|------------------------|
-|   | T1    | 1.6              | 150         | 1.066666667 | 160        | 10                     |
-|   | T2    | 2.45             | 225         | 1.088888889 | 245        | 20                     |
+|   | Trove | Collateral (HBAR) | Debt (HCHF) | ICR         | CHF (HBAR) (CHF) | Collateral surplus (CHF) |
+|---|-------|------------------|-------------|-------------|------------------|--------------------------|
+|   | T1    | 1.6              | 150         | 1.066666667 | 160              | 10                       |
+|   | T2    | 2.45             | 225         | 1.088888889 | 245              | 20                       |
 
 Here are the deposits, before any liquidations occur:
 
@@ -1151,7 +972,7 @@ This is similar in spirit to the simpler [Scalable Reward Distribution on the Et
 
 Stability Providers earn HLQT tokens continuously over time, in proportion to the size of their deposit. This is known as “Community Issuance”, and is handled by `CommunityIssuance.sol`.
 
-Upon system deployment and activation, `CommunityIssuance` holds an initial HLQT supply, currently (provisionally) set at 32 million HLQT tokens.
+Upon system deployment and activation, `CommunityIssuance` holds an initial HLQT supply, currently (provisionally) set at 18.7 million HLQT tokens.
 
 Each Stability Pool deposit is tagged with a front end tag - the Hedera address of the front end through which the deposit was made. Stability deposits made directly with the protocol (no front end) are tagged with the zero address.
 
@@ -1170,15 +991,15 @@ It results in the following cumulative issuance schedule for the community HLQT 
 | Year | Total community HLQT issued |
 |------|-----------------------------|
 | 0    | 0%                          |
-| 1    | 50%                         |
-| 2    | 75%                         |
-| 3    | 87.5%                       |
-| 4    | 93.75%                      |
-| 5    | 96.88%                      |
+| 1    | 33%                         |
+| 2    | 55.11%                      |
+| 3    | 69.92%                      |
+| 4    | 79.85%                      |
+| 5    | 86.50%                      |
 
 The shape of the HLQT issuance curve is intended to incentivize both early depositors, and long-term deposits.
 
-Although the HLQT issuance curve follows a yearly halving schedule, in practice the `CommunityIssuance` contract use time intervals of one minute, for more fine-grained reward calculations.
+Although the HLQT issuance curve follows a yearly schedule, in practice the `CommunityIssuance` contract use time intervals of one minute, for more fine-grained reward calculations.
 
 ### HLQT Issuance implementation
 
@@ -1188,7 +1009,7 @@ In a HLQT reward event, the HLQT to be issued is calculated based on time passed
 
 The HLQT produced in this issuance event is shared between depositors, in proportion to their deposit sizes.
 
-To efficiently and accurately track HLQT gains for depositors and front ends as deposits decrease over time from liquidations, we re-use the [algorithm for rewards from a compounding, decreasing stake](https://github.com/liquity/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf). It is the same algorithm used for the HBAR gain from liquidations.
+To efficiently and accurately track HLQT gains for depositors and front ends as deposits decrease over time from liquidations. It is the same algorithm used for the HBAR gain from liquidations.
 
 The same product `P` is used, and a sum `G` is used to track HLQT rewards, and each deposit gets a new snapshot of `P` and `G` when it is updated.
 
@@ -1217,18 +1038,16 @@ When a liquidation occurs:
 
 ## HLQT issuance to liquity providers
 
-On deployment a new Uniswap pool will be created for the pair HCHF/HBAR and a Staking rewards contract will be deployed. The contract is based on [Unipool by Synthetix](https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol). More information about their liquidity rewards program can be found in the [original SIP 31](https://sips.synthetix.io/sips/sip-31) and in [their blog](https://blog.synthetix.io/new-uniswap-seth-lp-reward-system/).
+On deployment a new SaucerSwap pool will be created for the pair HCHF/HBAR and a Staking rewards contract will be deployed.
 
 Essentially the way it works is:
-- Liqudity providers add funds to the Uniswap pool, and get UNIv2 tokens in exchange
-- Liqudity providers stake those UNIv2 tokens into Unipool rewards contract
+- Liqudity providers add funds to the SaucerSwap pool, and get SaucerSwap LP V1 tokens in exchange
+- Liqudity providers stake those SaucerSwap LP V1 tokens into SaucerSwapPool rewards contract
 - Liqudity providers accrue rewards, proportional to the amount of staked tokens and staking time
 - Liqudity providers can claim their rewards when they want
-- Liqudity providers can unstake UNIv2 tokens to exit the program (i.e., stop earning rewards) when they want
+- Liqudity providers can unstake SaucerSwap LP V1 tokens to exit the program (i.e., stop earning rewards) when they want
 
-Our implementation is simpler because funds for rewards will only be added once, on deployment of HLQT token (for more technical details about the differences, see PR #271 on our repo).
-
-The amount of HLQT tokens that will be minted to rewards contract is 1.33M, and the duration of the program will be 30 days. If at some point the total amount of staked tokens is zero, the clock will be “stopped”, so the period will be extended by the time during which the staking pool is empty, in order to avoid getting HLQT tokens locked. That also means that the start time for the program will be the event that occurs first: either HLQT token contract is deployed, and therefore HLQT tokens are minted to Unipool contract, or first liquidity provider stakes UNIv2 tokens into it.
+The amount of HLQT tokens that will be minted to rewards contract is 1.33M, and the duration of the program will be 18 Weeks. If at some point the total amount of staked tokens is zero, the clock will be “stopped”, so the period will be extended by the time during which the staking pool is empty, in order to avoid getting HLQT tokens locked. That also means that the start time for the program will be the event that occurs first: either HLQT token contract is deployed, and therefore HLQT tokens are minted to SaucerSwap Pool contract, or first liquidity provider stakes SaucerSwap LP V1 tokens into it.
 
 ## HLiquity System Fees
 
@@ -1300,7 +1119,7 @@ When a liquidation occurs and the Stability Pool is empty or smaller than the li
 
 For two Troves A and B with collateral `A.coll > B.coll`, Trove A should earn a bigger share of the liquidated collateral and debt.
 
-In HLiquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.  Please see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
+In HLiquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.
 
 However, when it comes to implementation, Hedera gas costs make it too expensive to loop over all Troves and write new data to storage for each one. When a Trove receives redistribution rewards, the system does not update the Trove's collateral and debt properties - instead, the Trove’s rewards remain "pending" until the borrower's next operation.
 
@@ -1314,7 +1133,7 @@ Consider the case where new Trove is created after all active Troves have receiv
 
 The fresh trove would earns rewards based on its **entire** collateral, whereas old Troves would earn rewards based only on **some portion** of their collateral - since a part of their collateral is pending, and not included in the Trove’s `coll` property.
 
-This can break the ordering of Troves by ICR - see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
+This can break the ordering of Troves by ICR.
 
 ### Corrected Stake Solution
 
@@ -1349,7 +1168,7 @@ PDFs of these can be found in https://github.com/liquity/dev/blob/main/papers
 
 _**Trove:**_ a collateralized debt position, bound to a single Hedera address. Also referred to as a “CDP” in similar protocols.
 
-_**HCHF**_:  The stablecoin that may be issued from a user's collateralized debt position and freely transferred/traded to any Hedera address. Intended to maintain parity with the US dollar, and can always be redeemed directly with the system: 1 HCHF is always exchangeable for $1 CHF worth of HBAR.
+_**HCHF**_:  The stablecoin that may be issued from a user's collateralized debt position and freely transferred/traded to any Hedera address. Intended to maintain parity with the Swiss Franc, and can always be redeemed directly with the system: 1 HCHF is always exchangeable for 1 CHF worth of HBAR.
 
 _**Active Trove:**_ an Hedera address owns an “active Trove” if there is a node in the `SortedTroves` list with ID equal to the address, and non-zero collateral is recorded on the Trove struct for that address.
 
@@ -1363,7 +1182,7 @@ _**Entire collateral:**_ the sum of a Trove’s active collateral plus its pendi
 
 _**Entire debt:**_ the sum of a Trove’s active debt plus its pending debt rewards accumulated from distributions
 
-_**Individual collateralization ratio (ICR):**_ a Trove's ICR is the ratio of the dollar value of its entire collateral at the current HBAR:CHF price, to its entire debt
+_**Individual collateralization ratio (ICR):**_ a Trove's ICR is the ratio of the Swiss Franc value of its entire collateral at the current HBAR:CHF price, to its entire debt
 
 _**Nominal collateralization ratio (nominal ICR, NICR):**_ a Trove's nominal ICR is its entire collateral (in HBAR) multiplied by 100e18 and divided by its entire debt.
 
@@ -1379,7 +1198,7 @@ _**Entire system collateral:**_ the sum of the collateral in the ActivePool and 
 
 _**Entire system debt:**_ the sum of the debt in the ActivePool and DefaultPool
 
-_**Total collateralization ratio (TCR):**_ the ratio of the dollar value of the entire system collateral at the current HBAR:CHF price, to the entire system debt
+_**Total collateralization ratio (TCR):**_ the ratio of the Swiss Franc value of the entire system collateral at the current HBAR:CHF price, to the entire system debt
 
 _**Critical collateralization ratio (CCR):**_ 150%. When the TCR is below the CCR, the system enters Recovery Mode.
 
@@ -1399,7 +1218,7 @@ _**Liquidation:**_ the act of force-closing an undercollateralized Trove and red
 
 Liquidation functionality is permissionless and publically available - anyone may liquidate an undercollateralized Trove, or batch liquidate Troves in ascending order of collateralization ratio.
 
-_**Collateral Surplus**_: The difference between the dollar value of a Trove's HBAR collateral, and the dollar value of its HCHF debt. In a full liquidation, this is the net gain earned by the recipients of the liquidation.
+_**Collateral Surplus**_: The difference between the Swiss Franc value of a Trove's HBAR collateral, and the Swiss Franc value of its HCHF debt. In a full liquidation, this is the net gain earned by the recipients of the liquidation.
 
 _**Offset:**_ cancellation of liquidated debt with HCHF in the Stability Pool, and assignment of liquidated collateral to Stability Pool depositors, in proportion to their deposit.
 
@@ -1455,226 +1274,11 @@ yarn test
 E.g.:
 
 ```
-yarn deploy --network ropsten
+yarn deploy --network hederaTestnet
 ```
 
-Supported networks are currently: ropsten, kovan, rinkeby, goerli. The above command will deploy into the default channel (the one that's used by the public dev-frontend). To deploy into the internal channel instead:
-
-```
-yarn deploy --network ropsten --channel internal
-```
-
-You can optionally specify an explicit gas price too:
-
-```
-yarn deploy --network ropsten --gas-price 20
-```
 
 After a successful deployment, the addresses of the newly deployed contracts will be written to a version-controlled JSON file under `packages/lib-ethers/deployments/default`.
-
-To publish a new deployment, you must execute the above command for all of the following combinations:
-
-| Network | Channel  |
-| ------- | -------- |
-| ropsten | default  |
-| kovan   | default  |
-| rinkeby | default  |
-| goerli  | default  |
-
-At some point in the future, we will make this process automatic. Once you're done deploying to all the networks, execute the following command:
-
-```
-yarn save-live-version
-```
-
-This copies the contract artifacts to a version controlled area (`packages/lib/live`) then checks that you really did deploy to all the networks. Next you need to commit and push all changed files. The repo's GitHub workflow will then build a new Docker image of the frontend interfacing with the new addresses.
-
-#### Start a local blockchain and deploy the contracts
-
-```
-yarn start-dev-chain
-```
-
-Starts an openethereum node in a Docker container, running the [private development chain](https://openethereum.github.io/Private-development-chain), then deploys the contracts to this chain.
-
-You may want to use this before starting the dev-frontend in development mode. To use the newly deployed contracts, switch MetaMask to the built-in "Localhost 8545" network.
-
-> Q: How can I get HBAR on the local blockchain?  
-> A: Import this private key into MetaMask:  
-> `0x4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7`  
-> This account has all the HBAR you'll ever need.
-
-Once you no longer need the local node, stop it with:
-
-```
-yarn stop-dev-chain
-```
-
-#### Start dev-frontend in development mode
-
-```
-yarn start-dev-frontend
-```
-
-This will start dev-frontend in development mode on http://localhost:3000. The app will automatically be reloaded if you change a source file under `packages/dev-frontend`.
-
-If you make changes to a different package under `packages`, it is recommended to rebuild the entire project with `yarn prepare` in the root directory of the repo. This makes sure that a change in one package doesn't break another.
-
-To stop the dev-frontend running in this mode, bring up the terminal in which you've started the command and press Ctrl+C.
-
-#### Start dev-frontend in demo mode
-
-This will automatically start the local blockchain, so you need to make sure that's not already running before you run the following command.
-
-```
-yarn start-demo
-```
-
-This spawns a modified version of dev-frontend that ignores MetaMask, and directly uses the local blockchain node. Every time the page is reloaded (at http://localhost:3000), a new random account is created with a balance of 100 HBAR. Additionally, transactions are automatically signed, so you no longer need to accept wallet confirmations. This lets you play around with HLiquity more freely.
-
-When you no longer need the demo mode, press Ctrl+C in the terminal then run:
-
-```
-yarn stop-demo
-```
-
-#### Start dev-frontend against a mainnet fork RPC node
-
-This will start a hardhat mainnet forked RPC node at the block number configured in `hardhat.config.mainnet-fork.ts`, so you need to make sure you're not running a hardhat node on port 8545 already.
-
-You'll need an Alchemy API key to create the fork.
-
-```
-ALCHEMY_API_KEY=enter_your_key_here yarn start-fork
-```
-
-```
-yarn start-demo:dev-frontend
-```
-
-This spawns a modified version of dev-frontend that automatically signs transactions so you don't need to interact with a browser wallet. It directly uses the local forked RPC node. 
-
-You may need to wait a minute or so for your fork mainnet provider to load and cache all the blockchain state at your chosen block number. Refresh the page after 5 minutes.
-
-
-#### Build dev-frontend for production
-
-In a freshly cloned & installed monorepo, or if you have only modified code inside the dev-frontend package:
-
-```
-yarn build
-```
-
-If you have changed something in one or more packages apart from dev-frontend, it's best to use:
-
-```
-yarn rebuild
-```
-
-This combines the top-level `prepare` and `build` scripts.
-
-You'll find the output in `packages/dev-frontend/build`.
-
-### Configuring your custom frontend
-
-Your custom built frontend can be configured by putting a file named `config.json` inside the same directory as `index.html` built in the previous step. The format of this file is:
-
-```
-{
-  "frontendTag": "0x2781fD154358b009abf6280db4Ec066FCC6cb435",
-  "infuraApiKey": "158b6511a5c74d1ac028a8a2afe8f626"
-}
-```
-
-## Running a frontend with Docker
-
-The quickest way to get a frontend up and running is to use the [prebuilt image](https://hub.docker.com/r/liquity/dev-frontend) available on Docker Hub.
-
-### Prerequisites
-
-You will need to have [Docker](https://docs.docker.com/get-docker/) installed.
-
-### Running with `docker`
-
-```
-docker pull liquity/dev-frontend
-docker run --name liquity -d --rm -p 3000:80 liquity/dev-frontend
-```
-
-This will start serving your frontend using HTTP on port 3000. If everything went well, you should be able to open http://localhost:3000/ in your browser. To use a different port, just replace 3000 with your desired port number.
-
-To stop the service:
-
-```
-docker kill liquity
-```
-
-### Configuring a public frontend
-
-If you're planning to publicly host a frontend, you might need to pass the Docker container some extra configuration in the form of environment variables.
-
-#### FRONTEND_TAG
-
-If you want to receive a share of the HLQT rewards earned by users of your frontend, set this variable to the Hedera address you want the HLQT to be sent to.
-
-#### INFURA_API_KEY
-
-This is an optional parameter. If you'd like your frontend to use Infura's [WebSocket endpoint](https://infura.io/docs/ethereum#section/Websockets) for receiving blockchain events, set this variable to an Infura Project ID.
-
-### Setting a kickback rate
-
-The kickback rate is the portion of HLQT you pass on to users of your frontend. For example with a kickback rate of 80%, you receive 20% while users get the other 80. Before you can start to receive a share of HLQT rewards, you'll need to set this parameter by making a transaction on-chain.
-
-It is highly recommended that you do this while running a frontend locally, before you start hosting it publicly:
-
-```
-docker run --name liquity -d --rm -p 3000:80 \
-  -e FRONTEND_TAG=0x2781fD154358b009abf6280db4Ec066FCC6cb435 \
-  -e INFURA_API_KEY=158b6511a5c74d1ac028a8a2afe8f626 \
-  liquity/dev-frontend
-```
-
-Remember to replace the environment variables in the above example. After executing this command, open http://localhost:3000/ in a browser with MetaMask installed, then switch MetaMask to the account whose address you specified as FRONTEND_TAG to begin setting the kickback rate.
-
-### Setting a kickback rate with Gnosis Safe
-
-If you are using Gnosis safe, you have to set the kickback rate mannually through contract interaction. On the dashboard of Gnosis safe, click on "New transaction" and pick "Contraction interaction." Then, follow the [instructions](https://help.gnosis-safe.io/en/articles/3738081-contract-interactions): 
-- First, set the contract address as ```0x66017D22b0f8556afDd19FC67041899Eb65a21bb ```; 
-- Second, for method, choose "registerFrontEnd" from the list; 
-- Finally, type in the unit256 _Kickbackrate_. The kickback rate should be an integer representing an 18-digit decimal. So for a kickback rate of 99% (0.99), the value is: ```990000000000000000```. The number is 18 digits long.
-
-### Next steps for hosting a frontend
-
-Now that you've set a kickback rate, you'll need to decide how you want to host your frontend. There are way too many options to list here, so these are going to be just a few examples.
-
-#### Example 1: using static website hosting
-
-A frontend doesn't require any database or server-side computation, so the easiest way to host it is to use a service that lets you upload a folder of static files (HTML, CSS, JS, etc).
-
-To obtain the files you need to upload, you need to extract them from a frontend Docker container. If you were following the guide for setting a kickback rate and haven't stopped the container yet, then you already have one! Otherwise, you can create it with a command like this (remember to use your own `FRONTEND_TAG` and `INFURA_API_KEY`):
-
-```
-docker run --name liquity -d --rm \
-  -e FRONTEND_TAG=0x2781fD154358b009abf6280db4Ec066FCC6cb435 \
-  -e INFURA_API_KEY=158b6511a5c74d1ac028a8a2afe8f626 \
-  liquity/dev-frontend
-```
-
-While the container is running, use `docker cp` to extract the frontend's files to a folder of your choosing. For example to extract them to a new folder named "devui" inside the current folder, run:
-
-```
-docker cp liquity:/usr/share/nginx/html ./devui
-```
-
-Upload the contents of this folder to your chosen hosting service (or serve them using your own infrastructure), and you're set!
-
-#### Example 2: wrapping the frontend container in HTTPS
-
-If you have command line access to a server with Docker installed, hosting a frontend from a Docker container is a viable option.
-
-The frontend Docker container simply serves files using plain HTTP, which is susceptible to man-in-the-middle attacks. Therefore it is highly recommended to wrap it in HTTPS using a reverse proxy. You can find an example docker-compose config [here](packages/dev-frontend/docker-compose-example/docker-compose.yml) that secures the frontend using [SWAG (Secure Web Application Gateway)](https://github.com/linuxserver/docker-swag) and uses [watchtower](https://github.com/containrrr/watchtower) for automatically updating the frontend image to the latest version on Docker Hub.
-
-Remember to customize both [docker-compose.yml](packages/dev-frontend/docker-compose-example/docker-compose.yml) and the [site config](packages/dev-frontend/docker-compose-example/config/nginx/site-confs/liquity.example.com).
 
 ## Known Issues
 
@@ -1700,7 +1304,7 @@ When the trove is at one end of the `SortedTroves` list and adjusted such that i
 - Depositor sees incoming price drop tx (or just anticipates one, by reading exchange price data), that would shortly be followed by unprofitable liquidation txs
 - Depositor front-runs with `withdrawFromSP()` to evade the loss
 
-Stability Pool depositors expect to make profits from liquidations which are likely to happen at a collateral ratio slightly below 110%, but well above 100%. In rare cases (flash crashes, oracle failures), troves may be liquidated below 100% though, resulting in a net loss for stability depositors. Depositors thus have an incentive to withdraw their deposits if they anticipate liquidations below 100% (note that the exact threshold of such “unprofitable” liquidations will depend on the current Dollar price of HCHF).
+Stability Pool depositors expect to make profits from liquidations which are likely to happen at a collateral ratio slightly below 110%, but well above 100%. In rare cases (flash crashes, oracle failures), troves may be liquidated below 100% though, resulting in a net loss for stability depositors. Depositors thus have an incentive to withdraw their deposits if they anticipate liquidations below 100% (note that the exact threshold of such “unprofitable” liquidations will depend on the current Swiss Franc price of HCHF).
 
 As long the difference between two price feed updates is <10% and price stability is maintained, loss evasion situations should be rare. The percentage changes between two consecutive prices reported by Chainlink’s HBAR:CHF oracle has only ever come close to 10% a handful of times in the past few years.
 
@@ -1741,7 +1345,7 @@ Finally, this DoS could be avoided if the initial transaction avoids the public 
 
 The content of this readme document (“Readme”) is of purely informational nature. In particular, none of the content of the Readme shall be understood as advice provided by Swisscoast AG, any HLiquity Project Team member or other contributor to the Readme, nor does any of these persons warrant the actuality and accuracy of the Readme.
 
-Please read this Disclaimer carefully before accessing, interacting with, or using the HLiquity Protocol software, consisting of the HLiquity Protocol technology stack (in particular its smart contracts) as well as any other HLiquity technology such as e.g., the launch kit for frontend operators (together the “HLiquity Protocol Software”). 
+Please read this Disclaimer carefully before accessing, interacting with, or using the HLiquity Protocol software, consisting of the HLiquity Protocol technology stack (in particular its smart contracts). 
 
 While Swisscoast AG developed the HLiquity Protocol Software, the HLiquity Protocol Software runs in a fully decentralized and autonomous manner on the Hedera network. Swisscoast AG is not involved in the operation of the HLiquity Protocol Software nor has it any control over transactions made using its smart contracts. Further, Swisscoast AG does neither enter into any relationship with users of the HLiquity Protocol Software and/or frontend operators, nor does it operate an own frontend. Any and all functionalities of the HLiquity Protocol Software, including the HCHF and the HLQT, are of purely technical nature and there is no claim towards any private individual or legal entity in this regard.
 
