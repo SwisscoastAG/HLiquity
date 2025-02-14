@@ -980,11 +980,11 @@ When a deposit earns HLQT, it is split between the depositor, and the front end 
 
 ### HLQT Issuance schedule
 
-The overall community issuance schedule for HLQT is sub-linear and monotonic. We currently (provisionally) implement a yearly “halving” schedule, described by the cumulative issuance function:
+The overall community issuance schedule for HLQT is sub-linear and monotonic. We currently implement a yearly “halving” schedule, described by the cumulative issuance function:
 
-`supplyCap * (1 - 0.5^t)`
+`supplyCap * (1 - 0.67^t)`
 
-where `t` is year and `supplyCap` is (provisionally) set to represent 32 million HLQT tokens.
+where `t` is year and `supplyCap` is (provisionally) set to represent 18.7 million HLQT tokens.
 
 It results in the following cumulative issuance schedule for the community HLQT supply:
 
