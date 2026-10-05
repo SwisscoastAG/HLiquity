@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "name": "HLiquity verified mainnet address manifest",
+    "network": "hedera-mainnet",
+    "chainId": 295,
+    "generated": "2026-10-05",
+    "method": "On-chain fingerprinting (NAME()/getters + selector dispatch vs repo ABI) of the live deployment; supersedes the stale packages/lib-ethers/deployments/default/*.json configs, which describe an older testnet-era deployment. Do not use the repo-committed configs.",
+    "source": "hliquity-batch-exit-guide.html section 5 step 3 (community security documentation)",
+    "decimals": {
+      "HCHF": 8,
+      "HLQT": 8,
+      "ssLP-WHBAR-HCHF": 8,
+      "HBAR": 8
+    },
+    "fixedPoint": "Percentages (maxFeePercentage etc.) are 8-decimal: 100% = 1e8, 0.5% floor = 500000 (BaseMath.DECIMAL_PRECISION = 1e8)."
+  },
+  "protocolContracts": [
+    {
+      "name": "ActivePool",
+      "id": "0.0.6070027",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f0b"
+    },
+    {
+      "name": "CollSurplusPool",
+      "id": "0.0.6070030",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f0e"
+    },
+    {
+      "name": "CommunityIssuance",
+      "id": "0.0.6070036",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f14"
+    },
+    {
+      "name": "DefaultPool",
+      "id": "0.0.6070041",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f19"
+    },
+    {
+      "name": "HintHelpers",
+      "id": "0.0.6070047",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f1f"
+    },
+    {
+      "name": "LockupContractFactory",
+      "id": "0.0.6070057",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f29"
+    },
+    {
+      "name": "HLQTStaking",
+      "id": "0.0.6070064",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f30"
+    },
+    {
+      "name": "PriceFeed",
+      "id": "0.0.6070082",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f42"
+    },
+    {
+      "name": "SortedTroves",
+      "id": "0.0.6070089",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f49"
+    },
+    {
+      "name": "BorrowerOperations",
+      "id": "0.0.6070094",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f4e"
+    },
+    {
+      "name": "StabilityPool",
+      "id": "0.0.6070108",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f5c"
+    },
+    {
+      "name": "TroveManager",
+      "id": "0.0.6070118",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f66"
+    },
+    {
+      "name": "HCHFTokenWrapper",
+      "id": "0.0.6070122",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f6a"
+    },
+    {
+      "name": "HLQTTokenWrapper",
+      "id": "0.0.6070127",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f6f"
+    },
+    {
+      "name": "SaucerSwapPool_LPRewards",
+      "id": "0.0.6070133",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f75"
+    },
+    {
+      "name": "GasPool",
+      "id": "0.0.6070136",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f78"
+    },
+    {
+      "name": "MultiTroveGetter",
+      "id": "0.0.6070138",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f7a"
+    },
+    {
+      "name": "PythCaller",
+      "id": "0.0.6070144",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f80"
+    },
+    {
+      "name": "SupraCaller",
+      "id": "0.0.6070147",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f83"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "HCHF Stablecoin",
+      "symbol": "HCHF",
+      "id": "0.0.6070123",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f6b",
+      "note": "treasury+supply key = HCHFTokenWrapper 0.0.6070122"
+    },
+    {
+      "name": "HLQT (canonical)",
+      "symbol": "HLQT",
+      "id": "0.0.6070128",
+      "evmLongZero": "0x00000000000000000000000000000000005c9f70",
+      "note": "treasury+supply key = HLQTTokenWrapper 0.0.6070127; multiple counterfeit HLQT tokens exist - verify against this entry only"
+    },
+    {
+      "name": "SaucerSwap LP WHBAR-HCHF",
+      "symbol": "ssLP-WHBAR-HCHF",
+      "id": "0.0.6070469",
+      "evmLongZero": null,
+      "note": "SaucerSwap pair token; resolve its EVM alias via the mirror node - do not assume long-zero"
+    }
+  ],
+  "approvalPairs": [
+    {
+      "token": "HCHF 0.0.6070123",
+      "spender": "HCHFTokenWrapper 0.0.6070122",
+      "requiredBy": [
+        "provideToSP",
+        "repayHCHF",
+        "closeTrove (net debt = debt - 20 HCHF only)",
+        "adjustTrove (repay side)",
+        "redeemCollateral (use truncated amount or abort)"
+      ]
+    },
+    {
+      "token": "HLQT 0.0.6070128",
+      "spender": "HLQTTokenWrapper 0.0.6070127",
+      "requiredBy": [
+        "HLQTStaking.stake"
+      ]
+    },
+    {
+      "token": "ssLP-WHBAR-HCHF 0.0.6070469",
+      "spender": "SaucerSwapPool (LP rewards) 0.0.6070133",
+      "requiredBy": [
+        "SaucerSwapPool.stake"
+      ]
+    }
+  ],
+  "monitoring": {
+    "referenceDrainTx": "0.0.995584-1790680920-326001014",
+    "suspectedSweeperInfrastructure": [
+      {
+        "id": "0.0.10393273",
+        "role": "receiver EOA (suspected)"
+      },
+      {
+        "id": "0.0.995584",
+        "role": "relayer/gas payer EOA (suspected)"
+      }
+    ],
+    "note": "Neutral labels based on on-chain behavior; see the incident README and guide for evidence. SaucerSwap pairs 0.0.6078473 / 0.0.6070468 and router 0.0.3949434 are legitimate infrastructure - do NOT flag."
+  }
+}

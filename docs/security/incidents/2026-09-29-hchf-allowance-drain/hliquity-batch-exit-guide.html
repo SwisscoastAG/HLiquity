@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HLiquity Emergency Exit: Atomic Batch-Transaction Implementation Guide — Community Edition · HLiquity Community Security Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/*__AGENCY_CSS_START__*/
+/* ============================================================
+   AGENCY DOCS — design system v1
+   Editorial typography · deep green + gold · warm paper
+   ============================================================ */
+:root{
+  --ink:#132019; --muted:#5c6b62; --line:#e4e1d8; --paper:#faf8f4; --card:#ffffff;
+  --green:#0b3d2e; --green-2:#0e6e4e; --emerald:#12875f;
+  --gold:#c19a3f; --gold-soft:#f3ead6;
+  --info:#1d4ed8; --info-soft:#e9effc; --warn:#b45309; --warn-soft:#fbf1e3; --stop:#b3261e; --stop-soft:#fae9e7;
+}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15.5px;line-height:1.65;font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- cover ---------- */
+.cover{
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(18,135,95,.45), transparent 60%),
+    linear-gradient(160deg,#082a20 0%,var(--green) 55%,#0f5a40 100%);
+  color:#fff;padding:84px 0 64px;break-after:page;
+}
+.cover .measure{padding:0}
+.kicker{
+  color:var(--gold);text-transform:uppercase;letter-spacing:.22em;
+  font-size:11.5px;font-weight:600;
+}
+.cover h1{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;font-optical-sizing:auto;
+  font-size:52px;line-height:1.08;letter-spacing:-.01em;margin:22px 0 18px;max-width:15ch;
+}
+.cover .lede{font-size:17.5px;line-height:1.6;opacity:.9;max-width:62ch;font-weight:300}
+.cover .rule{width:64px;height:2px;background:var(--gold);margin:34px 0 22px}
+.cover .meta{display:flex;flex-wrap:wrap;gap:8px 34px;font-size:13px;opacity:.85}
+.cover .meta b{font-weight:600}
+
+/* ---------- measure & sections ---------- */
+.measure{max-width:760px;margin:0 auto;padding:0 32px}
+main{padding:8px 0 40px}
+h2{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:26px;line-height:1.2;
+  margin:52px 0 16px;display:flex;align-items:baseline;gap:14px;break-after:avoid;
+}
+h2 .secno{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--gold);
+  letter-spacing:.14em;flex:0 0 auto;transform:translateY(-4px);
+}
+h2::after{content:"";flex:1;height:1px;background:var(--line);margin-left:8px;transform:translateY(-4px)}
+h3{font-size:17px;font-weight:700;margin:26px 0 6px;break-after:avoid}
+p{margin:10px 0}
+.lead{font-size:17px;color:#2c3a32}
+strong{font-weight:650}
+a{color:var(--green-2);text-decoration:none;border-bottom:1px solid rgba(14,110,78,.35)}
+.small{font-size:13px;color:var(--muted)}
+code{background:#efece4;border-radius:4px;padding:1px 6px;font-size:13px;color:#4a4033}
+
+/* ---------- cards, callouts, stat blocks ---------- */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:22px 26px;margin:18px 0;break-inside:avoid;
+  box-shadow:0 1px 2px rgba(19,32,25,.04);
+}
+.callout{border-left:3px solid var(--gold);background:var(--gold-soft);padding:14px 20px;border-radius:0 10px 10px 0;margin:16px 0;font-size:14.5px;break-inside:avoid}
+.callout.info{border-left-color:var(--info);background:var(--info-soft)}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.stop{border-left-color:var(--stop);background:var(--stop-soft)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--emerald);border-radius:12px;padding:20px 22px;text-align:center;break-inside:avoid}
+.stat .v{font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:600;color:var(--green)}
+.stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:6px}
+@media(max-width:680px){.stat-grid{grid-template-columns:1fr}}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;background:transparent;break-inside:avoid}
+th{
+  text-align:left;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);border-bottom:2px solid var(--green);padding:8px 12px;
+}
+td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top}
+tr:last-child td{border-bottom:2px solid var(--green)}
+td.r,th.r{text-align:right}
+tfoot td,tr.total td{font-weight:700;border-top:2px solid var(--green)}
+
+/* ---------- lists ---------- */
+ul,ol{margin:8px 0 14px;padding-left:22px}
+li{margin:6px 0}
+li::marker{color:var(--gold);font-weight:700}
+
+/* ---------- tags ---------- */
+.tag{display:inline-block;border-radius:999px;padding:2px 12px;font-size:11.5px;font-weight:700;letter-spacing:.02em;margin:1px 2px;background:#eceadf;color:#5a5340}
+.tag.green{background:#dfeee6;color:var(--green-2)}
+.tag.blue{background:var(--info-soft);color:var(--info)}
+.tag.amber{background:var(--warn-soft);color:var(--warn)}
+.tag.red{background:var(--stop-soft);color:var(--stop)}
+
+/* ---------- figures ---------- */
+figure{margin:20px 0;break-inside:avoid}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);box-shadow:0 2px 10px rgba(19,32,25,.06)}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center;font-style:italic}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:680px){.grid2{grid-template-columns:1fr}}
+
+/* ---------- doc list (index) ---------- */
+.doc-item{display:flex;gap:18px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:12px 0;break-inside:avoid}
+.doc-item .n{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--green);color:var(--gold);font-family:'Fraunces',serif;font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.doc-item h3{margin:0 0 3px;font-size:16px}
+.doc-item p{margin:2px 0;font-size:13.5px;color:var(--muted)}
+
+/* ---------- work packages ---------- */
+.wp{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--emerald);border-radius:12px;padding:16px 22px;margin:12px 0;break-inside:avoid}
+.wp.blue{border-left-color:var(--info)}
+.wp h4{margin:0 0 4px;font-size:15px}
+.wp p{margin:2px 0;font-size:13.5px;color:var(--muted)}
+.wp .wpid{font-family:'Fraunces',serif;color:var(--gold);font-weight:600;margin-right:8px}
+
+/* ---------- timeline ---------- */
+.tl{position:relative;margin:20px 0;padding-left:28px;border-left:2px solid var(--line)}
+.day{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 20px;margin:12px 0;break-inside:avoid}
+.day::before{content:"";position:absolute;left:-28px;top:22px;width:11px;height:11px;border-radius:50%;background:var(--emerald);margin-left:-6.5px;box-shadow:0 0 0 3px var(--paper)}
+.day.gate::before{background:var(--warn)}
+.day.submit::before{background:var(--stop)}
+.day h3{margin:0 0 3px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.day h3 .who{font-size:10.5px;font-weight:700;color:#fff;background:var(--green-2);border-radius:999px;padding:3px 10px;letter-spacing:.05em;white-space:nowrap}
+.day.gate h3 .who{background:var(--warn)}
+.day.submit h3 .who{background:var(--stop)}
+.day p{margin:2px 0;font-size:13.5px;color:var(--muted)}
+
+/* ---------- bars ---------- */
+.bar-row{display:grid;grid-template-columns:230px 1fr 84px;gap:12px;align-items:center;margin:9px 0;font-size:13.5px}
+.bar{height:20px;border-radius:5px;background:linear-gradient(90deg,var(--green),var(--emerald))}
+.bar.sub{background:linear-gradient(90deg,#8a6d2a,var(--gold))}
+.bar-row .amt{text-align:right;font-weight:700;font-size:13px}
+@media(max-width:640px){.bar-row{grid-template-columns:130px 1fr 64px}}
+
+/* ---------- footer ---------- */
+.docfoot{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- print ---------- */
+@page{size:A4;margin:18mm 16mm}
+@media print{
+  body{background:#fff}
+  .cover{margin:-18mm -16mm -18mm;padding:40mm 16mm 24mm;min-height:296mm}
+  .measure{padding:0 4mm}
+  h2{break-after:avoid}
+  .card,.stat,table,figure,.day,.wp,.doc-item{box-shadow:none}
+}
+
+/*__AGENCY_CSS_END__*/
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="measure">
+    <div class="kicker">HLiquity Community Security Documentation — INC-2026-09-29</div>
+    <h1>HLiquity Emergency Exit: Atomic Batch-Transaction Implementation Guide — Community Edition</h1>
+    <p class="lede">How anyone maintaining or mirroring a HLiquity frontend can close the allowance-sweep race window for every user exit flow, without touching the immutable mainnet contracts: HIP-551 atomic batch transactions now, a permissionless redemption router in parallel, and a disciplined wind-down ahead of Hedera&rsquo;s March&nbsp;2027 removal of smart-contract calls from atomic batches. Includes a complete no-frontend CLI walkthrough and the frontend build, signing-model, UX, security, and test-plan specification. Everything in this document is a proposal that community contributors can adopt, adapt, or take over — nobody mandates anything. <strong>Mainnet-validated (community-2.0):</strong> a community contributor reproduced the batched redemption on mainnet — see &sect;3.3.</p>
+    <div class="rule"></div>
+    <div class="meta">
+      <span><b>Date:</b> 2026-10-05</span>
+      <span><b>Version:</b> community-2.0</span>
+      <span><b>Classification:</b> Public — community security documentation</span>
+      <span><b>Revision:</b> community-2.0: mainnet validation by a community contributor; corrections to closeTrove approval amount, maxFeePercentage decimals, redemption truncation, router scope, and signing patterns — changelog in the appendix (&sect;9.4).</span>
+      <span><b>Published by the HLiquity community. No entity operates the HLiquity protocol; this document was produced by community contributors from public mainnet data. Not financial advice. Corrections via GitHub issues only.</b></span>
+      <span><b>Repository:</b> https://github.com/SwisscoastAG/HLiquity — discussion and corrections via GitHub issues/Discussions.</span>
+    </div>
+  </div>
+</div>
+
+<main>
+<div class="measure">
+
+<!-- ============================ 01 ============================ -->
+<h2><span class="secno">01</span>TL;DR — executive summary</h2>
+
+<ul>
+  <li><strong>The race window is the vulnerability users can close.</strong> The 2026-09-29 drain executed ~7&nbsp;seconds after the victim&rsquo;s approval: between the approve transaction and the redeem transaction, the HCHF allowance stood live on-chain and the sweeper bot spent it. <span class="tag green">CONFIRMED</span> <span class="small">(community forensic analysis of mainnet data — methodology in &sect;2 and the appendix)</span></li>
+  <li><strong>No on-chain fix exists.</strong> The HLiquity core contracts are immutable and ownership-renounced — verified on-chain. Every mitigation is off-chain; this document is the engineering guide for that mitigation. <span class="tag green">CONFIRMED</span></li>
+  <li><strong>The mechanism: HIP-551 atomic batches.</strong> Put <code>[CryptoApproveAllowance &rarr; ContractCall]</code> into one batch: either every inner transaction commits or all roll back. Mainnet has supported Atomic Batch Transactions since 2025-10-09 (services v0.66). <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Our shape fits the network rule exactly:</strong> since 2026-09-29 (services v0.77) a batch may contain at most ONE contract operation, and it must be the last inner transaction. Approve-first + redeem-last complies; two contract calls in one batch is not possible. <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Proven on mainnet by a community contributor (&sect;3.3).</strong> The batched redemption was reproduced on mainnet: inner 1 native <code>CryptoApproveAllowance</code> (1 HCHF), inner 2 <code>TroveManager.redeemCollateral</code>, one parent AtomicBatch — succeeded, exactly 100,000,000 units consumed and burned, HBAR returned, zero residue allowance; mirror record confirms ordering and shared parent. <strong>Three signing prompts observed.</strong> The assembled wallet flow is upgraded from UNVERIFIED to CONFIRMED (community-validated). <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Batching removes the inter-transaction gap</strong> in which the bot operates: allowance is set and consumed inside a single consensus transaction, with zero residue if the batch rolls back. This is the only change that closes the 7-second window without touching a contract. <span class="tag blue">RECOMMENDATION</span> <span class="tag amber">INFERENCE</span> <span class="small">(mechanism CONFIRMED; residual-risk claim &sect;04/&sect;08)</span></li>
+  <li><strong>Hard sunset.</strong> Hedera deprecated smart-contract calls as batch inners on 2026-09-22, with removal planned for &ldquo;March 2027, estimated&rdquo;. Batches are a ~5-month bridge, not the endgame. <span class="tag green">CONFIRMED</span> <span class="small">(VERIFIED-NARROWED, &sect;03)</span></li>
+  <li><strong>Native batches survive the sunset — but that does not help exits.</strong> CryptoApproveAllowance + CryptoTransfer-style batches remain supported; every HLiquity user exit still needs a contract call, so batches alone cannot carry users past March 2027. <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Durable fix: a permissionless redemption router</strong> that composes approve+redeem inside one EVM call (user approves the router; the router self-grants wrapper allowance only inside the call and zeroes it after). Survives the sunset. Scope is <strong>redemption only</strong>: closeTrove/adjustTrove act on <code>msg.sender</code>, so a router cannot perform them for a trove owner — existing-user trove operations ride batches until the cutoff, migration, or v2. StabilityPool exits, unstaking, and claims need no router at all (no allowance; standalone calls keep working after March 2027). <span class="tag blue">RECOMMENDATION</span></li>
+  <li><strong>Endgame: v2</strong> with fixed contracts and a trustless merkle-snapshot migration — the essentials of the community migration analysis are summarized in &sect;3.2. Independent of this document. <span class="tag blue">RECOMMENDATION</span></li>
+  <li><strong>Deadline math:</strong> 2026-10-05 &rarr; March 2027 &asymp; 20–22 weeks. All batched user exits complete by <strong>2027-01-31</strong>; nothing may depend on contract-call inners past February 2027. <span class="tag amber">INFERENCE</span> <span class="small">(from the &ldquo;estimated&rdquo; caveat, &sect;03)</span></li>
+  <li><strong>Frontend path is cheap.</strong> The blokk fork already runs <code>@hashgraph/hedera-wallet-connect ^1.4.2</code> + <code>@hashgraph/sdk 2.72.0</code> (&ge;2.64 required) and builds native ContractExecuteTransactions — the batch migration is a wrapper change, not a stack change. <strong>Do not touch hashconnect</strong> (deprecated, repo gone). Minimum wallet: HashPack &ge;14.4.0. <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Signing pattern validated on mainnet (&sect;3.3, &sect;6.4):</strong> per-transaction signing — three HashPack prompts (inner 1, inner 2, outer batch) via hedera-wallet-connect 1.5.1, then relay of the signed bytes with <code>hedera_executeTransaction</code>. The single-prompt <code>hedera_signAndExecuteTransaction</code> path remains UNVERIFIED. Issue #694 is a version-dependent caveat, not a blocker for the validated path. <span class="tag green">CONFIRMED</span> (community-validated)</li>
+</ul>
+
+<div class="callout">
+<strong>Open community decisions</strong> — nothing here is mandated; each item is a proposal contributors can adopt, adapt, or take over:
+<ol style="margin:8px 0 2px">
+  <li><strong>Batch-every-allowance-flow</strong> (7 flows, &sect;06 map) with exact-amount approvals and residue verification (immediate allowance check after every committed batch) — <em>proposed approach</em>.</li>
+  <li><strong>Router contract</strong> — permissionless-redemption scope per the narrowed &sect;3.2 — built in parallel, go/no-go by week 8 (&sect;07) — <em>looking for a contributor to lead this track</em>.</li>
+  <li><strong>Wallet floor:</strong> HashPack &ge;14.4.0 as the <em>recommended minimum</em>; define the warned non-atomic fallback for older/other wallets (or block and route to the &sect;05 CLI).</li>
+  <li><strong>Timeline:</strong> <em>proposed</em> testnet &rarr; mainnet rollout dates per the &sect;07 Gantt, including the 2027-01-31 completion buffer.</li>
+  <li><strong>V2:</strong> <em>independent track</em> per the community migration analysis — it must not block the router.</li>
+</ol>
+</div>
+
+<!-- ============================ 02 ============================ -->
+<h2><span class="secno">02</span>Incident recap — what happened and what it cost</h2>
+
+<p class="lead">All incident facts below come from community forensic analysis of public mainnet data (methodology in this section and the appendix); this section carries only what the build decision depends on. <span class="tag green">CONFIRMED</span></p>
+
+<p><strong>Root cause.</strong> CWE-862 (Missing Authorization) confused deputy: the HLiquity token wrappers inherit an ungated <code>transferFrom</code> helper (selector <code>0x15dacbea</code>) that spends any standing HTS allowance without checking who is asking. Users grant allowances to the <em>wrapper</em> contracts (all HTS pulls execute via precompile <code>0x167</code>), which is the vulnerable surface. The attacker&rsquo;s sweeper bot — gas relayer <span class="id">0.0.995584</span>, receiver <span class="id">0.0.10393273</span> — watched for new allowance grants and spent them, typically within seconds. Reference transaction <a href="https://hashscan.io/mainnet/transaction/0.0.995584-1790680920-326001014"><span class="id">0.0.995584-1790680920-326001014</span></a> (view on HashScan): 1,800 HCHF drained from victim <span class="id">0.0.846778</span>, <strong>7&nbsp;seconds after the victim&rsquo;s approval</strong>. The victim&rsquo;s subsequent protocol redeem executed and reverted atomically (HTS status 292, <code>SPENDER_DOES_NOT_HAVE_ALLOWANCE</code>) — the protocol behaved correctly; the loss happened in the gap between the two user transactions.</p>
+
+<h3>2.1&nbsp;&nbsp;The three critical approvals (the race window lives here)</h3>
+<table class="sm">
+  <thead><tr><th class="r">#</th><th>Token</th><th>User must approve (spender)</th><th>Consumed by</th></tr></thead>
+  <tbody>
+    <tr><td class="r">1</td><td>HCHF <span class="id">0.0.6070123</span></td><td><strong>HCHFToken wrapper <span class="id">0.0.6070122</span></strong></td><td>provideToSP, repayHCHF, closeTrove, adjustTrove (repay side), redeemCollateral</td></tr>
+    <tr><td class="r">2</td><td>HLQT <span class="id">0.0.6070128</span></td><td><strong>HLQTToken wrapper <span class="id">0.0.6070127</span></strong></td><td>HLQTStaking.stake</td></tr>
+    <tr><td class="r">3</td><td>LP <span class="id">0.0.6070469</span></td><td><strong>SaucerSwapPool <span class="id">0.0.6070133</span></strong></td><td>SaucerSwapPool.stake</td></tr>
+  </tbody>
+</table>
+<p class="small">Every one of these flows becomes safe when the approval and the consuming call execute atomically — that is the entire design target of this guide. Contract set verified on-chain 2026-10-05 by community fingerprinting (full set in &sect;05 step 3); repo-committed configs are stale and must not be used (&sect;05 step 3, risk &sect;08).</p>
+
+<div class="callout warn">
+<strong>closeTrove approves NET DEBT, never the full debt (safety-critical).</strong> <code>BorrowerOperations.closeTrove</code> burns <strong>debt &minus; 20 HCHF</strong> from the user and takes the 20 HCHF gas compensation from the GasPool. The approval must therefore be exactly <strong>debt &minus; 20 HCHF</strong>: approving the full debt leaves a standing 20 HCHF allowance to the wrapper — sweepable by the same bot that took the campaign victims. This correction applies everywhere closeTrove appears in this guide (&sect;05 step 8, &sect;6.3, &sect;6.6). <span class="tag green">CONFIRMED</span> (repo-verified)</div>
+
+<h3>2.2&nbsp;&nbsp;Campaign and dollar context</h3>
+<table class="sm">
+  <thead><tr><th>Campaign</th><th>HLiquity leg</th><th>Reference</th></tr></thead>
+  <tbody>
+    <tr><td>4 waves, 2026-07-08 &rarr; 2026-10-03; 10 victims, 5,907.60 HCHF</td><td>Jul 8: seven-victim burst in 77&nbsp;s &middot; Sep 4: 1,750.41 HCHF &middot; Sep 29: 1,800 HCHF &middot; Oct 3: 1,780.66 HCHF</td><td>Community forensics (mainnet data) <span class="tag green">CONFIRMED</span></td></tr>
+    <tr><td>Full-campaign forensics (all venues)</td><td>165 relay calls &rarr; 119 committed &rarr; 113 distinct debited accounts; plus BankSocial leg: 98 transfers (12.23M BSL + 101.97M sBSL + 6 rUSD via deleted contract <span class="id">0.0.7444023</span>)</td><td>Community forensics (mainnet data) <span class="tag green">CONFIRMED</span></td></tr>
+    <tr><td>Current open-allowance exposure</td><td>$22.18 across 19 owners — small but recurring with every new grant</td><td>Community forensics (mainnet data) <span class="tag green">CONFIRMED</span></td></tr>
+  </tbody>
+</table>
+
+<table class="sm">
+  <thead><tr><th>Measure (US$)</th><th>Value</th><th>Basis</th></tr></thead>
+  <tbody>
+    <tr><td>HLiquity observed damage</td><td><strong>$7,451.06</strong> (HCHF portion &asymp; $7,113)</td><td>Community valuation at historical on-chain marks; HCHF &asymp; $1.204 (CoinGecko 2026-10-04)</td></tr>
+    <tr><td>Same-class losses since 2023</td><td><strong>&asymp; $611K–$636K</strong></td><td>Includes 2023 precompile attack ~$600K + 2026 campaign venues (community campaign ledger)</td></tr>
+    <tr><td>BankSocial sweep (same crew)</td><td>$3,036 – $28.4K (pricing range)</td><td>BSL priced; upper bound marks illiquid sBSL at parity</td></tr>
+    <tr><td>WHBAR, measured 16-day window</td><td>&asymp; $790 (7,725.34 WHBAR)</td><td>Mirror-node sample, $0.1022 (CoinGecko 2026-10-04)</td></tr>
+    <tr><td>WHBAR wrapper exposure (not a loss)</td><td><strong>$20.35M supply</strong> (199.1M WHBAR, 1,003+ holders)</td><td>The live surface that dwarfs all realized losses (community wrapper-allowance audit)</td></tr>
+    <tr><td>Hedera-wide exploit $ since 2023</td><td>&asymp; $11.6M+ (Sirio ~$2M Feb 2025; Bonzo ~$9M Jul 2026)</td><td>Bonzo attribution caveat: oracle per Bonzo, LayerZero per third parties</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td>Comparison anchor</td><td colspan="2">HLiquity is small in $ next to Bonzo ($9M) and Sirio ($2M), but identical in mechanism to the 2023 ~$600K event and part of the only recurring exploit family on Hedera (~5% of dollars, 2-of-4 major incidents, the only recurring class). <span class="tag green">CONFIRMED</span></td></tr>
+  </tfoot>
+</table>
+
+<!-- ============================ 03 ============================ -->
+<h2><span class="secno">03</span>The external expert assessment, verified</h2>
+
+<p>An external engineering assessment of the incident reached community contributors with three candidate mitigations and a warning that the obvious one might be short-lived. Community contributors verified every load-bearing claim against primary sources (HIP, Hedera docs and consensus-node source, the deprecation blog, npm, wallet patch notes, both GitHub forks). Verdict: <strong>the assessment is correct on all three options and on the deprecation, with one narrowing</strong> — the March 2027 date is explicitly an estimate. <span class="tag green">CONFIRMED</span></p>
+
+<blockquote class="pull">
+  <p>&ldquo;Option 1 — batch transactions: put the approval and the protocol call into a single HIP-551 atomic batch so there is no exposed window. Option 2 — redemption router: a contract that composes approve-and-operate inside one EVM call; durable, but on its own it leaves trove operations behind. Option 3 — v2 redeploy: fixed contracts with a trustless migration, per the community&rsquo;s migration analysis.&rdquo;</p>
+  <span class="attr">External engineering assessment received by the community (paraphrase; German original available in the issue tracker). Option numbering is this document&rsquo;s. The assessor&rsquo;s &ldquo;router only redeems&rdquo; concern stands as a hard scope constraint — a router cannot carry closeTrove/adjustTrove for existing users (they act on <code>msg.sender</code>): see the narrowed scope in &sect;3.2 and &sect;08.</span>
+</blockquote>
+
+<h3>3.1&nbsp;&nbsp;Fact-check: the March 2027 deprecation <span class="tag blue">VERIFIED-NARROWED</span></h3>
+
+<div class="fcheck">
+  <h4>Fact-check box — the deprecation the assessment warned about</h4>
+  <p style="margin-top:4px">Source: official Hedera blog, 2026-09-22 — &ldquo;Atomic Batch Transactions No Longer Support Smart Contract Calls.&rdquo; <span class="tag green">CONFIRMED</span> (the blog exists and says exactly this) &middot; <span class="tag amber">INFERENCE</span> (treating &ldquo;estimated&rdquo; as a hard planning date).</p>
+  <span class="qq">&ldquo;Smart contract calls submitted as inner transactions of an Atomic Batch Transaction enter a six-month deprecation period, with removal planned for March 2027. Atomic batch transactions remain fully supported for composing native Hedera service operations.&rdquo;<span class="qs">Blog quote 1 — deprecation + what survives</span></span>
+  <span class="qq">&ldquo;As of September 2026: a batch may contain no more than one smart contract call, and it must be the final inner transaction.&rdquo;<span class="qs">Blog quote 2 — current constraint (matches services v0.77 behavior)</span></span>
+  <span class="qq">&ldquo;From March 2027: smart contract calls are no longer supported as inner transactions of an atomic batch.&rdquo;<span class="qs">Blog quote 3 — the removal</span></span>
+  <span class="qq">&ldquo;March 2027, estimated.&rdquo;<span class="qs">Blog, timeline — the narrowing: no committed date</span></span>
+  <p style="margin-bottom:0"><strong>Load-bearing implication.</strong> Our exact mitigation — approve + ContractCall in a batch — <strong>stops working around March 2027</strong>. No official March-2027 ban on native batches, atomic swap, or allowance behavior exists (searched; none). Stated rationale for the removal: EVM compatibility — &ldquo;no equivalent construct in the EVM.&rdquo; Precedent says Hedera executes such deprecations: the 2023-03-09 precompile attack (~$600K) was answered first by an emergency proxy-access shutoff and then permanently in services v0.34.5 (blocking delegatecall&rarr;precompile), followed by the HSCS Security Model v2. Plan for the sunset as real, keep the buffer, and do not let the router depend on batch inners at all.</p>
+</div>
+
+<h3>3.2&nbsp;&nbsp;What this means for the three options</h3>
+<table class="sm">
+  <thead><tr><th>Option</th><th>Verdict</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1 — Atomic batch transactions</strong></td><td>Verified against HIP-551, services source, and SDK — <strong>and now reproduced on mainnet by a community contributor (&sect;3.3)</strong>: works today and closes the window immediately. <span class="tag green">CONFIRMED</span></td><td><strong>Deploy now (weeks)</strong> — the stop-gap bridge until ~March 2027</td></tr>
+    <tr><td><strong>2 — Redemption router</strong></td><td>Sound and durable past the sunset (composition inside the EVM is Hedera&rsquo;s own recommended replacement). <strong>Scope narrowed (community-2.0):</strong> a durable router can carry <strong>permissionless redemption only</strong> — closeTrove/adjustTrove act on <code>msg.sender</code>, so a router would be the caller, not the trove owner, and cannot perform those operations for existing users. SP exits, unstaking, and claims need <strong>no router</strong> (no allowance involved; standalone calls keep working after March 2027). Existing-user trove operations = batches until cutoff / migration / v2. <span class="tag blue">RECOMMENDATION</span></td><td><strong>Build in parallel (weeks 3–16)</strong> — the durable redemption path</td></tr>
+    <tr><td><strong>3 — v2 redeploy</strong></td><td>Correct endgame; a separate community migration analysis exists, and the essentials are summarized here: immutable contracts &rarr; all mitigations off-chain &rarr; v2 with trustless merkle-snapshot migration is the endgame. <span class="tag blue">RECOMMENDATION</span></td><td><strong>Decision track, weeks 5–20</strong> — independent of this guide</td></tr>
+  </tbody>
+</table>
+
+<div class="callout info">
+<strong>Why &ldquo;native batches stay supported&rdquo; matters — and why it does not save the exits.</strong> After the sunset, CryptoApproveAllowance + CryptoTransfer-style atomic batches remain fully supported. But no allowance-carrying HLiquity exit can be expressed without a contract call: redeeming HCHF, closing a trove, repaying, adjusting, staking — all are <code>ContractCall</code>s. The surviving native capability is therefore irrelevant to those exits, and the batch is correctly sized as a bridge, with the router as the durable crossing <em>for redemption</em>. Operations with no allowance — StabilityPool withdrawals, unstaking, claims, <code>claimCollateral</code> — keep working as ordinary standalone contract calls after March 2027 (no batch, no router needed). The allowance-carrying trove operations must complete inside the batch window — or, for redemption, move to the router. <span class="tag green">CONFIRMED</span></div>
+
+<h3>3.3&nbsp;&nbsp;Community mainnet validation — PROVEN</h3>
+
+<div class="proven">
+  <h4>Community mainnet validation — proven <span class="tag green">PROVEN</span></h4>
+  <p style="margin-top:4px">A community contributor reproduced the batched redemption <strong>end-to-end on mainnet</strong> and reported it in the GitHub issue (contributor unnamed unless they request attribution; test evidence in the issue). <span class="tag green">CONFIRMED</span> (community-validated)</p>
+  <ul>
+    <li><strong>Reproduction:</strong> inner 1 = native <code>CryptoApproveAllowance</code> (1 HCHF = 100,000,000 units, 8-dec) to the HCHF wrapper; inner 2 = <code>TroveManager.redeemCollateral</code> as the final inner — both under one parent AtomicBatch. Exactly the shape this guide specifies, satisfying the one-contract-op-last rule in practice.</li>
+    <li><strong>Result:</strong> the batch succeeded; <strong>exactly 100,000,000 units consumed and burned</strong>; HBAR collateral returned to the user; <strong>residue allowance zero</strong>.</li>
+    <li><strong>Mirror record</strong> confirms the inner ordering and the shared parent (type <code>ATOMICBATCH</code>; inners linked by <code>parent_consensus_timestamp</code> / <code>nonce</code>).</li>
+    <li><strong>Signing observed:</strong> <strong>three signing prompts</strong> — inner 1, inner 2, outer batch — i.e. per-transaction signing via hedera-wallet-connect 1.5.1, with the signed bytes relayed via <code>hedera_executeTransaction</code> (details in &sect;6.4 and the issue).</li>
+  </ul>
+  <p style="margin-bottom:0"><strong>Status upgrades (UNVERIFIED &rarr; CONFIRMED, community-validated):</strong> the assembled hedera-wallet-connect + BatchTransaction flow; the no-operator freeze + wallet-signing pattern (&sect;6.2); HashPack &ge;14.4.0 batch signing in practice (via connector 1.5.1).<br>
+  <strong>Still UNVERIFIED:</strong> the single-prompt <code>hedera_signAndExecuteTransaction</code> path for a batch containing a contract call; how HashPack renders the inner details inside each signing prompt.</p>
+</div>
+
+<h3>3.4&nbsp;&nbsp;Community guidance — what members should tell each other</h3>
+
+<p>This section is written to be quoted directly — in Discord, Telegram, X, or a README banner. Short version first, then the details behind it.</p>
+
+<div class="factsheet">
+  <h4>Member fact-sheet — quote freely<span class="qtag">Shareable</span></h4>
+  <ul>
+    <li><strong>What happened.</strong> A sweeper bot has been draining standing token allowances on Hedera — including HLiquity&rsquo;s HCHF — typically within seconds of a user&rsquo;s approval. The HLiquity leg: 10 victims, 5,907.60 HCHF, four waves from 2026-07-08 to 2026-10-03. The protocol contracts behaved correctly; the loss happens in the seconds between a user&rsquo;s approve and the user&rsquo;s redeem. <span class="tag green">CONFIRMED</span></li>
+    <li><strong>Who is at risk.</strong> Anyone holding an open (unspent) HCHF, HLQT, or LP allowance to the wrapper contracts — the allowance stays sweepable until it is spent or revoked — and anyone who creates a fresh non-atomic approval.</li>
+    <li><strong>What to do now.</strong> (1) Do not create fresh non-atomic HCHF/HLQT/LP approvals. (2) Check your open allowances and revoke unneeded ones on HashScan (via the mirror-node endpoint below). (3) If you need to exit — redeem HCHF, close a trove, leave the StabilityPool, unstake — use the batched CLI from this repository (&sect;05) and test with a small amount first; for closeTrove, approve exactly debt &minus; 20 HCHF, never the full debt (&sect;2.1). (4) Verify every contract and token address against the verified set in &sect;05 step 3 — counterfeit HLQT exists. <span class="tag blue">RECOMMENDATION</span></li>
+    <li><strong>What never to do.</strong> Never approve &ldquo;unlimited&rdquo; amounts. And: nobody will ever DM you a refund — anyone offering compensation is a scammer. Always. <span class="tag green">CONFIRMED</span> (as community policy)</li>
+  </ul>
+</div>
+
+<div class="callout warn">
+<strong>Scam warning — expect refund-impersonation waves.</strong> Publishing this document will likely trigger DMs from accounts impersonating &ldquo;the HLiquity team&rdquo;, a &ldquo;HLiquity foundation&rdquo;, or a &ldquo;compensation desk&rdquo;. The community never DMs first, has no treasury, and sends no compensation. There is no refund flow, no compensation program, and no official support account. Treat every unsolicited refund offer as a scam; report and block, and warn others using the fact-sheet above.</div>
+
+<div class="grid2">
+  <div class="card">
+    <h4 style="margin:0 0 8px;font-size:15px">How to contribute</h4>
+    <ul style="margin:4px 0 2px">
+      <li><strong>Review this document</strong> — corrections, however small, via GitHub issues.</li>
+      <li><strong>Run it</strong> — execute the &sect;05 CLI scenarios and the &sect;6.7 test plan on testnet, and report what you find (scenario T2: three prompts are now confirmed — the remaining question is what HashPack renders <em>inside</em> each prompt).</li>
+      <li><strong>Pick up a track</strong> — the frontend work (&sect;06) and the redemption-router track (&sect;3.2, &sect;08) both need owners.</li>
+      <li><strong>Improve the IOC list</strong> — new sweeper addresses, watcher rules, flagging evidence.</li>
+    </ul>
+    <p class="small" style="margin:8px 0 0">No permission needed — that&rsquo;s the point.</p>
+  </div>
+  <div class="card">
+    <h4 style="margin:0 0 8px;font-size:15px">How to verify</h4>
+    <p style="margin:4px 0 8px;font-size:13.5px">Every address, transaction, and claim in this document is checkable against public infrastructure. Two endpoints cover almost everything:</p>
+    <ul style="margin:4px 0 2px">
+      <li><strong>Mirror node REST:</strong> <code>https://mainnet-public.mirrornode.hedera.com/api/v1</code> — transactions, allowances, token relationships (&sect;9.2 query list).</li>
+      <li><strong>HashScan:</strong> <code>https://hashscan.io/mainnet</code> — the reference drain transaction is at <code>/transaction/0.0.995584-1790680920-326001014</code>.</li>
+    </ul>
+    <p class="small" style="margin:8px 0 0">Don&rsquo;t trust — verify, then open an issue if something doesn&rsquo;t match.</p>
+  </div>
+</div>
+
+<!-- ============================ 04 ============================ -->
+<h2><span class="secno">04</span>Why atomic batches close the race</h2>
+
+<p>The sweeper bot wins because the vulnerable state — a live, unspent allowance to the wrapper — exists <em>between</em> two user transactions, visible to anyone polling the mirror node (bot cycle ~30–60&nbsp;s, response in seconds — community monitoring of mainnet data, &sect;2). HIP-551 inner transactions execute sequentially, in listed order, inside a single consensus transaction. In a batch, the allowance transitions <em>nonexistent &rarr; set &rarr; consumed &rarr; zero</em> with no inter-transaction gap, and if the redeem fails, the approve rolls back with it — no residue for the bot to take later. <span class="tag green">CONFIRMED</span> (semantics, network source) <span class="tag amber">INFERENCE</span> (race-elimination claim — strongest available, no window exists by construction; see &sect;08 residual risks) One honest caveat, added in community-2.0: a <em>committed</em> redeem can consume <strong>less</strong> than approved when the redemption hints truncate the amount — approve the truncated amount and verify the residue allowance immediately after (&sect;05 steps 4d–5).</p>
+
+<div class="seq">
+  <div class="lane today">
+    <div class="lanehead">TODAY — two separate transactions<span class="mode">exposed by construction</span></div>
+    <div class="step"><span class="n">tx 1</span>user signs <code>approve</code> — HCHF &rarr; wrapper <span class="id">0.0.6070122</span>, exact amount</div>
+    <div class="sarrow">approval confirms — allowance is now live and sweepable</div>
+    <div class="window"><b>EXPOSED WINDOW (7&nbsp;s in the reference case).</b> Sweeper bot <span class="id">0.0.995584</span> spends the allowance via the wrapper&rsquo;s ungated <code>transferFrom</code> (<code>0x15dacbea</code>) — a plain HTS transfer, not a protocol interaction.</div>
+    <div class="step bad"><span class="n">tx 2</span>user&rsquo;s <code>redeemCollateral</code> executes — HCHF already gone; redeem reverts atomically (status 292). Loss already settled in tx 1&rsquo;s gap.</div>
+    <div class="loop">&rarr; to retry, the user must re-approve — recreating the exact state the bot is watching for.</div>
+  </div>
+  <div class="lane batched">
+    <div class="lanehead">BATCHED — one atomic unit (HIP-551)<span class="mode">no window exists — proven on mainnet (&sect;3.3)</span></div>
+    <div class="step"><span class="n">inner 1</span><code>CryptoApproveAllowance</code> — HCHF &rarr; wrapper, exact amount (native op, any position)</div>
+    <div class="step"><span class="n">inner 2</span><code>ContractCall</code> — <code>TroveManager.redeemCollateral</code> (the ONE contract op; last by rule)</div>
+    <div class="sarrow ok">executes in listed order within a single consensus transaction — no inter-transaction gap</div>
+    <div class="step ok">both commit — or both roll back (<code>INNER_TRANSACTION_FAILED</code>); residue = 0 on rollback; on commit, residue = 0 whenever the call consumes the exact approved amount (fixed-amount flows; redemption: approve the truncated amount — &sect;05 step 4d)</div>
+  </div>
+</div>
+
+<h3>4.1&nbsp;&nbsp;The one-contract-op-last rule — and why our shape fits</h3>
+<p>Mainnet constraint since 2026-09-29 (services v0.77, <code>AtomicBatchHandler.pureChecks</code>): a batch may contain at most ONE inner transaction that is a contract operation (<code>CONTRACT_CALL</code>, <code>CONTRACT_CREATE_INSTANCE</code>, or <code>ETHEREUMTRANSACTION</code>), and it must be the last inner; anything else pre-checks <code>INVALID_TRANSACTION_BODY</code>. Forbidden inner types (network blacklist): Freeze, AtomicBatch (no nesting), ScheduleCreate, ScheduleSign. Allowed native types include <code>CRYPTOAPPROVEALLOWANCE</code> and <code>CRYPTOTRANSFER</code>. Our mitigation shape <code>[CryptoApproveAllowance, ContractCall]</code> satisfies the rule exactly — confirmed in practice by the community mainnet reproduction (&sect;3.3). Two contract calls in one batch (e.g. approve-token + redeem as two EVM calls) is <strong>not possible</strong> — approve must be the native HTS allowance transaction. <span class="tag green">CONFIRMED</span></p>
+
+<h3>4.2&nbsp;&nbsp;Batch limits and cost model <span class="tag green">CONFIRMED</span></h3>
+<table class="sm">
+  <thead><tr><th>Property</th><th>Value</th><th>Engineering consequence</th></tr></thead>
+  <tbody>
+    <tr><td>Inner count</td><td>&le; 50 (network config; SDK JSDoc stale-says 25)</td><td>Plan &le; 25 to be safe; our flows use 2 (3 with association)</td></tr>
+    <tr><td>Total size</td><td>&le; 6 KB per batch</td><td>7-arg redeemCollateral + approve fits comfortably</td></tr>
+    <tr><td>Valid duration</td><td>standard ~180 s</td><td>User must sign promptly; stale batches expire unsent</td></tr>
+    <tr><td>Inner node account</td><td>forced to <span class="id">0.0.0</span>; each inner has own payer + transactionId; dedup individually</td><td>Set explicit inner transactionIds when the inner payer differs from the client operator; re-submitting needs fresh ids</td></tr>
+    <tr><td>Fees</td><td>outer payer pays batch node+network fee; <strong>each inner pays its own full fees even if the batch later rolls back</strong> (inners before the failing one are charged)</td><td>A failed redeem costs approve-side fees too — show honest max-fee estimates; budget 2&times; inner fees + batch fee</td></tr>
+    <tr><td>Signing</td><td>every inner needs <code>batchKey</code> set (public key); the outer must be signed by ALL distinct batchKey private keys + the batch payer</td><td>If the user&rsquo;s key is batchKey on every inner, that single key signs everything — the model wallets already implement (three prompts observed in the &sect;3.3 mainnet test)</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 05 ============================ -->
+<h2><span class="secno">05</span>Tutorial: batch transactions without a frontend (CLI)</h2>
+
+<p class="lead">Every flow in this guide can be executed from a Node.js CLI — no frontend, no wallet extension, using only SDK APIs verified in &sect;01/&sect;03. A complete reference implementation of this tutorial (plus the &sect;06 frontend pattern in TypeScript) is published alongside this document in the repository under <code>code/</code> (<code>code/cli</code>, <code>code/frontend</code>). <strong>Testnet first, then mainnet with small amounts.</strong> <span class="tag blue">RECOMMENDATION</span></p>
+
+<h3>Step 1 — Install</h3>
+<p>Node 18+. The BatchTransaction API requires <code>@hashgraph/sdk</code> &ge; 2.64.0 (also shipped as <code>@hiero-ledger/sdk</code> 2.89.x). <span class="tag green">CONFIRMED</span></p>
+<pre><code><span class="c"># package.json (excerpt)</span>
+{
+  "type": "commonjs",
+  "dependencies": {
+    "@hashgraph/sdk": "^2.72.0",
+    "dotenv": "^16.0.0"
+  }
+}
+<span class="c"># install</span>
+npm install</code></pre>
+
+<h3>Step 2 — Environment and key handling</h3>
+<p>The CLI runs with a payer account — in SDK terms the client <em>operator</em> — that pays every fee: the batch fee and each inner&rsquo;s full fee, including inner fees already spent when a batch later rolls back (&sect;4.2). Keys come from the environment or a permission-locked file; never hardcode them, never commit them, never put them anywhere near frontend code. <span class="tag green">CONFIRMED</span> (fee model) / <span class="tag blue">RECOMMENDATION</span> (handling)</p>
+<pre><code><span class="c"># .env  — chmod 600 .env; never commit</span>
+<span class="c"># TESTNET FIRST: use a testnet account and Client.forTestnet() until the</span>
+<span class="c"># flow is fully validated; move to mainnet only for small-amount pilots.</span>
+OPERATOR_ID=0.0.YOURACCOUNT
+OPERATOR_KEY=302e020100300506032b657004220420...</code></pre>
+<pre><code>require("dotenv").config();
+const { Client, PrivateKey, AccountId } = require("@hashgraph/sdk");
+
+const operatorKey = PrivateKey.fromString(process.env.OPERATOR_KEY);
+const client = Client.forMainnet()   <span class="c">// Client.forTestnet() during validation</span>
+  .setOperator(AccountId.fromString(process.env.OPERATOR_ID), operatorKey);</code></pre>
+
+<h3>Step 3 — Pin the verified contract set (do not trust repo configs)</h3>
+<p>The mainnet deployment was never committed to the repo; the committed <code>hedera.json</code> is testnet-era and mislabeled. The set below was fingerprinted on mainnet on 2026-10-05. <span class="tag green">CONFIRMED</span></p>
+<table class="sm">
+  <thead><tr><th>Name</th><th>Contract ID</th><th>Role in the batched flows</th></tr></thead>
+  <tbody>
+    <tr><td>BorrowerOperations</td><td><span class="id">0.0.6070094</span></td><td>openTrove, addColl, withdrawColl, withdrawHCHF, repayHCHF, closeTrove, adjustTrove, claimCollateral</td></tr>
+    <tr><td>TroveManager</td><td><span class="id">0.0.6070118</span></td><td>redeemCollateral (batched); liquidations (no batch)</td></tr>
+    <tr><td>StabilityPool</td><td><span class="id">0.0.6070108</span></td><td>provideToSP (batched); withdrawFromSP / withdrawETHGainToTrove (no batch)</td></tr>
+    <tr><td>HLQTStaking</td><td><span class="id">0.0.6070064</span></td><td>stake (batched); unstake (no batch)</td></tr>
+    <tr><td>SaucerSwapPool (LP rewards)</td><td><span class="id">0.0.6070133</span></td><td>LP stake (batched); withdraw / claimReward / withdrawAndClaim (no batch)</td></tr>
+    <tr><td>HCHF wrapper / token</td><td><span class="id">0.0.6070122</span> / <span class="id">0.0.6070123</span></td><td>allowance spender for every HCHF-consuming flow</td></tr>
+    <tr><td>HLQT wrapper / token</td><td><span class="id">0.0.6070127</span> / <span class="id">0.0.6070128</span></td><td>allowance spender for HLQT staking</td></tr>
+    <tr><td>LP token (uniToken)</td><td><span class="id">0.0.6070469</span></td><td>allowance token for LP staking</td></tr>
+    <tr><td>HintHelpers / PriceFeed</td><td><span class="id">0.0.6070047</span> / <span class="id">0.0.6070082</span></td><td>redeem hint derivation + price for the CLI pre-flight</td></tr>
+  </tbody>
+</table>
+
+<h3>Step 4 — Pre-flight: association check, price, and redemption hints</h3>
+<p><code>redeemCollateral</code> needs a price and three hints. Both come from read-only queries — free, and they catch the failure modes before any fee is spent. If the account is not yet associated to HCHF, add a <code>TokenAssociateTransaction</code> as the batch&rsquo;s first inner (association is a native op, allowed in any position). <span class="tag green">CONFIRMED</span></p>
+<pre><code>const {
+  ContractCallQuery, ContractFunctionParameters, AccountInfoQuery
+} = require("@hashgraph/sdk");
+
+const HCHF = require("@hashgraph/sdk").TokenId.fromString("0.0.6070123");
+const PRICE_FEED = "0.0.6070082", HINT_HELPERS = "0.0.6070047";
+
+<span class="c">// 4a) association check (before spending an inner tx on it)</span>
+const info = await new AccountInfoQuery()
+  .setAccountId(client.operatorAccountId).execute(client);
+const associated = info.tokenRelationships.get(HCHF.toString()) !== undefined;
+console.log("HCHF associated:", associated);
+
+<span class="c">// 4b) PriceFeed.lastGoodPrice() — public getter</span>
+const price = await new ContractCallQuery()
+  .setContractId(PRICE_FEED).setGas(200_000)
+  .setFunction("lastGoodPrice").execute(client);
+const lastGoodPrice = price.getUint256(0);
+
+<span class="c">// 4c) HintHelpers.getRedemptionHints(amount, price, maxIterations) — maxIterations is a</span>
+<span class="c">// deliberate cap: higher scans more troves per call at higher gas. Choose it on purpose.</span>
+const hints = await new ContractCallQuery()
+  .setContractId(HINT_HELPERS).setGas(1_200_000)
+  .setFunction("getRedemptionHints",
+    new ContractFunctionParameters()
+      .addUint256(amount)          <span class="c">// HCHF amount, 8-dec raw units</span>
+      .addUint256(lastGoodPrice)
+      .addUint256(maxIterations))
+  .execute(client);
+<span class="c">// decode per ABI: (address firstHint, uint partialNICR, uint truncatedHCHFAmount)</span>
+const firstHint = hints.getAddress(0);
+const partialNICR = hints.getUint256(1);
+const truncatedAmount = hints.getUint256(2); <span class="c">// what the call can ACTUALLY consume</span>
+
+<span class="c">// 4d) TRUNCATION RULE — never approve more than the call will consume:</span>
+<span class="c">// if truncatedAmount &lt; requested amount, EITHER abort and re-run this pre-flight</span>
+<span class="c">// with fresh hints / a higher maxIterations, OR set amount = truncatedAmount and</span>
+<span class="c">// continue. Even then, stale hints or a state change between pre-flight and</span>
+<span class="c">// execution can leave partial consumption — check the residue allowance</span>
+<span class="c">// immediately after execution (step 7).</span></code></pre>
+
+<h3>Step 5 — Build the two inners (approve first, contract call last)</h3>
+<p>Approve the amount the call will <strong>actually consume</strong> — for redemption, the <strong>truncated amount from step 4d</strong>, never more. Zero residue is guaranteed only when the call consumes the exact approved amount: true by construction for the fixed-amount flows (provideToSP, repayHCHF, stake), <strong>not</strong> guaranteed for redemption (truncated or stale hints can leave partial consumption) — hence the mandatory residue check in step 7. <code>batchify(client, key)</code> sets the batch key, signs with the payer key, and freezes (forcing node account <span class="id">0.0.0</span>). Hint addresses are EVM long-zero addresses — convert contract IDs with <code>AccountId.toEvmAddress()</code>. <span class="tag green">CONFIRMED</span></p>
+<pre><code>const {
+  AccountAllowanceApproveTransaction, ContractExecuteTransaction,
+  TransactionId, AccountId
+} = require("@hashgraph/sdk");
+
+const TROVE_MANAGER = "0.0.6070118";
+const HCHF_WRAPPER = AccountId.fromString("0.0.6070122");  <span class="c">// the spender</span>
+const ZERO_ADDR = AccountId.fromString("0.0.0").toEvmAddress(); <span class="c">// TEST DEFAULT only — see 4c/4d</span>
+
+<span class="c">// inner 1 — native allowance tx (NOT a contract call).</span>
+<span class="c">// `amount` here = the truncated amount from step 4d — never more than the call consumes.</span>
+const approveTx = new AccountAllowanceApproveTransaction()
+  .approveTokenAllowance(HCHF, client.operatorAccountId, HCHF_WRAPPER, amount)
+  .setTransactionId(TransactionId.generate(client.operatorAccountId));
+await approveTx.batchify(client, operatorKey);
+
+<span class="c">// maxFeePercentage — 8-DECIMAL fixed point on THIS deployment (BaseMath DECIMAL_PRECISION = 1e8):</span>
+<span class="c">// 100% = 1e8; the 0.5% borrow-fee floor = 500_000. Do not port percent constants from</span>
+<span class="c">// Ethereum-forked codebases — the decimal scale here is different.</span>
+const maxFeePercentage = 100_000_000; <span class="c">// = 100% — set your cap deliberately</span>
+
+<span class="c">// inner 2 — the SINGLE contract op; must be LAST. Gas 3,000,000 is a TEST DEFAULT —</span>
+<span class="c">// calibrate on testnet before mainnet use.</span>
+const redeemTx = new ContractExecuteTransaction()
+  .setContractId(TROVE_MANAGER)
+  .setGas(3_000_000)
+  .setFunction("redeemCollateral",
+    new ContractFunctionParameters()
+      .addUint256(amount)             <span class="c">// = truncatedAmount from step 4d</span>
+      .addAddress(firstHint)          <span class="c">// or ZERO_ADDR with the test-default fallback</span>
+      .addAddress(ZERO_ADDR)          <span class="c">// upperPartialRedemptionHint</span>
+      .addAddress(ZERO_ADDR)          <span class="c">// lowerPartialRedemptionHint</span>
+      .addUint256(partialNICR)
+      .addUint256(maxIterations)      <span class="c">// capped deliberately, e.g. per gas calibration</span>
+      .addUint256(maxFeePercentage))  <span class="c">// 8-dec percent: 100% = 1e8, 0.5% floor = 500_000</span>
+  .setTransactionId(TransactionId.generate(client.operatorAccountId));
+await redeemTx.batchify(client, operatorKey);</code></pre>
+
+<h3>Step 6 — Assemble, sign, execute</h3>
+<p><code>addInnerTransaction</code> throws unless the inner is frozen with a batchKey set (that is what <code>batchify</code> did). The outer must then be signed by every distinct batchKey key plus the payer — with one key as batchKey on all inners, that key signs everything. <span class="tag green">CONFIRMED</span></p>
+<pre><code>const { BatchTransaction } = require("@hashgraph/sdk");
+
+const batch = new BatchTransaction()
+  .addInnerTransaction(approveTx)   <span class="c">// first</span>
+  .addInnerTransaction(redeemTx);   <span class="c">// last — the one contract op</span>
+batch.setTransactionId(TransactionId.generate(client.operatorAccountId));
+await batch.freezeWith(client);
+await batch.sign(operatorKey);      <span class="c">// all batchKey keys + payer</span>
+
+const response = await batch.execute(client);
+const receipt = await response.getReceipt(client);
+console.log("batch status:", receipt.status.toString());
+console.log("batch id:", batch.transactionId.toString());</code></pre>
+
+<h3>Step 7 — Receipts and mirror-node verification</h3>
+<p>The JS SDK exposes <strong>property getters</strong> (<code>batch.innerTransactions</code>, <code>batch.innerTransactionIds</code>) — the Java-style <code>getInnerTransactionReceipts()</code> does not exist in JS. Query each inner receipt by id, then confirm on the mirror node: the parent is type <code>ATOMICBATCH</code>, inners carry <code>batch_key</code>, <code>parent_consensus_timestamp</code>, and <code>nonce</code>; and the owner&rsquo;s residue allowance must be zero — <strong>check it immediately after the batch commits</strong>, because a redemption that consumed less than approved (truncation or a stale-hint race) leaves residue that must be revoked at once. <span class="tag green">CONFIRMED</span></p>
+<pre><code>const { TransactionReceiptQuery } = require("@hashgraph/sdk");
+for (const id of batch.innerTransactionIds) {   <span class="c">// property getters, not methods</span>
+  const r = await new TransactionReceiptQuery()
+    .setTransactionId(id).execute(client);
+  console.log(id.toString(), "-&gt;", r.status.toString());
+}</code></pre>
+<div class="endpoints">base: https://mainnet-public.mirrornode.hedera.com/api/v1   <span class="c"># testnet: testnet.mirrornode.hedera.com</span>
+<span class="c"># parent (ATOMICBATCH) + all inners, linked by parent_consensus_timestamp / nonce</span>
+GET /transactions/{batchId}
+<span class="c"># residue check: the approved amount must be fully consumed (allowance value 0)</span>
+GET /accounts/{owner}/allowances/tokens</div>
+
+<h3>Step 8 — The generic pattern for all 7 batched flows</h3>
+<p>Identical skeleton for every allowance-consuming flow — only the token, spender, target contract, function, and gas change:</p>
+<ol>
+  <li><strong>inner 1 (native):</strong> <code>AccountAllowanceApproveTransaction</code> — exact amount, correct spender (wrapper <span class="id">0.0.6070122</span> for HCHF, wrapper <span class="id">0.0.6070127</span> for HLQT, SaucerSwapPool <span class="id">0.0.6070133</span> for LP). Optionally prepend <code>TokenAssociateTransaction</code> on first use. For <strong>closeTrove the exact amount is net debt (debt &minus; 20 HCHF), never the full debt</strong> — see the table note below.</li>
+  <li><strong>inner 2 (the ONE contract op, last):</strong> the flow&rsquo;s <code>ContractExecuteTransaction</code>.</li>
+  <li>Assemble &rarr; freeze &rarr; sign (batchKey keys + payer) &rarr; execute &rarr; per-inner receipts &rarr; mirror-node residue check <strong>immediately after commit</strong>.</li>
+</ol>
+<table class="sm">
+  <thead><tr><th>Flow</th><th>Batch contents</th><th>Gas — TEST DEFAULTS (calibrate on testnet)</th></tr></thead>
+  <tbody>
+    <tr><td>redeemCollateral <span class="tag amber">the incident flow</span></td><td>[approve HCHF&rarr;wrapper exact] + [redeemCollateral] — hints via HintHelpers (&sect;05 step 4); approve and call with the <strong>truncated</strong> amount (step 4d), or abort</td><td class="num">3,000,000</td></tr>
+    <tr><td>provideToSP</td><td>[approve HCHF&rarr;wrapper exact] + [provideToSP]</td><td class="num">800,000</td></tr>
+    <tr><td>repayHCHF</td><td>[approve exact] + [repayHCHF]</td><td class="num">1,500,000</td></tr>
+    <tr><td>closeTrove</td><td>[approve exact <strong>net debt = debt &minus; 20 HCHF</strong>] + [closeTrove]</td><td class="num">1,500,000</td></tr>
+    <tr><td>adjustTrove (repay or withdraw coll)</td><td>[approve exact] + [adjustTrove] (+ payable when adding collateral)</td><td class="num">1,500,000</td></tr>
+    <tr><td>stake HLQT</td><td>[approve HLQT&rarr;HLQT wrapper exact] + [stake]</td><td class="num">500,000</td></tr>
+    <tr><td>stake LP</td><td>[approve LP&rarr;SaucerSwapPool exact] + [stake]</td><td class="num">500,000</td></tr>
+    <tr><td colspan="3"><strong>No batch (no allowance):</strong> openTrove / addColl / withdrawColl / withdrawHCHF (single ContractExecute; set payable amount in HBAR for openTrove/addColl) &middot; unstake / withdraw / claims &middot; liquidations &middot; claimCollateral. <span class="tag green">CONFIRMED</span></td></tr>
+  </tbody>
+</table>
+<p class="small"><strong>closeTrove safety note.</strong> <code>BorrowerOperations.closeTrove</code> burns debt &minus; 20 HCHF from the user and takes the 20 HCHF gas compensation from the GasPool. Approve exactly the net debt: approving the full debt leaves a standing 20 HCHF allowance to the wrapper — stealable by the same sweep mechanism this guide exists to close (&sect;2.1). <span class="tag green">CONFIRMED</span> (repo-verified)</p>
+<p class="small"><strong>Test defaults, not guarantees.</strong> The gas figures above and the address(0)-hints fallback in steps 4c/4d are <strong>TEST DEFAULTS</strong> — calibrate gas on testnet, use live hints from HintHelpers in production, and cap <code>maxIterations</code> deliberately (it bounds how many troves one call scans).</p>
+
+<h3>Step 9 — Troubleshooting</h3>
+<table class="sm fix">
+  <thead><tr><th style="width:32%">Symptom</th><th style="width:26%">Meaning</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td><code>INNER_TRANSACTION_FAILED</code></td><td>First non-SUCCESS inner aborted the whole batch; inners before it are still charged their fees.</td><td>Read per-inner receipts / mirror node to find which inner and why. For redeem: re-run the &sect;05 step-4 pre-flight (balance, hints, price freshness). Then rebuild — do not blindly retry.</td></tr>
+    <tr><td><code>INVALID_TRANSACTION_BODY</code> (pre-check)</td><td>Constraint violated: more than one contract op, or the contract op is not the last inner.</td><td>Exactly one <code>ContractExecuteTransaction</code>, positioned last; the approve must be the native <code>AccountAllowanceApproveTransaction</code>.</td></tr>
+    <tr><td><code>BUSY</code></td><td>Node busy at submission.</td><td>Wait, rebuild with fresh inner transactionIds, resubmit. (Inners dedup individually.)</td></tr>
+    <tr><td><code>PAYER_SIGNATURE_CHECK_FAILED</code></td><td>Outer batch not signed by all distinct batchKey private keys + the payer.</td><td>With one batchKey on all inners: sign the outer with that same key (plus the payer signature).</td></tr>
+    <tr><td>SDK throws at <code>addInnerTransaction</code></td><td>Inner not frozen or batchKey missing.</td><td>Call <code>batchify(client, key)</code> (or manual <code>setBatchKey</code> + <code>freezeWith</code> + <code>sign</code>) before adding.</td></tr>
+    <tr><td>Receipts query returns nothing for an inner id</td><td>Wrong id form or batch not yet processed.</td><td>Use <code>batch.innerTransactionIds</code> verbatim; poll with backoff; mirror node <code>GET /transactions/{batchId}</code> as ground truth.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 06 ============================ -->
+<h2><span class="secno">06</span>Frontend recommendation — React + HashPack</h2>
+
+<h3>6.1&nbsp;&nbsp;Stack facts</h3>
+<div class="callout stop">
+<strong>DO NOT build on hashconnect — it is dead.</strong> Final release 3.0.14 (2025-10-02); the npm package carries the banner &ldquo;shut down by 2026, upgrade to WalletConnect&rdquo;; the GitHub repo is now 404. HashPack 14.3.0 (2026-06-24) removed the legacy HashConnect v2 protocol. Any hashconnect dependency is a liability and must be removed, not merely avoided. <span class="tag green">CONFIRMED</span></div>
+<ul>
+  <li><strong>HashPack &ge; 14.4.0 (2026-07-17) supports batch transactions over WalletConnect</strong> — &ldquo;Dapps can now bundle an associate + transfer in a single approval.&rdquo; 14.4.1 added dapp-auto-approval and removed the flaky WalletConnect auto-associate that &ldquo;didn&rsquo;t work well with batch transactions.&rdquo; This is the minimum wallet version for the batched UX — and its batch signing is now <strong>validated in practice</strong> by the community mainnet test (&sect;3.3). <span class="tag green">CONFIRMED</span></li>
+  <li><strong>Connector: <code>@hashgraph/hedera-wallet-connect</code> (HIP-820)</strong> — latest 2.1.x line in 2026. HIP-820 methods: <code>hedera_signAndExecuteTransaction</code> (base64 transactionList + signerAccountId; wallet signs <em>and</em> submits), <code>hedera_signTransaction</code> (sign-only), <code>hedera_executeTransaction</code> (relay pre-signed). The validated signing flow uses sign-only per transaction + relay (&sect;6.4). <span class="tag green">CONFIRMED</span></li>
+  <li><strong>The blokk fork already qualifies.</strong> <code>blokk-studio/HLiquity</code> runs <code>@hashgraph/hedera-wallet-connect ^1.4.2</code> + <code>@hashgraph/sdk 2.72.0</code> (&ge;2.64 required — satisfied) and builds a native <code>ContractExecuteTransaction</code> per call today. <strong>The batch migration is a wrapper change, not a stack change.</strong> <span class="tag green">CONFIRMED</span> <span class="small">(evaluating the 2.1.x connector line: &sect;08 open questions)</span></li>
+  <li><strong>What remains unverified:</strong> how HashPack renders the inner details inside each signing prompt (no public screenshots/descriptions; the mainnet test observed <em>three prompts</em> but did not settle the rendering question), and the single-prompt <code>hedera_signAndExecuteTransaction</code> path for a batch containing a contract call. Both are test-plan items (&sect;6.7), not assumptions. <span class="tag red">UNVERIFIED</span> <span class="small">(the assembled hedera-wallet-connect + BatchTransaction flow itself is now community-validated — &sect;3.3)</span></li>
+</ul>
+
+<h3>6.2&nbsp;&nbsp;Architecture: BatchTxBuilder around the existing builders</h3>
+<p>Keep every existing <code>ContractExecuteTransaction</code> builder untouched. Add one <code>BatchTxBuilder</code> that wraps a flow: build approve inner (native, exact amount, correct spender) &rarr; take the flow&rsquo;s existing contract-execute builder as the final inner &rarr; set explicit inner transactionIds (<code>TransactionId.generate(userAccount)</code>) &rarr; set the user&rsquo;s public key as batchKey on every inner &rarr; freeze for the wallet signer (no SDK operator client exists in the frontend — the wallet is the signer). This no-operator freeze + wallet-signing pattern was assembled for the previous community edition and is <strong>now validated on mainnet</strong> via connector 1.5.1 (&sect;3.3) — keep it behind the &sect;6.7 regression tests on every connector bump. Batch assembly and the one-contract-op-last invariant are enforced in one place, so the 7 flows cannot drift out of compliance. Reference TypeScript (BatchTxBuilder, the 7 flow builders, the React hook, and the HashPack version gate) is published alongside this document in the repository under <code>code/frontend/</code>.</p>
+
+<h3>6.3&nbsp;&nbsp;Flow &rarr; batch map (the frontend contract)</h3>
+<table class="sm">
+  <thead><tr><th>Flow</th><th>Batch contents</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>openTrove</td><td><strong>NO BATCH</strong> — single ContractExecute, <code>setPayableAmount(HBAR)</code></td><td>no allowance involved</td></tr>
+    <tr><td>addColl / withdrawColl / withdrawHCHF</td><td><strong>NO BATCH</strong></td><td>no allowance</td></tr>
+    <tr><td>redeemCollateral</td><td>[Approve HCHF&rarr;wrapper <span class="id">0.0.6070122</span> exact] + [ContractExecute redeemCollateral]</td><td><strong>the incident flow</strong>; hints via HintHelpers <span class="id">0.0.6070047</span>; approve the <strong>truncated</strong> amount or abort (&sect;05 step 4d)</td></tr>
+    <tr><td>provideToSP</td><td>[Approve HCHF&rarr;wrapper exact] + [provideToSP]</td><td></td></tr>
+    <tr><td>repayHCHF</td><td>[Approve exact] + [repayHCHF]</td><td></td></tr>
+    <tr><td>closeTrove</td><td>[Approve exact <strong>net debt = debt &minus; 20 HCHF</strong>] + [closeTrove]</td><td>GasPool supplies the 20 HCHF compensation (&sect;2.1) — approving the full debt leaves 20 HCHF sweepable</td></tr>
+    <tr><td>adjustTrove (repay or withdraw coll)</td><td>[Approve exact] + [adjustTrove] (+ payable if adding coll)</td><td>allowance only on the repay side</td></tr>
+    <tr><td>stake HLQT</td><td>[Approve HLQT&rarr;wrapper <span class="id">0.0.6070127</span> exact] + [stake]</td><td></td></tr>
+    <tr><td>stake LP</td><td>[Approve LP&rarr;SaucerSwapPool <span class="id">0.0.6070133</span> exact] + [stake]</td><td></td></tr>
+    <tr><td>unstake / withdraw / claims</td><td><strong>NO BATCH</strong></td><td>no allowance; standalone calls keep working after March 2027</td></tr>
+    <tr><td>first-time token use</td><td>[TokenAssociate(HCHF/HLQT/LP)] as native inner <em>before</em> the approve</td><td>association is not a contract op</td></tr>
+  </tbody>
+</table>
+
+<h3>6.4&nbsp;&nbsp;Signing model — validated pattern, plus the #694 version caveat</h3>
+<div class="proven">
+<strong>Validated on mainnet (&sect;3.3): per-transaction signing, three prompts.</strong> The dapp builds and freezes the batch without an operator, then the wallet signs <strong>each inner transaction individually and the outer batch separately — three signing prompts</strong> — using the HIP-820 sign method of hedera-wallet-connect 1.5.1; the dapp then relays the signed bytes with <code>hedera_executeTransaction</code>. This validates the no-operator freeze + wallet-signing pattern of &sect;6.2 end-to-end, with HashPack &ge;14.4.0 as the signing wallet. <span class="tag green">CONFIRMED</span> (community-validated, connector 1.5.1)
+</div>
+<div class="callout warn">
+<strong>Version-dependent caveat — hedera-wallet-connect issue #694.</strong> On some connector versions, <code>DAppSigner.signTransaction</code> rebuilds the <code>ContractExecute</code> body and returns a signature over the rebuilt bytes, not the original — which breaks naive sign-then-submit for a batch containing a contract call. The validated 1.5.1 per-transaction path signs the original bytes and is <strong>not</strong> affected. Present #694 as a re-test trigger on connector bumps — not as a blanket mandate against signing-and-relaying, and not as a reason to prefer the unvalidated single-prompt path. <span class="tag green">CONFIRMED</span> (issue open) / <span class="tag amber">INFERENCE</span> (scope by version)</div>
+<p><strong>Separate path, still unvalidated:</strong> single-prompt <code>hedera_signAndExecuteTransaction</code> (wallet signs and submits in one prompt) for a batch containing a contract call. No community test has validated it; keep it behind a testnet gate until scenario T3/T2-style evidence exists. Wire format for both paths: base64 <code>transactionList</code> + <code>signerAccountId</code>. After relay/submission, poll the mirror node for the batch id and inner statuses (parent <code>ATOMICBATCH</code>, inners linked by <code>parent_consensus_timestamp</code>/<code>nonce</code>) and only then resolve the UI promise — the wallet&rsquo;s return is the submission, not finality. <span class="tag red">UNVERIFIED</span> (single-prompt path) / <span class="tag green">CONFIRMED</span> (wire format; mirror-node model)</p>
+
+<h3>6.5&nbsp;&nbsp;UX requirements</h3>
+<ul>
+  <li><strong>Anticipate three signing prompts — and explain them before the wallet opens.</strong> The validated wallet flow (&sect;6.4) presents one prompt per inner transaction plus one for the outer batch (inner 1, inner 2, outer). A user expecting a single prompt will suspect a bug or an attack: the UI must say three prompts are coming and show a plain-language line for each inner (approve X HCHF to wrapper <span class="id">0.0.6070122</span>; redeem X HCHF for collateral). What HashPack renders <em>inside</em> each prompt is <span class="tag red">UNVERIFIED</span> — until scenario T2 lands, treat wallet rendering as unknown and make the dapp-side preview authoritative.</li>
+  <li><strong>Exact-amount display, always.</strong> Show the precise approve amount in HCHF/HLQT/LP units; never &ldquo;unlimited&rdquo;, never rounded. For closeTrove the approve amount is <strong>net debt (debt &minus; 20 HCHF)</strong>, not the displayed full debt (&sect;2.1). Exact amounts make residue zero by construction for the <strong>fixed-amount flows</strong> (provideToSP, repayHCHF, stake) — redemption is not fixed-amount: hints can truncate the consumed amount (&sect;05 step 4d), so approve the truncated amount and check the allowance immediately after; zero residue is not absolutely guaranteed for large redemptions on the immutable contracts.</li>
+  <li><strong>Residue allowance check + auto-zero.</strong> Post-execution, query <code>/accounts/{user}/allowances/tokens</code>; residue must be 0. If any residue is found (truncated redemption, non-atomic fallback, partial failure), surface a one-click revoke and block further batched operations until cleared. For redemption this check is mandatory, not optional — it is the only way to catch truncation residue.</li>
+  <li><strong>HashPack version gate.</strong> Detect &lt; 14.4.0 before connecting and show an upgrade path; do not silently degrade.</li>
+  <li><strong>Graceful fallback = warn-and-proceed non-atomic.</strong> For wallets without batch support: explicit warning that the 7-second exposed window returns, a recommendation to use the &sect;05 CLI instead, and — if the user proceeds — a mandatory post-tx revoke prompt. Fallback must never be silent.</li>
+  <li><strong>Honest fee estimate.</strong> Show max fee covering the batch fee + each inner&rsquo;s full fee, and state that inner fees are charged even if the batch rolls back (&sect;4.2).</li>
+</ul>
+
+<h3>6.6&nbsp;&nbsp;Security checklist</h3>
+<ul>
+  <li>Exact-amount approvals only; no unlimited approvals anywhere in the fork (including legacy non-batched paths).</li>
+  <li><strong>closeTrove approvals are exactly net debt (debt &minus; 20 HCHF), never the full debt</strong> — approving the full debt leaves a standing 20 HCHF allowance to the wrapper, sweepable by the same mechanism this guide closes (&sect;2.1). Unit-test the builder on this: approve amount must equal displayed debt minus 20 HCHF (GasPool compensation).</li>
+  <li>batchKey is the user&rsquo;s own public key from the wallet session; the frontend never sees, holds, or transmits a private key.</li>
+  <li>All contract/token ids from the 2026-10-05 fingerprinted set (&sect;05 step 3) — never from repo configs; ship a verified address manifest with the frontend.</li>
+  <li>Canonical HLQT HTS <span class="id">0.0.6070128</span> only — counterfeit-HLQT confusion is an active risk (&sect;08); verify wrapper <span class="id">0.0.6070127</span> is the spender before building.</li>
+  <li>Enforce the invariant in code: exactly one contract op, last position; unit-test the builder against <code>INVALID_TRANSACTION_BODY</code> shapes.</li>
+  <li>Redemption path decodes and uses the third <code>getRedemptionHints</code> return (<code>truncatedHCHFAmount</code>): approve and call with the truncated amount, or abort — never approve more than the call consumes (&sect;05 step 4d).</li>
+  <li>Log batch id + inner ids for every operation (audit + incident replay); mirror-node residue check runs before showing success.</li>
+  <li>Pinned dependency versions; WalletConnect project id locked to the deployer&rsquo;s; supply-chain review when bumping the connector to 2.1.x.</li>
+  <li>Testnet sign-off before any mainnet enablement; mainnet pilot with small amounts first (&sect;07).</li>
+</ul>
+
+<h3>6.7&nbsp;&nbsp;HashPack test plan (6 scenarios)</h3>
+<table class="sm">
+  <thead><tr><th class="r">#</th><th>Scenario</th><th>Procedure</th><th>Pass criteria</th></tr></thead>
+  <tbody>
+    <tr><td class="r">T1</td><td>Version gate</td><td>Connect with HashPack 14.3.x, then with &ge;14.4.0</td><td>14.3.x: blocked with explicit upgrade message, no silent fallback. &ge;14.4.0: proceeds.</td></tr>
+    <tr><td class="r">T2</td><td>Inner rendering at signing <span class="tag amber">PARTIALLY RESOLVED</span></td><td>Mainnet validation (&sect;3.3) already observed <strong>three prompts</strong> (inner 1, inner 2, outer batch). On testnet, build a 2-inner batch (associate + approve, then approve + redeem) and capture what HashPack displays <em>inside</em> each prompt.</td><td>Record whether inner details are shown per prompt or summarized — the remaining UX unknown; dapp-side preview matches wallet content either way.</td></tr>
+    <tr><td class="r">T3</td><td>Happy path (testnet)</td><td>Batched redeemCollateral end-to-end via the <strong>validated per-transaction path</strong> (&sect;6.4: sign inner 1, inner 2, outer batch on hedera-wallet-connect 1.5.1; relay via <code>hedera_executeTransaction</code>), incl. hint queries and the step-4d truncation check.</td><td>Three prompts; relayed batch executes; both inners SUCCESS; mirror node shows ATOMICBATCH parent + 2 inners sharing it; consumed amount = approved amount; residue allowance = 0 (checked immediately after commit).</td></tr>
+    <tr><td class="r">T4</td><td>Atomic rollback</td><td>Batch a redeem that must revert (amount &gt; balance)</td><td>Whole batch rolls back, <code>INNER_TRANSACTION_FAILED</code>, residue allowance = 0, both inner fees charged — and the fee estimate shown pre-tx covered reality.</td></tr>
+    <tr><td class="r">T5</td><td>User rejection</td><td>Reject at the first of the three wallet prompts</td><td>Nothing submits; no allowance exists afterward; clean error state, retry offered.</td></tr>
+    <tr><td class="r">T6</td><td>Non-atomic fallback</td><td>Simulate a wallet without batch support</td><td>Warn-and-proceed with explicit 7-second-window warning + CLI recommendation; post-tx revoke prompt mandatory; success screen never appears without the residue check.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 07 ============================ -->
+<h2><span class="secno">07</span>Proposed community timeline — 20 weeks to the sunset</h2>
+
+<p>Week 1 begins 2026-10-05. This proposed community timeline treats &ldquo;March 2027, estimated&rdquo; as a hard stop, holds a user-exit completion buffer of <strong>2027-01-31</strong> (end of week 17), and keeps February 2027 free of any new dependency on contract-call inners. If the sunset slips, the buffer absorbs it; if it arrives early, only the router protects redemptions — and trove operations must already be finished, because a router cannot perform them for existing users (&sect;3.2). Nothing here is mandated — contributors adopt dates by picking up the work. <span class="tag amber">INFERENCE</span> (date handling) / <span class="tag blue">RECOMMENDATION</span> (plan)</p>
+
+<div class="gantt">
+  <div class="ghead">
+    <div>Track (week 1 = 2026-10-05)</div>
+    <div class="wks">
+      <span class="wk" style="left:0%">W1</span><span class="wk" style="left:9.09%">W3</span><span class="wk" style="left:18.18%">W5</span><span class="wk" style="left:27.27%">W7</span><span class="wk" style="left:36.36%">W9</span><span class="wk" style="left:45.45%">W11</span><span class="wk" style="left:54.55%">W13</span><span class="wk" style="left:63.64%">W15</span><span class="wk" style="left:72.73%">W17</span><span class="wk" style="left:81.82%">W19</span><span class="wk" style="left:90.91%">W21</span>
+      <span class="gline" style="left:77.27%"></span><span class="gmslbl gold" style="left:77.27%">2027-01-31 · batched exits complete</span>
+    </div>
+  </div>
+  <div class="grow"><div class="lbl"><strong>Batch exit track</strong> — testnet validation (CLI + wallet)</div><div class="gtrack"><div class="gbar" style="left:0%;width:9.09%"></div></div></div>
+  <div class="grow"><div class="lbl">Frontend build — BatchTxBuilder + 7 flows</div><div class="gtrack"><div class="gbar" style="left:9.09%;width:18.18%"></div></div></div>
+  <div class="grow"><div class="lbl">Community beta — testnet, then small mainnet pilot</div><div class="gtrack"><div class="gbar" style="left:27.27%;width:9.09%"></div></div></div>
+  <div class="grow"><div class="lbl">Mainnet rollout + user comms (incl. revoke campaign)</div><div class="gtrack"><div class="gbar" style="left:36.36%;width:36.36%"></div></div></div>
+  <div class="grow"><div class="lbl">Buffer — mop-up, exceptions, non-HashPack users</div><div class="gtrack"><div class="gbar" style="left:72.73%;width:18.18%"></div></div></div>
+  <div class="grow"><div class="lbl"><strong>Router track (parallel)</strong> — redemption-only router: build &rarr; audit &rarr; deploy</div><div class="gtrack"><div class="gbar gold" style="left:9.09%;width:63.64%"></div></div></div>
+  <div class="grow"><div class="lbl">V2 decision &amp; design — community migration analysis (parallel)</div><div class="gtrack"><div class="gbar dashed" style="left:18.18%;width:72.73%"></div></div></div>
+  <div class="grow"><div class="lbl"><strong>Milestones</strong></div><div class="gtrack" style="margin-top:10px"><span class="gms gold" style="left:76.5%"></span><span class="gms red" style="left:96%"></span><span class="gmslbl" style="left:97.5%;transform:translateX(-100%)">≈ Mar 2027 (est.) · contract-call inners removed — HARD STOP</span></div></div>
+  <div class="gfoot">
+    <span><span class="sw green"></span>batch-exit track</span>
+    <span><span class="sw gold"></span>router track (redemption only)</span>
+    <span><span class="sw hatch"></span>v2 track (dashed)</span>
+    <span><span class="sw dia"></span>2027-01-31 buffer milestone</span>
+    <span><span class="sw redia"></span>hard stop (estimated)</span>
+  </div>
+</div>
+
+<p class="small">Dependency rules that make this plan safe: (1) weeks 1–8 validate everything on testnet — no mainnet enablement before scenario T1–T6 pass; (2) by <strong>2027-01-31</strong> every user who needs a batched exit has completed it — including every closeTrove at the corrected net-debt approval amount (&sect;2.1); (3) from February 2027 nothing new depends on contract-call inners — the buffer exists precisely because &ldquo;March 2027&rdquo; is an estimate, not a committed date; (4) the redemption-only router goes live inside the batch window (weeks 15–16) so redemptions cross from bridge to durable path before the stop; trove operations cannot be routed (&sect;3.2) and must complete inside the batch window or await migration/v2; (5) user comms run continuously through rollout — allowance-revocation guidance stays live throughout (member-facing summary in &sect;3.4).</p>
+
+<!-- ============================ 08 ============================ -->
+<h2><span class="secno">08</span>Risks &amp; open questions</h2>
+
+<table class="sm">
+  <thead><tr><th>Risk / open question</th><th>Detail</th><th>Mitigation / who picks it up</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sunset slips — or arrives early</strong></td><td>&ldquo;March 2027, estimated&rdquo; is not a committed date. Earlier removal would cut the bridge short with users still exposed; a later one changes nothing about the router&rsquo;s value. <span class="tag amber">INFERENCE</span></td><td>2027-01-31 completion buffer; router live by weeks 15–16; watch Hedera comms weekly (frontend contributors).</td></tr>
+    <tr><td><strong>HashPack inner-rendering UX partially resolved</strong></td><td>The community mainnet test observed <strong>three signing prompts</strong> (&sect;3.3), but no public description exists of whether HashPack shows each inner&rsquo;s details or a summary inside those prompts. <span class="tag red">UNVERIFIED</span> (rendering) / <span class="tag green">CONFIRMED</span> (prompt count)</td><td>Scenario T2 in &sect;6.7; dapp-side preview authoritative until resolved.</td></tr>
+    <tr><td><strong>Wallet batch flow — validated, but only on one connector line</strong></td><td>The assembled no-operator freeze + wallet-sign flow has no public example, but a community contributor reproduced it on mainnet (&sect;3.3) with hedera-wallet-connect 1.5.1: three prompts, relay via <code>hedera_executeTransaction</code>. The same pattern on other connector versions is not yet evidenced. <span class="tag green">CONFIRMED</span> (community-validated, 1.5.1)</td><td>Keep &sect;6.7 T2–T3 as the regression gate; re-run on every connector version bump before mainnet use.</td></tr>
+    <tr><td><strong>Fee-on-rollback economics</strong></td><td>Each inner pays full fees even when the batch rolls back; a failed redeem costs real fees and leaves the user unredeemed. <span class="tag green">CONFIRMED</span></td><td>Read-only pre-flight (price/hints/balance) before building; honest max-fee UI; gas table calibrated on testnet.</td></tr>
+    <tr><td><strong>Bot adapts / fallback-path exposure</strong></td><td>Batching closes the window only for batched flows on the upgraded frontend. Non-atomic fallbacks, other frontends, and other dapps granting wrapper allowances remain sweepable; the bot is still active (~30–60&nbsp;s cycle — community monitoring). <span class="tag green">CONFIRMED</span> (bot) / <span class="tag amber">INFERENCE</span> (adaptation)</td><td>Warned fallback + revoke prompt; keep monitoring and flagging (community IOC list + mirror-node watcher rules).</td></tr>
+    <tr><td><strong>Counterfeit HLQT</strong></td><td>Token-confusion risk when users approve HLQT: only the canonical HTS <span class="id">0.0.6070128</span> via wrapper <span class="id">0.0.6070127</span> is legitimate. <span class="tag green">CONFIRMED</span> (existence of counterfeits confirmed in the community analysis)</td><td>Address manifest + id pinning in the builder; UI shows verified ids.</td></tr>
+    <tr><td><strong>Repo/mainnet config mismatch</strong></td><td>Live mainnet deployment was never committed; committed <code>hedera.json</code> is testnet-era and mislabeled. Building from repo configs targets the wrong contracts. <span class="tag green">CONFIRMED</span></td><td>Fingerprinted set only (&sect;05 step 3); publish the verified manifest; fix or clearly tombstone repo configs. <span class="tag blue">RECOMMENDATION</span></td></tr>
+    <tr><td><strong>Router scope (narrowed, community-2.0)</strong></td><td>Durable router = <strong>permissionless redemption only</strong>: closeTrove/adjustTrove act on <code>msg.sender</code>, so a router would be the caller, not the trove owner — it cannot perform those operations for existing users. SP exits, unstaking, claims, and claimCollateral need <strong>no router</strong> (no allowance involved; standalone calls keep working after March 2027). Existing-user trove operations = batches until cutoff / migration / v2. <span class="tag blue">RECOMMENDATION</span></td><td>Scope the router to redemption (&sect;3.2); keep trove-exit completion inside the 2027-01-31 buffer (&sect;07); migration/v2 track covers the rest.</td></tr>
+    <tr><td><strong>Connector version</strong></td><td>Fork pins hedera-wallet-connect ^1.4.2; the validated signing path ran on 1.5.1 (satisfies ^1.4.2); latest is 2.1.x. <span class="tag green">CONFIRMED</span></td><td>Decide upgrade vs. pin during weeks 3–6; either way: no hashconnect, and re-run &sect;6.7 T2–T3 on the new version before mainnet.</td></tr>
+    <tr><td><strong>#694 as a version caveat</strong></td><td><code>DAppSigner.signTransaction</code> rebuilds the <code>ContractExecute</code> body on some connector versions, breaking naive sign-then-submit. The validated 1.5.1 per-transaction path is unaffected; the caveat binds on version bumps, not today. <span class="tag green">CONFIRMED</span> (issue open) / <span class="tag amber">INFERENCE</span> (version scoping)</td><td>Re-test the &sect;6.4 signing path at each connector bump; until a version fails, the validated per-transaction pattern stands.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================ 09 ============================ -->
+<h2><span class="secno">09</span>Evidence &amp; verification appendix</h2>
+
+<h3>9.1&nbsp;&nbsp;Primary sources (all API claims verified against these in this research round)</h3>
+<table class="sm">
+  <thead><tr><th>Claim area</th><th>Source</th><th>Path / URL</th></tr></thead>
+  <tbody>
+    <tr><td>HIP-551 spec (Final; release v0.66.0; mainnet re-enabled 2025-10-09)</td><td>Hedera Improvement Proposal</td><td>https://hips.hedera.com/hip/hip-551</td></tr>
+    <tr><td>One-contract-op-last rule; forbidden inner types; fees-on-rollback; batchKey signing</td><td>Hedera documentation &ldquo;Create a Batch Transaction&rdquo; + consensus-node source (<code>AtomicBatchHandler.pureChecks</code>, hiero-ledger/hedera-consensus-node)</td><td>docs.hedera.com &middot; github.com/hiero-ledger/hedera-consensus-node</td></tr>
+    <tr><td>JS SDK BatchTransaction API (addInnerTransaction, batchify, property getters; &ge;2.64.0; also <code>@hiero-ledger/sdk</code> 2.89.x)</td><td>SDK JSDoc + repo examples</td><td>npm <code>@hashgraph/sdk</code> &middot; SDK repo <code>examples/batch-tx.js</code> (batchify + multi-batchKey patterns)</td></tr>
+    <tr><td>Complete official batch example</td><td>Hedera tutorial repo</td><td>github.com/hedera-dev/tutorial-js-hip-551-batch-transaction (<code>mintFractionalAsset.js</code>)</td></tr>
+    <tr><td>March 2027 deprecation (quotes in &sect;3.1)</td><td>Official Hedera blog, 2026-09-22 — &ldquo;Atomic Batch Transactions No Longer Support Smart Contract Calls&rdquo;</td><td>hedera.com/blog (2026-09-22)</td></tr>
+    <tr><td>2023 precedent (emergency shutoff, v0.34.5, HSCS Security Model v2)</td><td>Official Hedera post-mortem, 2023-03-11</td><td>https://hedera.com/blog/analysis-remediation-of-the-precompile-attack-on-the-hedera-network/</td></tr>
+    <tr><td>hashconnect deprecated / shut down; repo 404; HashPack 14.3.0 removed legacy protocol</td><td>npm registry + GitHub + HashPack patch notes</td><td>npm <code>hashconnect</code> (final 3.0.14, 2025-10-02) &middot; HashPack patch notes 14.3.0 (2026-06-24)</td></tr>
+    <tr><td>HashPack &ge;14.4.0 batch support; 14.4.1 dapp-auto-approval; auto-associate removal</td><td>HashPack patch notes</td><td>HashPack 14.4.0 (2026-07-17), 14.4.1</td></tr>
+    <tr><td>HIP-820 connector + methods; #694 bug</td><td><code>@hashgraph/hedera-wallet-connect</code> (2.1.x in 2026) + issue tracker</td><td>npm/github <code>@hashgraph/hedera-wallet-connect</code> &middot; issue #694</td></tr>
+    <tr><td>blokk fork stack (hedera-wallet-connect ^1.4.2 + sdk 2.72.0)</td><td>Repo inspection</td><td>github.com/blokk-studio/HLiquity &middot; github.com/SwisscoastAG/HLiquity</td></tr>
+    <tr><td>Reference implementation (CLI + frontend TypeScript)</td><td>Community reference code</td><td>published alongside this document in the repository under <code>code/</code> — github.com/SwisscoastAG/HLiquity</td></tr>
+    <tr><td>Mainnet contract set (fingerprinted 2026-10-05)</td><td>On-chain fingerprinting vs. both repos</td><td>ids as listed in &sect;2/&sect;5 of this document</td></tr>
+    <tr><td>Community mainnet validation of the batched redemption — reproduction facts, three signing prompts, zero residue (&sect;3.3)</td><td>Community contributor mainnet test (contributor unnamed)</td><td>the GitHub issue in github.com/SwisscoastAG/HLiquity</td></tr>
+    <tr><td>closeTrove net-debt burn and 8-decimal maxFeePercentage (community-2.0 corrections)</td><td>Repo-verified against the deployed contract source (BaseMath.sol DECIMAL_PRECISION = 1e8; BorrowerOperations.closeTrove GasPool compensation)</td><td>github.com/SwisscoastAG/HLiquity &middot; github.com/blokk-studio/HLiquity</td></tr>
+    <tr><td>Incident campaign figures (victims, waves, $ ledger, open allowances)</td><td>Community forensic analysis of mainnet data (methodology in &sect;2/appendix)</td><td>mirror-node REST + HashScan, endpoints in &sect;9.2</td></tr>
+  </tbody>
+</table>
+
+<h3>9.2&nbsp;&nbsp;Measurement endpoints</h3>
+<div class="endpoints">base: https://mainnet-public.mirrornode.hedera.com/api/v1   <span class="c"># testnet: https://testnet.mirrornode.hedera.com/api/v1</span>
+<span class="c"># batch verification: parent (type ATOMICBATCH) + inners (batch_key, parent_consensus_timestamp, nonce)</span>
+GET /transactions/{batchId}
+<span class="c"># per-owner allowance state — residue must be 0 after a committed batch</span>
+GET /accounts/{accountId}/allowances/tokens
+<span class="c"># reference incident tx (the 1,800 HCHF drain, 2026-09-29)</span>
+GET /transactions/0.0.995584-1790680920-326001014
+<span class="c"># same transaction, browser view</span>
+https://hashscan.io/mainnet/transaction/0.0.995584-1790680920-326001014</div>
+
+<h3>9.3&nbsp;&nbsp;Verification status of load-bearing claims</h3>
+<ul>
+  <li><span class="tag green">CONFIRMED</span> — HIP-551 semantics and limits; the one-contract-op-last rule; fee-on-rollback; batchKey signing model; the deprecation blog and its exact quotes; hashconnect deprecation; HashPack &ge;14.4.0 batch support; issue #694; blokk fork stack; mainnet contract set; all incident/$ figures from community forensic analysis of public mainnet data. <strong>Community-validated on mainnet (&sect;3.3):</strong> the assembled hedera-wallet-connect + BatchTransaction flow; the no-operator freeze + wallet-signing pattern; HashPack &ge;14.4.0 batch signing in practice via connector 1.5.1 (three signing prompts observed; signed bytes relayed via <code>hedera_executeTransaction</code>; exactly 100,000,000 units consumed; zero residue allowance).</li>
+  <li><span class="tag blue">RECOMMENDATION</span> — batch-every-flow policy; router design (permissionless-redemption scope — &sect;3.2/&sect;08); v2 endgame per the community migration analysis (summarized in &sect;3.2); UX, security, and test-plan specifications; timeline structure.</li>
+  <li><span class="tag amber">INFERENCE</span> — race-elimination claim (no window exists by construction; residual exposure limited to fallback paths, non-upgraded surfaces, and possible truncation residue on large redemptions — &sect;05 step 4d); treating &ldquo;March 2027, estimated&rdquo; as a hard planning date; bot-adaptation outlook.</li>
+  <li><span class="tag red">UNVERIFIED</span> — how HashPack renders the inner details inside each signing prompt; the single-prompt <code>hedera_signAndExecuteTransaction</code> path for a batch containing a contract call.</li>
+</ul>
+
+<h3>9.4&nbsp;&nbsp;Changelog</h3>
+<p><strong>community-2.0 (2026-10-05).</strong> Mainnet validation by a community contributor; corrections to closeTrove approval amount, maxFeePercentage decimals, redemption truncation, router scope, and signing patterns. One line per correction:</p>
+<ul>
+  <li><strong>Mainnet validation — PROVEN (&sect;3.3):</strong> a community contributor reproduced the batched redemption on mainnet — [CryptoApproveAllowance 1 HCHF] + [TroveManager.redeemCollateral] as the final inner under one parent AtomicBatch; the batch succeeded, exactly 100,000,000 units were consumed and burned, HBAR was returned, and the residue allowance was zero; the mirror record confirms ordering and shared parent. Evidence in the GitHub issue; the contributor remains unnamed unless they request attribution. Three signing prompts observed (inner 1, inner 2, outer batch).</li>
+  <li><strong>closeTrove approval amount (safety-critical, &sect;2.1/&sect;05/&sect;6.3/&sect;6.6):</strong> approve exactly net debt (debt &minus; 20 HCHF); the GasPool provides the 20 HCHF gas compensation. Approving the full debt leaves a 20 HCHF stealable allowance.</li>
+  <li><strong>maxFeePercentage decimals (&sect;05):</strong> corrected to the deployment&rsquo;s 8-decimal fixed point (BaseMath DECIMAL_PRECISION = 1e8): 100% = 1e8, 0.5% floor = 500_000.</li>
+  <li><strong>Redemption truncation (&sect;05 steps 4d–5, &sect;6.5):</strong> decode and use the third <code>getRedemptionHints</code> return (<code>truncatedHCHFAmount</code>) — approve and call with the truncated amount, or abort; never approve more than the call consumes. Stale hints or state changes can still cause partial consumption: check the allowance immediately after. No absolute zero-residue guarantee for large redemptions on the immutable contracts; the zero-residue-by-construction phrasing now applies to fixed-amount flows only (provideToSP, repayHCHF, stake).</li>
+  <li><strong>Router scope narrowed (&sect;3.2/&sect;07/&sect;08):</strong> durable router = permissionless redemption ONLY — closeTrove/adjustTrove act on <code>msg.sender</code> and cannot be routed for existing users; SP exits, unstaking, and claims need no router (standalone calls keep working after March 2027); existing-user trove operations = batches until cutoff / migration / v2.</li>
+  <li><strong>Signing patterns (&sect;6.4/&sect;6.5/&sect;6.7):</strong> per-transaction signing (three HashPack prompts via hedera-wallet-connect 1.5.1, relay via <code>hedera_executeTransaction</code>) validated on mainnet; the single-prompt <code>hedera_signAndExecuteTransaction</code> path remains unvalidated; issue #694 reframed as a version-dependent caveat, not a mandate.</li>
+  <li><strong>Test defaults labeled (&sect;05):</strong> fixed gas values and the zero-hints fallback are test defaults — calibrate on testnet, use live hints from HintHelpers, and cap maxIterations deliberately.</li>
+</ul>
+<p class="small">community-1.0 (2026-10-05): initial public community edition (successor to the internal engineering guide; referred to in this repository as the previous community edition). community-2.0 is the current edition; corrections always via GitHub issues.</p>
+
+<div class="callout stop">
+<strong>Disclaimer.</strong> This is an independent, community-produced engineering analysis based solely on public Hedera mainnet data (mirror-node REST API, HashScan), official Hedera sources (HIP-551, documentation, consensus-node source, the 2026-09-22 deprecation blog, the 2023 post-mortem), npm registry and wallet patch notes, and the cited public GitHub repositories. No entity operates the HLiquity protocol; this document was produced by community contributors from public mainnet data. It is not affiliated with, or endorsed by, Swisscoast AG, HashPack, Hedera, or any audited protocol. Address references describe on-chain accounts; they are not accusations against identified natural persons or legal entities. Not financial advice. Corrections via GitHub issues only.</div>
+
+<div class="docfoot">
+  <span>HLiquity Community Security Documentation — INC-2026-09-29 &middot; HLiquity Emergency Exit: Atomic Batch-Transaction Implementation Guide — Community Edition</span>
+  <span>Prepared 2026-10-05 &middot; Version community-2.0 &middot; Public — community security documentation &middot; Published in this repository under the repository&rsquo;s existing license</span>
+</div>
+
+</div>
+</main>
+</body>
+</html>
