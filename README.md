@@ -1,4 +1,11 @@
 # HLiquity: Decentralized Borrowing Protocol on Hedera
+> ⚠️ **Security notice (2026-10-05):** HLiquity wrapper contracts are being targeted by an
+> allowance-sweeping bot that drains HCHF/HLQT/LP within seconds of a token approval
+> (root cause: ungated inherited `transferFrom` on the token wrappers; the contracts are immutable).
+> **Do not make token approvals through any flow that submits the approval as a standalone transaction.**
+> Safe exits use atomic batch transactions (approval + operation in one):
+> [incident documentation & mainnet-validated exit tool](docs/security/incidents/2026-09-29-hchf-allowance-drain/README.md) ·
+> [SECURITY.md](SECURITY.md)
 
 [<img alt="DeFiSafety Badge" width="96px" align="right" src="images/defisafety-badge.png" />](https://www.defisafety.com/app/pqrs/376)
 
