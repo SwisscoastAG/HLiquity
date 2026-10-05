@@ -1,0 +1,23 @@
+{
+  "//": "Reference artifact for the batch-transaction exit guide - companion to the batch-transaction exit guide (community-2.3). Uses the frontend-equivalent JSON-RPC eth_call redemption preflight and the SDK batch APIs verified in guide sections 4 and 6.1.",
+  "name": "hliquity-batch-cli",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HIP-551 batch-transaction emergency-exit CLI for HLiquity on Hedera (incident-response reference code, the guide).",
+  "type": "commonjs",
+  "bin": {
+    "hliquity-batch": "./hliquity-batch.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "node --check config.js && node --check flows.js && node --check hliquity-batch.js && node --check flows.test.js",
+    "test": "node --test flows.test.js"
+  },
+  "dependencies": {
+    "@hashgraph/sdk": "^2.64.0",
+    "dotenv": "^16",
+    "ethers": "5.7.2"
+  }
+}
